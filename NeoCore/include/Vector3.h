@@ -26,8 +26,12 @@
 #ifndef __VECTOR3_H
 #define __VECTOR3_H
 
+#include "NeoCore.h"
+#include "Vector2.h"
+
 namespace Neo
 {
+class Vector4;
 class NEO_CORE_EXPORT Vector3
 {
 public:
@@ -62,19 +66,14 @@ public:
 		z(*(values+2))
 	{}
 
-	Vector3(const Vector3 & vec):	
+	Vector3(const Vector3 & vec):
 		x(vec.x), 
 		y(vec.y), 
 		z(vec.z)
 	{}
 
 	Vector3(const Vector4 & vec);
-	
-	Vector3(const Vector2 & vec):
-		x(vec.x), 
-		y(vec.y), 
-		z(0)
-	{}
+	Vector3(const Vector2 & vec);
 
 public:
 

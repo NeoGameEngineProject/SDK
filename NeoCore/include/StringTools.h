@@ -26,6 +26,8 @@
 #ifndef __STRING_TOOLS_H
 #define __STRING_TOOLS_H
 
+#include "NeoCore.h"
+
 NEO_CORE_EXPORT void getLocalFilename(char * out, const char * workingDirectory, const char * filename);
 NEO_CORE_EXPORT void getGlobalFilename(char * out, const char * workingDirectory, const char * filename);
 NEO_CORE_EXPORT void getRepertory(char * out, const char * filename);

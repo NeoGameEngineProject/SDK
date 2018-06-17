@@ -26,8 +26,9 @@
 #ifndef __MATHS_H
 #define __MATHS_H
 
-#include <math.h>
+#include "NeoCore.h"
 
+#include <math.h>
 
 // PI
 #ifndef M_PI
@@ -86,7 +87,6 @@ class Vector4;
 class Color;
 class Matrix4x4;
 class Quaternion;
-
 
 // functions
 NEO_CORE_EXPORT void sortFloatList(int indexList[], float floatList[], int start, int end);

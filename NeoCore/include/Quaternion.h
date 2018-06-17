@@ -26,8 +26,11 @@
 #ifndef __QUATERNION_H
 #define __QUATERNION_H
 
+#include "NeoCore.h"
+
 namespace Neo
 {
+class Vector3;
 class NEO_CORE_EXPORT Quaternion
 {
 public:

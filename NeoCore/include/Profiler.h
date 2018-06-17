@@ -25,15 +25,13 @@
 #ifndef NEO_PROFILER_H
 #define NEO_PROFILER_H
 
+#include "NeoCore.h"
+#include "NeoString.h"
+
 #include <string>
 #include <vector>
 #include <map>
 #include <chrono>
-
-#ifdef _MSC_VER
-#include <intrin.h>
-#pragma intrinsic(__rdtsc)
-#endif
 
 namespace Neo
 {
@@ -86,21 +84,6 @@ public:
 	unsigned long getTicks()
 	{
 		using namespace std::chrono;
-		/*
-#if !defined(_MSC_VER) && (defined(__amd64__) || defined(_M_AMD64))
-		unsigned long tick;
-		asm volatile ( "rdtsc" : "=A"(tick) );
-		return tick;
-#elif !defined(_MSC_VER) && (defined(i386) || defined(_M_IX86))
-		unsigned long tick;
-		asm volatile ("rdtsc" : "=A"(tick));
-		return tick;
-#elif defined(_MSC_VER)
-		return __rdtsc();
-#else
-		return 0;
-#endif*/
-
 		return duration_cast<nanoseconds>(high_resolution_clock::now().time_since_epoch()).count();
 	}
 

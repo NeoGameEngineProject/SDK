@@ -26,6 +26,10 @@
 #ifndef __MATRIX4X4_H
 #define __MATRIX4X4_H
 
+#include "NeoCore.h"
+#include "Vector3.h"
+#include "Vector4.h"
+
 namespace Neo
 {
 class NEO_CORE_EXPORT Matrix4x4

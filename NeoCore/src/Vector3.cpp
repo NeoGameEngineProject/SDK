@@ -22,16 +22,19 @@
 //
 //========================================================================
 
-
-#include <NeoCore.h>
-
+#include "Maths.h"
 using namespace Neo;
 
-Vector3::Vector3(const Vector4 & vec):	
+Vector3::Vector3(const Vector4 & vec):
 x(vec.x), 
 y(vec.y), 
 z(vec.z)
 {}
+
+Vector3::Vector3(const Vector2 & vec):
+		x(vec.x), 
+		y(vec.y), 
+		z(0) {}
 
 void Vector3::normalize()
 {

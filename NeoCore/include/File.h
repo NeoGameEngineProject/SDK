@@ -26,6 +26,10 @@
 #ifndef __FILE_H
 #define __FILE_H
 
+#include "NeoCore.h"
+#include <cstddef>
+#include <cstdarg>
+
 namespace Neo
 {
 /// File I/O class. This interface can be used manually, but will usually be

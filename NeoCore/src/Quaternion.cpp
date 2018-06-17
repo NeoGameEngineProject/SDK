@@ -22,8 +22,10 @@
 //
 //========================================================================
 
+#include <cmath>
 
-#include <NeoCore.h>
+#include "Maths.h"
+#include "Quaternion.h"
 
 using namespace Neo;
 

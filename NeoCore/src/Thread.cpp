@@ -22,7 +22,7 @@
 //
 //========================================================================
 
-#include <NeoCore.h>
+#include "Thread.h"
 
 using namespace Neo;
 

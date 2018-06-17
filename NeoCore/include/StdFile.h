@@ -26,6 +26,11 @@
 #ifndef __STD_FILE_H
 #define __STD_FILE_H
 
+#include "NeoCore.h"
+#include "File.h"
+
+#include <cstdio>
+
 namespace Neo
 {
 /* Base File class

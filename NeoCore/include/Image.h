@@ -27,8 +27,13 @@
 #ifndef __IMAGE_H
 #define __IMAGE_H
 
+#include "NeoCore.h"
+
 namespace Neo
 {
+
+class Vector2;
+
 /**
  * @brief Implements an image in memory with basic transform capabilities.
  *

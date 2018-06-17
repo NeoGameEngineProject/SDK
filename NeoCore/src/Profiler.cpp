@@ -22,7 +22,7 @@
 //
 //========================================================================
 
-#include <NeoCore.h>
+#include "Profiler.h"
 #include <sstream>
 
 Neo::Profiler::Profiler()

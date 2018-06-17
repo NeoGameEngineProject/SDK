@@ -27,6 +27,9 @@
 #ifndef _FILE_TOOLS_H
 #define _FILE_TOOLS_H
 
+#include <vector>
+#include <string>
+
 /// Collection of file manipulation tools, including File I/O designed to 
 /// directly replace stdio, using MFile* in place of FILE*.
 
@@ -39,7 +42,7 @@ NEO_CORE_EXPORT bool clearDirectory(const char * filename);
 NEO_CORE_EXPORT bool removeDirectory(const char * filename);
 NEO_CORE_EXPORT bool isFileExist(const char * filename);
 NEO_CORE_EXPORT bool copyDirectory(const char * inFilename, const char * outFilename);
-NEO_CORE_EXPORT bool readDirectory(const char * filename, vector<string>& files, bool hiddenFiles = false, bool recursive = false);
+NEO_CORE_EXPORT bool readDirectory(const char * filename, std::vector<std::string>& files, bool hiddenFiles = false, bool recursive = false);
 NEO_CORE_EXPORT void copyDirFiles(const char* src, const char* dest, const char* filter);
 
 namespace Neo

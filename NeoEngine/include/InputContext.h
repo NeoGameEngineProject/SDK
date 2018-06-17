@@ -25,6 +25,9 @@
 #ifndef __INPUT_CONTEXT
 #define __INPUT_CONTEXT
 
+#include "NeoCore.h"
+#include "Maths.h"
+
 #include <memory>
 #include <vector>
 

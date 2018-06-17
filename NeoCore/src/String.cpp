@@ -22,8 +22,8 @@
 //
 //========================================================================
 
-
-#include <NeoCore.h>
+#include "NeoString.h"
+#include "Utils.h"
 
 using namespace Neo;
 

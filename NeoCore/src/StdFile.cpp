@@ -22,14 +22,13 @@
 //
 //========================================================================
 
-
-#include <NeoCore.h>
-#include <stdarg.h>
+#include "StdFile.h"
+#include <cstdarg>
+#include <cstdio>
 
 using namespace Neo;
 
 const void frewind(FILE * file){ rewind(file); }
-
 
 StdFile::StdFile(): m_file(0) {}
 StdFile::StdFile(const char * path, const char * mode) : m_file(0)

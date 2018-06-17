@@ -26,6 +26,9 @@
 #ifndef __DATA_MANAGER_H
 #define __DATA_MANAGER_H
 
+#include "NeoString.h"
+#include <vector>
+
 namespace Neo
 {
 // Data ref
@@ -74,7 +77,7 @@ class NEO_CORE_EXPORT DataManager
 private:
 
 	// refs
-	vector <DataRef *> m_refs;
+	std::vector <DataRef *> m_refs;
 
 public:
 

@@ -23,12 +23,17 @@
 //========================================================================
 // jan 2012, FILE wrapper by Philipp Geyer <http://nistur.com>
 
+#include "File.h"
+#include "StdFile.h"
+#include "FileTools.h"
+#include "StringTools.h"
 
 #include <dirent.h>
-#include <NeoCore.h>
 #include <sys/stat.h>
 #include <stdarg.h>
 #include <algorithm>
+#include <cstdio>
+#include <cstring>
 
 #ifdef WIN32
     #ifdef __CYGWIN__
@@ -45,6 +50,8 @@
 #endif
 
 using namespace Neo;
+using namespace std;
+
 static FileOpenHook * s_fileOpenHook = 0;
 
 bool copyFile(const char * inFilename, const char * outFilename)

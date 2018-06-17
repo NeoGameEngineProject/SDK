@@ -24,7 +24,8 @@
 
 
 #include <memory.h>
-#include <NeoCore.h>
+#include "Matrix4x4.h"
+#include "Maths.h"
 
 using namespace Neo;
 

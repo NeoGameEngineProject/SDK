@@ -22,8 +22,8 @@
 //
 //========================================================================
 
-
-#include <NeoCore.h>
+#include "Maths.h"
+#include "Vector2.h"
 
 using namespace Neo;
 
@@ -87,4 +87,16 @@ Vector2 Vector2::getNormalized() const
 	result.normalize();
 
 	return result;
+}
+
+float Vector2::getAngleBetween(const Vector2 & vec)
+{
+	float angle = (float)((atan2(y, x) - atan2(vec.y, vec.x)) * RAD_TO_DEG);
+	
+	if(angle > 180)
+		angle -= 360;
+	if(angle < -180)
+		angle += 360;
+	
+	return angle;
 }

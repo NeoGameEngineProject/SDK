@@ -26,6 +26,8 @@
 #ifndef __STRING_H
 #define __STRING_H
 
+#include "NeoCore.h"
+
 namespace Neo
 {
 

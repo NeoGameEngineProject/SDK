@@ -22,8 +22,7 @@
 //
 //========================================================================
 
-
-#include <NeoCore.h>
+#include "Maths.h"
 
 using namespace Neo;
 
@@ -35,6 +34,12 @@ Vector4::Vector4(const Color & color)
     z = color.b * div;
     w = color.a * div;
 }
+
+Vector4::Vector4(const Vector3 & vec):
+		x(vec.x),
+		y(vec.y),
+		z(vec.z),
+		w(1.0f) {}
 
 Vector4::operator Vector3()
 {

@@ -44,42 +44,22 @@
 	#define NEO_CORE_EXPORT
 #endif
 
-// Some OpenMP stuff
-#ifdef ENABLE_OPENMP
-#include <omp.h>
-#define NEO_OMP(x) _Pragma("omp x")
-#else
-#define NEO_OMP(p)
-#define omp_get_max_threads() 1
-#define omp_get_thread_num() 0
-#endif
-
 namespace Neo
 {
-class Image;
-class Sound;
-}
 
-#include <Utils.h>
-#include <NeoString.h>
-#include <File.h>
-#include <StdFile.h>
-#include <FileTools.h>
-#include <Maths.h>
-#include <SystemContext.h>
-#include <InputContext.h>
-#include <InputMapping.h>
-#include <RenderingContext.h>
-#include <SoundContext.h>
-#include <PhysicsContext.h>
-#include <ScriptContext.h>
-#include <Image.h>
-#include <Sound.h>
-#include <StringTools.h>
-#include <DataManager.h>
-#include <DataLoader.h>
-#include <Thread.h>
-#include <Profiler.h>
-#include <Exceptions.h>
+enum VAR_TYPES
+{
+	VAR_BOOL = 0,
+	VAR_BYTE,
+	VAR_UBYTE,
+	VAR_SHORT,
+	VAR_USHORT,
+	VAR_INT,
+	VAR_UINT,
+	VAR_FLOAT,
+	VAR_DOUBLE
+};
+
+}
 
 #endif

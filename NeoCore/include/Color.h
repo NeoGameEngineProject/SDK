@@ -26,6 +26,9 @@
 #ifndef __COLOR_H
 #define __COLOR_H
 
+#include "NeoCore.h"
+#include "Maths.h"
+
 namespace Neo
 {
 class NEO_CORE_EXPORT Color

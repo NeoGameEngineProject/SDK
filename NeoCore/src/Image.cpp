@@ -23,9 +23,14 @@
 //
 //========================================================================
 
-#include <NeoCore.h>
+#include "NeoCore.h"
+#include "Image.h"
+#include "Utils.h"
+#include "Maths.h"
+
 #include <cstdlib>
 #include <algorithm>
+#include <cstring>
 
 using namespace Neo;
 
@@ -212,13 +217,12 @@ void Image::scale(unsigned int width, unsigned int height)
 	//memset(m_data, 0, m_size*m_pixelSize);
 
 	// Allocate one pixel buffer for each thread
-	void* pixArray = malloc(m_components * m_pixelSize * omp_get_max_threads());
+	void* pixArray = malloc(m_components * m_pixelSize);
 
-#pragma omp parallel for
 	for(int y = 0; y < height; y++)
 	{
 		// Get the pixel assigned to this thread
-		void* pixel = static_cast<char*>(pixArray) + (omp_get_thread_num() * m_pixelSize);
+		void* pixel = static_cast<char*>(pixArray) + m_pixelSize;
 		unsigned int nx = 0;
 		unsigned int ny = 0;
 
@@ -247,7 +251,7 @@ void Image::rotate(int angle)
 	Image oldImg(*this, true);
 
 	// Allocate one pixel buffer for each thread
-	void* pixArray = malloc(m_components * m_pixelSize * omp_get_max_threads());
+	void* pixArray = malloc(m_components * m_pixelSize);
 
 	float radAngle = static_cast<float>(angle) * DEG_TO_RAD;
 	float cangle = cos(radAngle);
@@ -264,8 +268,8 @@ void Image::rotate(int angle)
 	unsigned int minvalX = std::min(0.0f, std::min(topRight.x, std::min(bottomLeft.x, bottomRight.x)));
 	unsigned int minvalY = std::min(0.0f, std::min(topRight.y, std::min(bottomLeft.y, bottomRight.y)));
 
-	unsigned int maxvalX = max(0.0f, max(topRight.x, max(bottomLeft.x, bottomRight.x)));
-	unsigned int maxvalY = max(0.0f, max(topRight.y, max(bottomLeft.y, bottomRight.y)));
+	unsigned int maxvalX = std::max(0.0f, std::max(topRight.x, std::max(bottomLeft.x, bottomRight.x)));
+	unsigned int maxvalY = std::max(0.0f, std::max(topRight.y, std::max(bottomLeft.y, bottomRight.y)));
 
 	unsigned int newWidth = maxvalX - minvalX;
 	unsigned int newHeight = maxvalY - minvalY;
@@ -275,11 +279,10 @@ void Image::rotate(int angle)
 
 	memset(m_data, 0, m_size*m_pixelSize);
 
-#pragma omp parallel for
 	for(int y = 0; y < oldImg.getHeight(); y++)
 	{
 		// Get the pixel assigned to this thread
-		void* pixel = static_cast<char*>(pixArray) + (omp_get_thread_num() * m_pixelSize);
+		void* pixel = static_cast<char*>(pixArray) + m_pixelSize;
 		unsigned int nx = 0, ny = 0;
 		for (int x = 0; x < oldImg.getWidth(); x++)
 		{

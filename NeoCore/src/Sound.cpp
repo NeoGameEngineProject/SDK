@@ -22,8 +22,8 @@
 //
 //========================================================================
 
-
-#include <NeoCore.h>
+#include "Utils.h"
+#include "Sound.h"
 
 using namespace Neo;
 

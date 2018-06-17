@@ -11,4 +11,4 @@ endif()
 
 add_subdirectory(NeoCore)
 add_subdirectory(NeoEngine)
-add_subdirectory(Neo2D)
+# add_subdirectory(Neo2D)

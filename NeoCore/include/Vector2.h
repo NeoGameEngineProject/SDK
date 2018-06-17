@@ -26,8 +26,13 @@
 #ifndef __VECTOR2_H
 #define __VECTOR2_H
 
+#include "NeoCore.h"
+
+#include <cmath>
+
 namespace Neo
 {
+class Vector3;
 class NEO_CORE_EXPORT Vector2
 {
 public:
@@ -242,17 +247,7 @@ public:
 	Vector2 getRotated(const float angle) const;	
 
 	// return angle that vec needs to rotate
-	inline float getAngleBetween(const Vector2 & vec)
-	{
-		float angle = (float)((atan2(y, x) - atan2(vec.y, vec.x))*RAD_TO_DEG);
-		
-		if(angle > 180)
-			angle -= 360;
-		if(angle < -180)
-			angle += 360;
-		
-		return angle;
-	}
+	inline float getAngleBetween(const Vector2 & vec);
 
 	inline float getLength() const
 	{	

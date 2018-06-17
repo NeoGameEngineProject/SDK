@@ -25,6 +25,9 @@
 #ifndef __THREAD_H
 #define __THREAD_H
 
+#include "NeoCore.h"
+#include "Utils.h"
+
 #include <functional>
 
 namespace Neo
@@ -42,53 +45,53 @@ private:
 public:
 	Thread() {}
 
-    /**
-      * @brief The destructor stops the thread if it can and cleans it up.
-      */
+	/**
+	* @brief The destructor stops the thread if it can and cleans it up.
+	*/
 	~Thread() {}
 
-    /**
-     * @brief Start Starts the function given as argument in this thread.
-     *
-     * The data argument will be given to the thread function when the thread starts.
-     *
-     * The function has to look like:
-     * \code
-     * int thread_func(void*)
-     * \endcode
-     *
-     * @param thread_func Function that will be executed when thread starts.
-     * @param name The name of the thread. For example 'input' or 'update'
-     * @param data Data that needs to be pushed to the thread function.
-     * @return Returns \b true on success, \b false on failure.
-     */
-    virtual bool Start(std::function<int (void*)> thread_func, const char* name, void* data) = 0;
+	/**
+	* @brief Start Starts the function given as argument in this thread.
+	*
+	* The data argument will be given to the thread function when the thread starts.
+	*
+	* The function has to look like:
+	* \code
+	* int thread_func(void*)
+	* \endcode
+	*
+	* @param thread_func Function that will be executed when thread starts.
+	* @param name The name of the thread. For example 'input' or 'update'
+	* @param data Data that needs to be pushed to the thread function.
+	* @return Returns \b true on success, \b false on failure.
+	*/
+	virtual bool Start(std::function<int (void*)> thread_func, const char* name, void* data) = 0;
 
-    /**
-     * @brief Stop Stops this thread.
-     *
-     * Should stop the thread immediately but does not have to since it is considered unsafe to kill a thread.
-     */
-    virtual void Stop() = 0;
+	/**
+	* @brief Stop Stops this thread.
+	*
+	* Should stop the thread immediately but does not have to since it is considered unsafe to kill a thread.
+	*/
+	virtual void Stop() = 0;
 
-    /**
-     * @brief Waits for a return a value and blocks the running thread for that period of time.
-     * @return The exit value of thread_func.
-     */
-    virtual int WaitForReturn() = 0;
+	/**
+	* @brief Waits for a return a value and blocks the running thread for that period of time.
+	* @return The exit value of thread_func.
+	*/
+	virtual int WaitForReturn() = 0;
 
-    /**
-     * @brief Returns if the thread is currently running.
-     * @return Is this thread running?
-     */
-    bool IsRunning() { return m_running; }
-    void SetRunning(bool value) { m_running = value; }
+	/**
+	* @brief Returns if the thread is currently running.
+	* @return Is this thread running?
+	*/
+	bool IsRunning() { return m_running; }
+	void SetRunning(bool value) { m_running = value; }
 
-    /**
-     * @brief Returns the thread ID.
-     * @return The thread ID.
-     */
-    virtual int GetId() = 0;
+	/**
+	* @brief Returns the thread ID.
+	* @return The thread ID.
+	*/
+	virtual int GetId() = 0;
 
 	/**
 	 * @brief Creates a new thread object.
@@ -108,12 +111,12 @@ public:
 	Semaphore(){};
 	~Semaphore(){};
 
-    /**
-	 * @brief Initializes the semaphore.
-     * @param num Number of MSemaphoreWaitAndLock without unlocking will pass until the requesting thread will block. Usually set to 1.
-     * @return Returns \b true on success and \b false on failure.
-     */
-    virtual bool Init(int num) = 0;
+	/**
+	* @brief Initializes the semaphore.
+	* @param num Number of MSemaphoreWaitAndLock without unlocking will pass until the requesting thread will block. Usually set to 1.
+	* @return Returns \b true on success and \b false on failure.
+	*/
+	virtual bool Init(int num) = 0;
 
 	/**
 	 * @brief Locks the semaphore as soon as it can.
@@ -149,12 +152,12 @@ class NEO_CORE_EXPORT ThreadFactory
 	Semaphore* m_templateSemaphore;
 public:
 
-    static ThreadFactory* getInstance();
+	static ThreadFactory* getInstance();
 
 	/**
 	 * @brief Deletes all templates.
 	 */
-    void clear() { SAFE_DELETE(m_templateThread); SAFE_DELETE(m_templateSemaphore); }
+	void clear() { SAFE_DELETE(m_templateThread); SAFE_DELETE(m_templateSemaphore); }
 
 	/**
 	 * @brief Sets the thread template object with the overwritten getNew method

@@ -22,9 +22,15 @@
 //
 //========================================================================
 
+#include "StringTools.h"
+#include "File.h"
+#include "FileTools.h"
 
-#include <NeoCore.h>
+#include <string>
+#include <vector>
+#include <cstring>
 
+using namespace std;
 using namespace Neo;
 
 void getLocalFilename(char * out, const char * workingDirectory, const char * filename)

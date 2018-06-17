@@ -26,8 +26,12 @@
 #ifndef __VECTOR4_H
 #define __VECTOR4_H
 
+#include "NeoCore.h"
+#include "Vector3.h"
+
 namespace Neo
 {
+class Color;
 class NEO_CORE_EXPORT Vector4
 {
 public:
@@ -74,13 +78,7 @@ public:
 		w(vec.w)
 	{}
 
-	Vector4(const Vector3 & vec):
-		x(vec.x),
-		y(vec.y),
-		z(vec.z),
-		w(1.0f)
-	{}
-
+	Vector4(const Vector3 & vec);
 	Vector4(const Color & color);
 
 public:

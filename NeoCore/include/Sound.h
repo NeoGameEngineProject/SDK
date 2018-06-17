@@ -22,12 +22,21 @@
 //
 //========================================================================
 
-
 #ifndef __SOUND_H
 #define __SOUND_H
 
+#include "NeoCore.h"
+
 namespace Neo
 {
+enum SOUND_FORMAT
+{
+	SOUND_FORMAT_MONO8 = 0,
+	SOUND_FORMAT_MONO16,
+	SOUND_FORMAT_STEREO8,
+	SOUND_FORMAT_STEREO16
+};
+
 class NEO_CORE_EXPORT Sound
 {
 public:
