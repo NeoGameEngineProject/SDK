@@ -25,12 +25,13 @@
 #ifndef __INPUT_MAPPING
 #define __INPUT_MAPPING
 
+#include "InputContext.h"
 #include <unordered_map>
 #include <string>
 
 namespace Neo
 {
-class NEO_CORE_EXPORT InputMapping
+class NEO_ENGINE_EXPORT InputMapping
 {
 	InputContext& m_input;
 	std::unordered_map<std::string, INPUT_KEYS> m_keymap;

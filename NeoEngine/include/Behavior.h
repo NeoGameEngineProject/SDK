@@ -10,7 +10,7 @@ namespace Neo
 class NEO_ENGINE_EXPORT Behavior
 {
 public:
-	virtual const char* getName() const { return "Behavior"; };
+	virtual const char* getName() const { return "Behavior"; }
 	static const char* getStaticName() { return "Behavior"; }
 };
 

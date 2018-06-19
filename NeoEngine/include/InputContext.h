@@ -25,8 +25,8 @@
 #ifndef __INPUT_CONTEXT
 #define __INPUT_CONTEXT
 
-#include "NeoCore.h"
-#include "Maths.h"
+#include "NeoEngine.h"
+#include <Maths.h>
 
 #include <memory>
 #include <vector>
@@ -153,7 +153,7 @@ enum KEY_STATES
 	KEY_ON_DOWN = 3 /// The key was pressed in this frame
 };
 
-class NEO_CORE_EXPORT InputDevice
+class NEO_ENGINE_EXPORT InputDevice
 {
 private:
 	std::vector<unsigned int> m_keys;
@@ -185,7 +185,7 @@ public:
 	}
 };
 
-class NEO_CORE_EXPORT AxisInputDevice : public InputDevice
+class NEO_ENGINE_EXPORT AxisInputDevice : public InputDevice
 {
 	std::vector<float> m_axis;
 	
@@ -214,7 +214,7 @@ public:
 /**
  * @brief A keyboard that handles
  */
-class NEO_CORE_EXPORT Keyboard : public InputDevice
+class NEO_ENGINE_EXPORT Keyboard : public InputDevice
 {
 	unsigned int m_character; // The last unicode character that was typed
 public:
@@ -225,7 +225,7 @@ public:
 	void setCharacter(unsigned int c) { m_character = c; }
 };
 
-class NEO_CORE_EXPORT Mouse : public AxisInputDevice
+class NEO_ENGINE_EXPORT Mouse : public AxisInputDevice
 {
 private:
 	Vector2 m_position;
@@ -285,7 +285,7 @@ public:
 	}
 };
 
-class NEO_CORE_EXPORT InputContext
+class NEO_ENGINE_EXPORT InputContext
 {
 private:
 	Keyboard m_keyboard; /// Contains the overall state of the keyboard
@@ -301,7 +301,7 @@ public:
 	Keyboard& getKeyboard() { return m_keyboard; }
 	Mouse& getMouse() { return m_mouse; }
 
-	const shared_ptr<Neo::AxisInputDevice>& getController(size_t id) const { return m_controllers[id]; }
+	const std::shared_ptr<Neo::AxisInputDevice>& getController(size_t id) const { return m_controllers[id]; }
 
 	virtual void setMouseRelative(bool value) { m_mouseRelative = value; }
 	bool isMouseRelative() { return m_mouseRelative; }
@@ -319,7 +319,7 @@ public:
 	}
 };
 
-class NEO_CORE_EXPORT InputContextDummy : public InputContext
+class NEO_ENGINE_EXPORT InputContextDummy : public InputContext
 {
 public:
 	virtual void handleInput() {}

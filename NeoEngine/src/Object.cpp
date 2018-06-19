@@ -48,3 +48,22 @@ void Object::setName(const char* name)
 	strncpy(m_name, name, sizeof(m_name));
 }
 
+Object* Object::addChild(const char* name)
+{
+	m_children.push_back(std::move(Object(name)));
+	return &m_children.back();
+}
+
+Object* Object::find(const char* name)
+{
+	if(!strcmp(name, getName()))
+		return this;
+	
+	for(auto& k : m_children)
+	{
+		if(!strcmp(k.getName(), name))
+			return &k;
+	}
+	
+	return nullptr;
+}

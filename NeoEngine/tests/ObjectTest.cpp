@@ -12,7 +12,7 @@ public:
 
 TEST(Object, AddBehaviorTemplate)
 {
-	Object object;
+	Object object("Test");
 	auto behavior = object.addBehavior<TestBehavior>();
 	auto foundBehavior = object.getBehavior<TestBehavior>();
 	
@@ -26,7 +26,7 @@ TEST(Object, AddBehaviorTemplate)
 
 TEST(Object, AddBehavior)
 {
-	Object object;
+	Object object("Test");
 	auto behavior = object.addBehavior(std::make_unique<TestBehavior>());
 	auto foundBehavior = object.getBehavior(TestBehavior::getStaticName());
 	
