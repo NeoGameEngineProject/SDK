@@ -9,7 +9,6 @@ using namespace Neo;
 Behavior* Object::addBehavior(BehaviorRef&& behavior)
 {
 	assert(getBehavior(behavior->getName()) == nullptr && "A behavior with that name was already registered!");
-	
 	auto behaviorPtr = behavior.get();
 	m_behaviorMap[behavior->getName()] = m_behaviors.size();
 	m_behaviors.push_back(std::move(behavior));
@@ -46,12 +45,13 @@ Behavior* Object::getBehavior(const std::string& name) const
 void Object::setName(const char* name)
 {
 	strncpy(m_name, name, sizeof(m_name));
+	m_name[sizeof(m_name)-1] = 0;
 }
 
-Object* Object::addChild(const char* name)
+Object* Object::addChild(Object* object)
 {
-	m_children.push_back(std::move(Object(name)));
-	return &m_children.back();
+	m_children.push_back(object);
+	return object;
 }
 
 Object* Object::find(const char* name)
@@ -59,10 +59,10 @@ Object* Object::find(const char* name)
 	if(!strcmp(name, getName()))
 		return this;
 	
-	for(auto& k : m_children)
+	for(auto k : m_children)
 	{
-		if(!strcmp(k.getName(), name))
-			return &k;
+		if(!strcmp(k->getName(), name))
+			return k;
 	}
 	
 	return nullptr;

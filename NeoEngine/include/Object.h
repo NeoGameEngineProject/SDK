@@ -27,14 +27,17 @@ class NEO_ENGINE_EXPORT Object
 	std::unordered_map<std::string, size_t> m_behaviorMap;
 	
 	// Children
-	std::vector<Object> m_children;
+	// Contains non-owning pointers to children.
+	// Caller needs to ensure their lifetime! (Level most of the time)
+	std::vector<Object*> m_children;
 
 public:
+	Object() : Object("UNNAMMED") {}
 	Object(const char* name) { setName(name); }
-	Object(Object&& obj):
-		m_behaviors(std::move(obj.m_behaviors)),
-		m_behaviorMap(std::move(obj.m_behaviorMap)),
-		m_children(std::move(obj.m_children)) {}
+	Object(Object&& obj)
+	{
+		*this = std::move(obj);
+	}
 	
 	Behavior* addBehavior(BehaviorRef&& behavior);
 	void removeBehavior(const char* name);
@@ -47,8 +50,8 @@ public:
 	const char* getName() const { return m_name; }
 	void setName(const char* name);
 	
-	std::vector<Object>& getChildren() { return m_children; }
-	Object* addChild(const char* name);
+	std::vector<Object*>& getChildren() { return m_children; }
+	Object* addChild(Object* object);
 	Object* find(const char* name);
 	
 	template<typename T>
@@ -64,13 +67,29 @@ public:
 	template<typename T>
 	T* getBehavior() const
 	{
-		return reinterpret_cast<T*>(getBehavior(T::getStaticName()));
+		return reinterpret_cast<T*>(getBehavior(T().getName()));
 	}
 	
 	template<typename T>
 	void removeBehavior()
 	{
-		removeBehavior(T::getStaticName());
+		removeBehavior(T().getName());
+	}
+	
+	Object& operator= (Object&& obj)
+	{
+		if(this != &obj)
+		{
+			m_behaviors = std::move(obj.m_behaviors);
+			m_behaviorMap = std::move(obj.m_behaviorMap);
+			m_children = std::move(obj.m_children);
+			m_transform = obj.m_transform;
+			m_rotation = obj.m_rotation;
+			m_scale = obj.m_scale;
+			setName(obj.m_name);
+		}
+		
+		return *this;
 	}
 };
 }
