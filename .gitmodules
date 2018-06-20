@@ -1,0 +1,6 @@
+[submodule "NeoEngine/platform/bgfx/bgfx-cmake"]
+	path = NeoEngine/platform/bgfx/bgfx-cmake
+	url = https://github.com/JoshuaBrookover/bgfx.cmake.git
+[submodule "NeoEngine/platform/assets/assimp/assimp"]
+	path = NeoEngine/platform/assets/assimp/assimp
+	url = https://github.com/assimp/assimp.git
