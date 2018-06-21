@@ -91,6 +91,30 @@ public:
 		
 		return *this;
 	}
+	
+	void begin(Platform& p, Renderer& r) 
+	{ 
+		for(auto& k : m_behaviors)
+			k->begin(p, r);
+	}
+	
+	void end() 
+	{ 
+		for(auto& k : m_behaviors)
+			k->end();
+	}
+	
+	void update(const Platform& p, float dt)
+	{ 
+		for(auto& k : m_behaviors)
+			k->update(p, dt);
+	}
+	
+	void draw(Renderer& r) 
+	{ 
+		for(auto& k : m_behaviors)
+			k->draw(r);
+	}
 };
 }
 

@@ -14,9 +14,9 @@ class NEO_ENGINE_EXPORT Behavior
 public:
 	virtual const char* getName() const = 0;
 	
-	virtual void begin(const Platform& p, Renderer* render) {}
+	virtual void begin(const Platform& p, Renderer& render) {}
 	virtual void update(const Platform& p, float dt) {}
-	virtual void draw(Renderer* render) {}
+	virtual void draw(Renderer& render) {}
 	virtual void end() {}
 	
 	Object* getParent() { return m_parent; }

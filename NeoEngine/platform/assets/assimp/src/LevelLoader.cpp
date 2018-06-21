@@ -13,6 +13,7 @@
 #include <behaviors/LightBehavior.h>
 #include <behaviors/MeshBehavior.h>
 #include <behaviors/CameraBehavior.h>
+#include <behaviors/StaticRenderBehavior.h>
 
 using namespace Neo;
 
@@ -82,6 +83,10 @@ static void traverseAssimpScene(Level* level,
 		}
 		
 		neoChild->addBehavior(std::move(meshBehavior));
+		// Make it renderable
+		// TODO Selet type of renderer!
+		neoChild->addBehavior(std::make_unique<StaticRenderBehavior>());
+		
 		loadMatrix(neoChild->getTransform(), child->mTransformation);
 		//neoChild->updateDataFromMatrix();
 
@@ -167,8 +172,6 @@ bool LevelLoader::loadLevel(Level& level, const char* file)
 		aiMatrix4x4 aiViewMatrix;
 		aicam->GetCameraMatrix(aiViewMatrix);
 		loadMatrix(camera.first, aiViewMatrix);
-		
-		
 	}
 	
 	// Second, load all scene nodes and place them
