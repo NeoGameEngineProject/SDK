@@ -9,9 +9,13 @@ using namespace Neo;
 Behavior* Object::addBehavior(BehaviorRef&& behavior)
 {
 	assert(getBehavior(behavior->getName()) == nullptr && "A behavior with that name was already registered!");
+	
 	auto behaviorPtr = behavior.get();
+	
+	behavior->setParent(this);
 	m_behaviorMap[behavior->getName()] = m_behaviors.size();
 	m_behaviors.push_back(std::move(behavior));
+	
 	return behaviorPtr;
 }
 
