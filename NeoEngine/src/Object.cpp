@@ -54,6 +54,7 @@ void Object::setName(const char* name)
 
 Object* Object::addChild(Object* object)
 {
+	object->setParent(this);
 	m_children.push_back(object);
 	return object;
 }

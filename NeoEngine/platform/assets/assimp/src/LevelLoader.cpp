@@ -19,9 +19,8 @@ using namespace Neo;
 
 static void loadMatrix(Matrix4x4& neoMat, aiMatrix4x4& aiMat)
 {
-	for(unsigned int i = 0; i < 4*4; i++)
-		neoMat.entries[i] = *(aiMat[0] + i);
-	
+	neoMat = Matrix4x4((float*) &aiMat);
+	neoMat.transpose();
 }
 
 static void traverseAssimpScene(Level* level,
@@ -50,7 +49,7 @@ static void traverseAssimpScene(Level* level,
 			{
 				neoChild->addBehavior(std::make_unique<LightBehavior>(light->second));
 				loadMatrix(neoChild->getTransform(), child->mTransformation);
-				//neoChild->updateDataFromMatrix();
+				neoChild->updateFromMatrix();
 				
 				traverseAssimpScene(level, neoChild, child, meshes, lights, cameras);
 			}
@@ -58,8 +57,8 @@ static void traverseAssimpScene(Level* level,
 			{
 				neoChild->addBehavior(std::make_unique<CameraBehavior>(camera->second.second));
 				loadMatrix(neoChild->getTransform(), child->mTransformation);
-				neoChild->getTransform() *= camera->second.first;
-				//neoChild->updateDataFromMatrix();
+				neoChild->getTransform() = camera->second.first * neoChild->getTransform();
+				neoChild->updateFromMatrix();
 				
 				traverseAssimpScene(level, neoChild, child, meshes, lights, cameras);
 			}
@@ -88,7 +87,7 @@ static void traverseAssimpScene(Level* level,
 		neoChild->addBehavior(std::make_unique<StaticRenderBehavior>());
 		
 		loadMatrix(neoChild->getTransform(), child->mTransformation);
-		//neoChild->updateDataFromMatrix();
+		neoChild->updateFromMatrix();
 
 		// Insert children into new parent
 		traverseAssimpScene(level, neoChild, child, meshes, lights, cameras);
@@ -113,29 +112,57 @@ bool LevelLoader::loadLevel(Level& level, const char* file)
 	std::vector<SubMesh> meshes;
 	meshes.reserve(scene->mNumMeshes);
 	
+	std::vector<Material> materials;
+	materials.reserve(scene->mNumMaterials);
+	
+	for(size_t i = 0; i < scene->mNumMaterials; i++)
+	{
+		auto aiMat = scene->mMaterials[i];
+		Material material;
+		
+		aiColor4D color;
+		if(AI_SUCCESS == aiGetMaterialColor(aiMat, AI_MATKEY_COLOR_DIFFUSE, &color))
+			material.diffuse = Vector3(color.r, color.g, color.b);
+		
+		if(AI_SUCCESS == aiGetMaterialColor(aiMat, AI_MATKEY_COLOR_SPECULAR, &color))
+			material.specular = Vector3(color.r, color.g, color.b);
+		
+		if(AI_SUCCESS == aiGetMaterialColor(aiMat, AI_MATKEY_COLOR_EMISSIVE, &color))
+			material.emit = Vector3(color.r, color.g, color.b);
+	
+		if(AI_SUCCESS == aiGetMaterialFloat(aiMat, AI_MATKEY_OPACITY, &material.opacity))
+		{}
+		
+		if(AI_SUCCESS == aiGetMaterialFloat(aiMat, AI_MATKEY_SHININESS, &material.shininess))
+		{
+			material.shininess *= 0.25; // Need to quarter values since Assimp multiplies with 4 for some reason.
+		}
+		
+		materials.push_back(material);
+	}
+	
 	for(size_t i = 0; i < scene->mNumMeshes; i++)
 	{
 		SubMesh subMesh;
-		auto& vertices = subMesh.getVertices();
-		auto& normals = subMesh.getNormals();
-		auto& texcoords = subMesh.getTexCoords();
-		
 		const aiMesh* mesh = scene->mMeshes[i];
-		vertices.resize(mesh->mNumVertices);
-		memcpy(vertices.data(), mesh->mVertices, sizeof(float)*3*mesh->mNumVertices);
+		subMesh.set(mesh->mNumVertices, 
+			    (Vector3*) mesh->mVertices, 
+			    (Vector3*) mesh->mNormals, 
+			    (Vector2*) mesh->mTextureCoords[0], 
+			    0, nullptr);
 		
-		if(mesh->mNormals != nullptr)
+		auto& indices = subMesh.getIndices();
+		indices.resize(mesh->mNumFaces*3);
+		for(size_t i = 0; i < mesh->mNumFaces; i++)
 		{
-			normals.resize(mesh->mNumVertices);
-			memcpy(normals.data(), mesh->mNormals, sizeof(float)*3*mesh->mNumVertices);
+			assert(mesh->mFaces[i].mNumIndices == 3);
+			const size_t idx = i*3;
+			indices[idx] = mesh->mFaces[i].mIndices[0];
+			indices[idx+1] = mesh->mFaces[i].mIndices[1];
+			indices[idx+2] = mesh->mFaces[i].mIndices[2];
 		}
 		
-		if(mesh->mTextureCoords[0] != nullptr)
-		{
-			texcoords.resize(mesh->mNumVertices);
-			memcpy(texcoords.data(), mesh->mTextureCoords[0], sizeof(float)*2*mesh->mNumVertices);
-		}
-		
+		subMesh.setMaterial(materials[mesh->mMaterialIndex]);
 		meshes.push_back(std::move(subMesh));
 	}
 	
@@ -165,13 +192,16 @@ bool LevelLoader::loadLevel(Level& level, const char* file)
 		const auto aicam = scene->mCameras[i];
 		std::pair<Matrix4x4, CameraBehavior>& camera = cameras[aicam->mName.C_Str()];
 		
-		camera.second.fov = AI_RAD_TO_DEG(aicam->mHorizontalFOV);
-		camera.second.near = aicam->mClipPlaneNear;
-		camera.second.far = aicam->mClipPlaneFar;
+		camera.second.setFov(AI_RAD_TO_DEG(aicam->mHorizontalFOV));
+		camera.second.setNear(aicam->mClipPlaneNear);
+		camera.second.setFar(aicam->mClipPlaneFar);
 		
-		aiMatrix4x4 aiViewMatrix;
-		aicam->GetCameraMatrix(aiViewMatrix);
-		loadMatrix(camera.first, aiViewMatrix);
+		camera.first.lookAt(
+			Vector3(aicam->mLookAt.x, aicam->mLookAt.y, aicam->mLookAt.z),
+			Vector3(aicam->mPosition.x, aicam->mPosition.y, aicam->mPosition.z),
+			Vector3(aicam->mUp.x, aicam->mUp.y, aicam->mUp.z));
+		
+		camera.first.invert();
 	}
 	
 	// Second, load all scene nodes and place them

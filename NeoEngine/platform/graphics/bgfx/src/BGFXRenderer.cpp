@@ -1,6 +1,12 @@
 #include "BGFXRenderer.h"
+
 #include <bgfx/bgfx.h>
 #include <bgfx/platform.h>
+#include <FileTools.h>
+
+#include <iostream>
+#include <Object.h>
+#include <behaviors/CameraBehavior.h>
 
 using namespace Neo;
 
@@ -18,6 +24,9 @@ void BGFXRenderer::clear(float r, float g, float b, bool depth)
 
 void BGFXRenderer::initialize(unsigned int w, unsigned int h, void* ndt, void* nwh)
 {
+	m_screenWidth = w;
+	m_screenHeight = h;
+	
 	bgfx::Init init;
 	init.type = bgfx::RendererType::OpenGL;
 	init.resolution.width  = w;
@@ -35,10 +44,53 @@ void BGFXRenderer::initialize(unsigned int w, unsigned int h, void* ndt, void* n
 	bgfx::init(init);
 	
 	bgfx::setViewRect(0, 0, 0, uint16_t(w), uint16_t(h));
+	
+	uint64_t state = 0
+			| BGFX_STATE_WRITE_R
+			| BGFX_STATE_WRITE_G
+			| BGFX_STATE_WRITE_B
+			| BGFX_STATE_WRITE_A
+			| BGFX_STATE_WRITE_Z
+			| BGFX_STATE_DEPTH_TEST_LESS
+			// | BGFX_STATE_CULL_CW
+			| BGFX_STATE_MSAA;
+			
+	bgfx::setState(state);
+	
+	loadShader("assets/glsl/base");
 }
 
 void BGFXRenderer::swapBuffers()
 {
-	bgfx::touch(0);
+	// bgfx::touch(0);
 	bgfx::frame();
+}
+
+void BGFXRenderer::beginFrame(CameraBehavior& cam)
+{
+	cam.enable(m_screenWidth, m_screenHeight);
+	bgfx::setViewTransform(0, cam.getViewMatrix().entries, cam.getProjectionMatrix().entries);
+}
+
+unsigned int BGFXRenderer::loadShader(const char* path)
+{
+	std::string fullpath = path;
+	
+	unsigned int vertShaderSize = 0;
+	char* vertShaderData = readBinaryFile((fullpath + "_vs.bin").c_str(), &vertShaderSize);
+	auto vertShader = bgfx::createShader(bgfx::copy(vertShaderData, vertShaderSize));
+	
+	unsigned int fragShaderSize = 0;
+	char* fragShaderData = readBinaryFile((fullpath + "_fs.bin").c_str(), &fragShaderSize);
+	auto fragShader = bgfx::createShader(bgfx::copy(fragShaderData, fragShaderSize));
+	
+	m_shaders.push_back(bgfx::createProgram(vertShader, fragShader));
+
+	bgfx::destroy(vertShader);
+	bgfx::destroy(fragShader);
+	
+	delete vertShaderData;
+	delete fragShaderData;
+	
+	return m_shaders.size() - 1;
 }

@@ -5,6 +5,8 @@
 #include "Object.h"
 #include <Array.h>
 
+#include <behaviors/CameraBehavior.h>
+
 namespace Neo 
 {
 
@@ -13,6 +15,8 @@ class NEO_ENGINE_EXPORT Level
 	size_t m_numObjects = 0;
 	Array<Object> m_objects;
 	Array<char> m_scratchpad;
+	
+	CameraBehavior* m_currentCamera = nullptr;
 	
 public:
 	Level(size_t maxObjects = 4096, size_t scratchpad = 4096)
@@ -31,10 +35,33 @@ public:
 			level.m_numObjects = 0;
 		}
 	
+	CameraBehavior* getCurrentCamera() { return m_currentCamera; }
+	void setCurrentCamera(CameraBehavior* cam) { m_currentCamera = cam; }
+	
 	Array<Object>& getObjects() { return m_objects; }
 	Object* addObject(const char* name);
 	Object* find(const char* name);
 	Object* getRoot() { return &m_objects[0]; }
+	
+	void begin(Platform& p, Renderer& r) 
+	{ 
+		for(size_t i = 0; i < m_numObjects; i++)
+			m_objects[i].begin(p, r);
+	}
+	
+	void end() 
+	{ 
+		for(size_t i = 0; i < m_numObjects; i++)
+			m_objects[i].end();
+	}
+	
+	void update(const Platform& p, float dt)
+	{ 
+		for(size_t i = 0; i < m_numObjects; i++)
+			m_objects[i].update(p, dt);
+	}
+	
+	void draw(Renderer& r);
 };
 
 }

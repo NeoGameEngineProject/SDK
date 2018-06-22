@@ -30,6 +30,9 @@ class NEO_ENGINE_EXPORT Object
 	// Contains non-owning pointers to children.
 	// Caller needs to ensure their lifetime! (Level most of the time)
 	std::vector<Object*> m_children;
+	Object* m_parent = nullptr;
+	
+	bool m_needsUpdate = true;
 
 public:
 	Object() : Object("UNNAMMED") {}
@@ -47,12 +50,46 @@ public:
 	Behavior* getBehavior(const std::string& name) const;
 	
 	Matrix4x4& getTransform() { return m_transform; }
+	Vector3 getPosition() const { return m_position; }
+	void setPosition(const Vector3& position) { m_position = position; m_needsUpdate = true; }
+	
+	Quaternion getRotation() const { return m_rotation; }
+	void setRotation(const Quaternion& rotation) { m_rotation = rotation; m_needsUpdate = true; }
+	
+	Vector3 getScale() const { return m_scale; }
+	void setScale(const Vector3& scale) { m_scale = scale; m_needsUpdate = true; }
+	
 	const char* getName() const { return m_name; }
 	void setName(const char* name);
 	
 	std::vector<Object*>& getChildren() { return m_children; }
 	Object* addChild(Object* object);
 	Object* find(const char* name);
+	
+	Object* getParent() const { return m_parent; }
+	void setParent(Object* object) { m_parent = object; } 
+	
+	void updateMatrix()
+	{
+		m_transform.setRotationAxis(m_rotation.getAngle(), m_rotation.getAxis());
+		m_transform.setTranslationPart(m_position);
+		m_transform.scale(m_scale);
+		
+		if(m_parent)
+		{
+			m_parent->updateMatrix();
+			m_transform = m_parent->getTransform() * m_transform;
+		}
+		
+		m_needsUpdate = false;
+	}
+	
+	void updateFromMatrix()
+	{
+		m_position = m_transform.getTranslationPart();
+		m_rotation.setFromAngles(m_transform.getEulerAngles());
+		m_needsUpdate = false;
+	}
 	
 	template<typename T>
 	T* addBehavior()
@@ -105,9 +142,12 @@ public:
 	}
 	
 	void update(const Platform& p, float dt)
-	{ 
+	{
 		for(auto& k : m_behaviors)
 			k->update(p, dt);
+		
+		// Update matrix after updating the object
+		updateMatrix();
 	}
 	
 	void draw(Renderer& r) 

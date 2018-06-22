@@ -99,6 +99,8 @@ public:
 	void normalize(void);
 	void loadIdentity(void);
 	void setFromAngles(float xAngle, float yAngle, float zAngle);
+	void setFromAngles(const Vector3& angles) { setFromAngles(angles.x, angles.y, angles.z); }
+
 	void slerp(const Quaternion & q1, const Quaternion & q2, float interpolation);
 	void invert(void);
 	void setFromAngleAxis(float angle, const Vector3 & axis);

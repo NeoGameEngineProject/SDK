@@ -24,3 +24,12 @@ Object* Level::find(const char* name)
 		
 	return nullptr;
 }
+
+void Level::draw(Renderer& r) 
+{
+	assert(m_currentCamera);
+	r.beginFrame(*m_currentCamera);
+	for(size_t i = 0; i < m_numObjects; i++)
+		m_objects[i].draw(r);
+	r.endFrame();
+}
