@@ -307,6 +307,24 @@ void copyDirFiles(const char* src, const char* dest, const char* filter)
     }
 }
 
+char* readBinaryFile(const char* filename, unsigned int* sizeRead)
+{
+	auto file = M_fopen(filename, "rb");
+	if(!file)
+		return nullptr;
+	
+	M_fseek(file, 0, SEEK_END);
+	*sizeRead = M_ftell(file);
+	M_fseek(file, 0, SEEK_SET);
+	
+	// TODO Error handling of fread!
+	char* buffer = new char[*sizeRead];
+	M_fread(buffer, *sizeRead, 1, file);
+	M_fclose(file);
+	
+	return buffer;
+}
+
 namespace Neo
 {
 void M_registerFileOpenHook(FileOpenHook * hook)

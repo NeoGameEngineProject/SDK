@@ -27,6 +27,8 @@
 #ifndef _FILE_TOOLS_H
 #define _FILE_TOOLS_H
 
+#include <NeoCore.h>
+#include <File.h>
 #include <vector>
 #include <string>
 
@@ -44,6 +46,7 @@ NEO_CORE_EXPORT bool isFileExist(const char * filename);
 NEO_CORE_EXPORT bool copyDirectory(const char * inFilename, const char * outFilename);
 NEO_CORE_EXPORT bool readDirectory(const char * filename, std::vector<std::string>& files, bool hiddenFiles = false, bool recursive = false);
 NEO_CORE_EXPORT void copyDirFiles(const char* src, const char* dest, const char* filter);
+NEO_CORE_EXPORT char* readBinaryFile(const char* filename, unsigned int* sizeRead);
 
 namespace Neo
 {
