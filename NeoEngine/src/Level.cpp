@@ -3,6 +3,9 @@
 #include <iostream>
 #include <cassert>
 
+#include <Texture.h>
+#include <TextureLoader.h>
+
 using namespace Neo;
 
 Object* Level::addObject(const char* name)
@@ -32,4 +35,17 @@ void Level::draw(Renderer& r)
 	for(size_t i = 0; i < m_numObjects; i++)
 		m_objects[i].draw(r);
 	r.endFrame();
+}
+
+Texture* Level::loadTexture(const char* name)
+{
+	auto texture = m_textures.find(name);
+	if(texture == m_textures.end())
+	{
+		Texture* tex = &m_textures[name];
+		TextureLoader::load(*tex, name);
+		return tex;
+	}
+	
+	return &texture->second;
 }

@@ -4,6 +4,7 @@
 #include "NeoEngine.h"
 #include "Object.h"
 #include <Array.h>
+#include <Texture.h>
 
 #include <behaviors/CameraBehavior.h>
 
@@ -17,6 +18,8 @@ class NEO_ENGINE_EXPORT Level
 	Array<char> m_scratchpad;
 	
 	CameraBehavior* m_currentCamera = nullptr;
+	
+	std::unordered_map<std::string, Texture> m_textures;
 	
 public:
 	Level(size_t maxObjects = 4096, size_t scratchpad = 4096)
@@ -42,6 +45,9 @@ public:
 	Object* addObject(const char* name);
 	Object* find(const char* name);
 	Object* getRoot() { return &m_objects[0]; }
+	
+	// Assets
+	Texture* loadTexture(const char* name);
 	
 	void begin(Platform& p, Renderer& r) 
 	{ 

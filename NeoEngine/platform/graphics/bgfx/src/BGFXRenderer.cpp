@@ -3,6 +3,7 @@
 #include <bgfx/bgfx.h>
 #include <bgfx/platform.h>
 #include <FileTools.h>
+#include <Texture.h>
 
 #include <iostream>
 #include <Object.h>
@@ -94,3 +95,15 @@ unsigned int BGFXRenderer::loadShader(const char* path)
 	
 	return m_shaders.size() - 1;
 }
+
+size_t BGFXRenderer::createTexture(Texture* tex)
+{
+	const auto texRef = bgfx::makeRef(tex->getData(), tex->getStorageSize());
+	auto format = bgfx::TextureFormat::RGBA8;
+	if(tex->getComponents() == 3)
+		format = bgfx::TextureFormat::RGB8;
+	
+	m_textures.push_back(bgfx::createTexture2D(tex->getWidth(), tex->getHeight(), tex->hasMipMap(), 1, format, 0, texRef));
+	return m_textures.size() - 1;
+}
+

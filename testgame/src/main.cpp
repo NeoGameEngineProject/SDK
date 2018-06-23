@@ -21,7 +21,6 @@ extern "C" int main()
 	auto camera = level.find("Camera");
 	auto camBehavior = camera->getBehavior<Neo::CameraBehavior>();
 	
-	camBehavior->setFov(60);
 	level.setCurrentCamera(camBehavior);	
 	level.begin(platform, *renderer);
 	

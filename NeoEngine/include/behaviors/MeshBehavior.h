@@ -6,6 +6,8 @@
 #include <vector>
 #include <Vector3.h>
 #include <Vector2.h>
+#include <Image.h>
+#include <Array.h>
 
 namespace Neo 
 {
@@ -13,19 +15,20 @@ namespace Neo
 struct MeshVertex
 {
 	Vector3 position, normal;
-	Vector2 texcoord;
 };
 
+class Texture;
 struct Material
 {
 	// TODO Blend mode
-	float opacity;
-	float shininess;
+	float opacity = 1;
+	float shininess = 32;
 	float customValue;
-	Vector3 diffuse;
-	Vector3 specular;
+	Vector3 diffuse = Vector3(1, 1, 1);
+	Vector3 specular = Vector3(1, 1, 1);
 	Vector3 emit;
 	Vector3 customColor;
+	Texture* textures[4] {nullptr, nullptr, nullptr, nullptr};
 };
 
 class SubMesh
@@ -35,20 +38,22 @@ public:
 	SubMesh(SubMesh&& b):
 		m_indices(std::move(b.m_indices)),
 		m_meshVertices(std::move(b.m_meshVertices)),
+		m_textureChannels(std::move(b.m_textureChannels)),
 		m_material(b.m_material) {}
 	
 	SubMesh(const SubMesh& b):
 		m_indices(b.m_indices),
 		m_meshVertices(b.m_meshVertices),
+		m_textureChannels(b.m_textureChannels),
 		m_material(b.m_material) {}
 	
 	std::vector<MeshVertex>& getVertices() { return m_meshVertices; }
 	std::vector<unsigned int>& getIndices() { return m_indices; }
+	std::vector<Array<Vector2>>& getTextureChannels() { return m_textureChannels; }
 	
 	void set(size_t numVertices,
 		Vector3* vertices,
 		Vector3* normals,
-		Vector2* texcoords,
 		size_t numIndices,
 		unsigned int* indices);
 	
@@ -58,6 +63,8 @@ public:
 private:
 	std::vector<unsigned int> m_indices;
 	std::vector<MeshVertex> m_meshVertices;
+	std::vector<Array<Vector2>> m_textureChannels;
+	
 	Material m_material;
 };
 

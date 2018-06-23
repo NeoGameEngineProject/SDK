@@ -138,6 +138,82 @@ bool LevelLoader::loadLevel(Level& level, const char* file)
 			material.shininess *= 0.25; // Need to quarter values since Assimp multiplies with 4 for some reason.
 		}
 		
+		// Textures
+		{
+			aiString path;
+			aiTextureMapping mapping;
+			unsigned int uvindex;
+			float blend;
+			aiTextureOp op;
+
+			// FIXME: Bug in Assimp: They use 64bit integers to save the aiTextureMapMode
+			// but enums are always 32bit leading to a stack corruption!
+			//aiTextureMapMode mapmode;
+			long long mapmode = 0;
+
+			if(AI_SUCCESS == aiMat->GetTexture(aiTextureType_DIFFUSE, 0, &path, &mapping, &uvindex, &blend, &op, (aiTextureMapMode*) &mapmode))
+			{
+				Texture* texture = level.loadTexture(path.C_Str());
+				if(mapmode == aiTextureMapMode_Clamp)
+				{
+					//texture->setUWrapMode(WRAP_CLAMP);
+					//texture->setVWrapMode(WRAP_CLAMP);
+				}
+				
+				assert(uvindex < 4 && material.textures[uvindex] == nullptr);
+				material.textures[uvindex] = texture;
+				//material.addTexturePass(texture, TEX_COMBINE_MODULATE, uvindex);
+			}
+		
+			/*if(AI_SUCCESS == aiMat->GetTexture(aiTextureType_SPECULAR, 0, &path, &mapping, &uvindex, &blend, &op, (aiTextureMapMode*) &mapmode))
+			{
+				getGlobalFilename(globalPath, meshRep, path.C_Str());
+				TextureRef * texRef = level->loadTexture(globalPath, true);
+				Texture * texture = mesh->addNewTexture(texRef);
+				if(mapmode == aiTextureMapMode_Clamp){
+					texture->setUWrapMode(WRAP_CLAMP);
+					texture->setVWrapMode(WRAP_CLAMP);
+				}
+				
+				while(material.getTexturesPassNumber() < 1)
+					material.addTexturePass(NULL, TEX_COMBINE_MODULATE, 0);
+				
+				material.addTexturePass(texture, TEX_COMBINE_MODULATE, uvindex);
+			}
+		
+			if(AI_SUCCESS == aiMat->GetTexture(aiTextureType_NORMALS, 0, &path, &mapping, &uvindex, &blend, &op, (aiTextureMapMode*) &mapmode))
+			{
+				getGlobalFilename(globalPath, meshRep, path.C_Str());
+				TextureRef * texRef = level->loadTexture(globalPath, true);
+				Texture * texture = mesh->addNewTexture(texRef);
+				if(mapmode == aiTextureMapMode_Clamp){
+					texture->setUWrapMode(WRAP_CLAMP);
+					texture->setVWrapMode(WRAP_CLAMP);
+				}
+				
+				while(material.getTexturesPassNumber() < 2)
+					material.addTexturePass(NULL, TEX_COMBINE_MODULATE, 0);
+					
+				material.addTexturePass(texture, TEX_COMBINE_MODULATE, uvindex);
+			}
+		
+			if(AI_SUCCESS == aiMat->GetTexture(aiTextureType_EMISSIVE, 0, &path, &mapping, &uvindex, &blend, &op, (aiTextureMapMode*) &mapmode))
+			{
+				getGlobalFilename(globalPath, meshRep, path.C_Str());
+				TextureRef * texRef = level->loadTexture(globalPath, true);
+				Texture * texture = mesh->addNewTexture(texRef);
+				if(mapmode == aiTextureMapMode_Clamp){
+					texture->setUWrapMode(WRAP_CLAMP);
+					texture->setVWrapMode(WRAP_CLAMP);
+				}
+				
+				while(material.getTexturesPassNumber() < 3)
+					material.addTexturePass(NULL, TEX_COMBINE_MODULATE, 0);
+				
+				material.addTexturePass(texture, TEX_COMBINE_MODULATE, uvindex);
+			}*/
+		}
+		
 		materials.push_back(material);
 	}
 	
@@ -147,9 +223,28 @@ bool LevelLoader::loadLevel(Level& level, const char* file)
 		const aiMesh* mesh = scene->mMeshes[i];
 		subMesh.set(mesh->mNumVertices, 
 			    (Vector3*) mesh->mVertices, 
-			    (Vector3*) mesh->mNormals, 
-			    (Vector2*) mesh->mTextureCoords[0], 
+			    (Vector3*) mesh->mNormals,  
 			    0, nullptr);
+		
+		auto& textureChannels = subMesh.getTextureChannels();
+		textureChannels.reserve(4);
+		
+		// Set texture channels
+		for(size_t j = 0; j < 8; j++)
+		{
+			auto aiChannel = mesh->mTextureCoords[j];
+			if(aiChannel)
+			{
+				Array<Vector2> coords;
+				coords.alloc(mesh->mNumVertices);
+				for(size_t p = 0; p < mesh->mNumVertices; p++)
+				{
+					coords[p] = Vector2(aiChannel[p].x, 1.0f - aiChannel[p].y);
+				}
+				
+				textureChannels.push_back(std::move(coords));
+			}
+		}
 		
 		auto& indices = subMesh.getIndices();
 		indices.resize(mesh->mNumFaces*3);
