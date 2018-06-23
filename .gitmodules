@@ -4,3 +4,6 @@
 [submodule "NeoEngine/platform/graphics/bgfx/bgfx-cmake"]
 	path = NeoEngine/platform/graphics/bgfx/bgfx-cmake
 	url = https://github.com/JoshuaBrookover/bgfx.cmake.git
+[submodule "NeoEngine/platform/assets/png/libpng"]
+	path = NeoEngine/platform/assets/png/libpng
+	url = https://github.com/glennrp/libpng.git
