@@ -59,6 +59,35 @@ public:
 	Vector3 getScale() const { return m_scale; }
 	void setScale(const Vector3& scale) { m_scale = scale; m_needsUpdate = true; }
 	
+	void rotate(const Vector3& axis, float angle)
+	{
+		m_rotation *= Quaternion(angle, axis);
+		m_needsUpdate = true;
+	}
+	
+	void rotate(const Vector3& euler)
+	{
+		m_rotation *= Quaternion(euler.x, euler.y, euler.z);
+		m_needsUpdate = true;
+	}
+	
+	void translate(const Vector3& offset, bool local = false)
+	{
+		m_position += local ? m_transform.getRotatedVector3(offset) : offset;
+		m_needsUpdate = true;
+	}
+	
+	void scale(const Vector3& scale, bool local = false)
+	{
+		const Vector3 localScale = local ? m_transform.getRotatedVector3(scale) : scale;
+		
+		m_scale.x *= localScale.x;
+		m_scale.y *= localScale.y;
+		m_scale.z *= localScale.z;
+		
+		m_needsUpdate = true;
+	}
+	
 	const char* getName() const { return m_name; }
 	void setName(const char* name);
 	
@@ -88,6 +117,7 @@ public:
 	{
 		m_position = m_transform.getTranslationPart();
 		m_rotation.setFromAngles(m_transform.getEulerAngles());
+		m_scale = m_transform.getScale();
 		m_needsUpdate = false;
 	}
 	
