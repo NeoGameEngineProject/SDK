@@ -95,7 +95,7 @@ static void traverseAssimpScene(Level* level,
 }
 
 
-bool LevelLoader::loadLevel(Level& level, const char* file)
+bool LevelLoader::load(Level& level, const char* file)
 {
 	// Import scene from the given file!
 	const aiScene* scene = aiImportFile(file, aiProcessPreset_TargetRealtime_MaxQuality);

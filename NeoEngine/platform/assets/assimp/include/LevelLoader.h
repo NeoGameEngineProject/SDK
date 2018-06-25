@@ -4,11 +4,10 @@
 namespace Neo 
 {
 class Level;
-
 class LevelLoader
 {
 public:
-	static bool loadLevel(Level& level, const char* file);
+	static bool load(Level& level, const char* file);
 };
 
 }

@@ -1,5 +1,5 @@
-#ifndef NEO_LEVELLOADER_H
-#define NEO_LEVELLOADER_H
+#ifndef NEO_TEXTURELOADER_H
+#define NEO_TEXTURELOADER_H
 
 namespace Neo 
 {
@@ -12,4 +12,4 @@ public:
 
 }
 
-#endif // NEO_LEVELLOADER_H
+#endif // NEO_TEXTURELOADER_H

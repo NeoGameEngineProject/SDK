@@ -48,6 +48,7 @@ public:
 	
 	// Assets
 	Texture* loadTexture(const char* name);
+	bool load(const char* path);
 	
 	void begin(Platform& p, Renderer& r) 
 	{ 
