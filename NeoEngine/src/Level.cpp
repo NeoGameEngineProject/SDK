@@ -5,6 +5,7 @@
 
 #include <Texture.h>
 #include <TextureLoader.h>
+#include <LevelLoader.h>
 
 using namespace Neo;
 
@@ -48,4 +49,9 @@ Texture* Level::loadTexture(const char* name)
 	}
 	
 	return &texture->second;
+}
+
+bool Level::load(const char* path)
+{
+	return LevelLoader::load(*this, path);
 }
