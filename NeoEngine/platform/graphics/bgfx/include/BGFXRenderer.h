@@ -51,12 +51,19 @@ class BGFXRenderer : public Renderer
 	std::vector<bgfx::ProgramHandle> m_shaders;
 	std::vector<bgfx::TextureHandle> m_textures;
 	unsigned int m_screenWidth = 0, m_screenHeight = 0;
+	
+	bgfx::FrameBufferHandle m_gbuffer;
+	bgfx::TextureHandle m_gbufferTextures[4];
+	bgfx::UniformHandle m_gbufferTextureUniforms[4];
+	bgfx::VertexBufferHandle m_fullscreenQuad;
+	bgfx::IndexBufferHandle m_fullscreenIndices;
+	
 public:
 	void clear(float r, float g, float b, bool depth) override;
 	void initialize(unsigned int w, unsigned int h, void* ndt, void* nwh) override;
 	void swapBuffers() override;
 	void beginFrame(CameraBehavior& cam) override;
-	void endFrame() override { swapBuffers(); }
+	void endFrame() override;
 	
 	unsigned int loadShader(const char* path);
 	bgfx::VertexDecl getVertexStruct() const { return m_bgfxVertStruct.vertexStruct; }

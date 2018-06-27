@@ -33,6 +33,8 @@ class NEO_ENGINE_EXPORT Object
 	Object* m_parent = nullptr;
 	
 	bool m_needsUpdate = true;
+	bool m_visible = true;
+	bool m_active = true;
 
 public:
 	Object() : Object("UNNAMMED") {}
@@ -98,6 +100,12 @@ public:
 	Object* getParent() const { return m_parent; }
 	void setParent(Object* object) { m_parent = object; } 
 	
+	void setActive(bool v) { m_active = v; }
+	bool isActive() const { return m_active; }
+	
+	void setVisible(bool v) { m_visible = v; }
+	bool isVisible() const { return m_visible; }
+	
 	void updateMatrix()
 	{
 		m_transform.setRotationAxis(m_rotation.getAngle(), m_rotation.getAxis());
@@ -153,7 +161,11 @@ public:
 			m_transform = obj.m_transform;
 			m_rotation = obj.m_rotation;
 			m_scale = obj.m_scale;
+			
 			setName(obj.m_name);
+			
+			m_active = obj.m_active;
+			m_visible = obj.m_visible;
 		}
 		
 		return *this;
@@ -173,6 +185,9 @@ public:
 	
 	void update(const Platform& p, float dt)
 	{
+		if(!m_active)
+			return;
+		
 		for(auto& k : m_behaviors)
 			k->update(p, dt);
 		
@@ -182,6 +197,9 @@ public:
 	
 	void draw(Renderer& r) 
 	{ 
+		if(!m_visible || !m_active)
+			return;
+		
 		for(auto& k : m_behaviors)
 			k->draw(r);
 	}

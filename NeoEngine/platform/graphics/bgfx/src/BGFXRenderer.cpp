@@ -11,6 +11,9 @@
 
 using namespace Neo;
 
+#define GEOMETRY_PASS 0
+#define FULLSCREEN_PASS 1
+
 void BGFXRenderer::clear(float r, float g, float b, bool depth)
 {
 	unsigned char red = 255*r;
@@ -18,7 +21,7 @@ void BGFXRenderer::clear(float r, float g, float b, bool depth)
 	unsigned char blue = 255*b;
 	
 	bgfx::setViewClear(0, BGFX_CLEAR_COLOR | (depth ? BGFX_CLEAR_DEPTH : 0),
-			(red << 24) | (green << 16) | (blue << 8) | 0xff,
+			(red << 24) | (green << 16) | (blue << 8) | 0x00,
 			1.0f,
 			0);
 }
@@ -44,8 +47,9 @@ void BGFXRenderer::initialize(unsigned int w, unsigned int h, void* ndt, void* n
 	bgfx::setPlatformData(pd);
 	bgfx::init(init);
 	
-	bgfx::setViewRect(0, 0, 0, uint16_t(w), uint16_t(h));
-	
+	bgfx::setViewRect(GEOMETRY_PASS, 0, 0, uint16_t(w), uint16_t(h));
+	bgfx::setViewRect(FULLSCREEN_PASS, 0, 0, uint16_t(w), uint16_t(h));
+
 	uint64_t state = 0
 			| BGFX_STATE_WRITE_R
 			| BGFX_STATE_WRITE_G
@@ -53,12 +57,52 @@ void BGFXRenderer::initialize(unsigned int w, unsigned int h, void* ndt, void* n
 			| BGFX_STATE_WRITE_A
 			| BGFX_STATE_WRITE_Z
 			| BGFX_STATE_DEPTH_TEST_LESS
-			// | BGFX_STATE_CULL_CW
-			| BGFX_STATE_MSAA;
+			| BGFX_STATE_CULL_CW;
 			
 	bgfx::setState(state);
 	
 	loadShader("assets/glsl/base");
+	loadShader("assets/glsl/def_phong");
+	
+	// Set up framebuffers
+	const uint32_t flags = 0
+				| BGFX_TEXTURE_RT
+				| BGFX_TEXTURE_MIN_POINT
+				| BGFX_TEXTURE_MAG_POINT
+				| BGFX_TEXTURE_MIP_POINT
+				| BGFX_TEXTURE_U_CLAMP
+				| BGFX_TEXTURE_V_CLAMP;
+				
+	m_gbufferTextures[0] = bgfx::createTexture2D(uint16_t(w), uint16_t(h), false, 1, bgfx::TextureFormat::BGRA8, flags);
+	m_gbufferTextures[1] = bgfx::createTexture2D(uint16_t(w), uint16_t(h), false, 1, bgfx::TextureFormat::BGRA8, flags);
+	m_gbufferTextures[2] = bgfx::createTexture2D(uint16_t(w), uint16_t(h), false, 1, bgfx::TextureFormat::BGRA8, flags);
+	m_gbufferTextures[3] = bgfx::createTexture2D(uint16_t(w), uint16_t(h), false, 1, bgfx::TextureFormat::D24,   flags);
+	m_gbuffer = bgfx::createFrameBuffer(4, m_gbufferTextures, true);
+	
+	bgfx::setViewFrameBuffer(GEOMETRY_PASS, m_gbuffer);
+
+	bgfx::VertexDecl quadVertStruct;	
+	quadVertStruct.begin()
+		.add(bgfx::Attrib::Position, 2, bgfx::AttribType::Float)
+		.add(bgfx::Attrib::TexCoord0, 2, bgfx::AttribType::Float)
+	.end();
+
+	// Setup quad
+	static Vector2 vertices[8] = {
+		Vector2(-1, -1), Vector2(0, 0),
+		Vector2(-1, 1), Vector2(0, 1),
+		Vector2(1, -1), Vector2(1, 0),
+		Vector2(1, 1), Vector2(1, 1)
+	};
+	m_fullscreenQuad = bgfx::createVertexBuffer(bgfx::makeRef(vertices, sizeof(vertices)), quadVertStruct);
+	
+	static unsigned short indices[6] = {0, 1, 2, 1, 2, 3};
+	m_fullscreenIndices = bgfx::createIndexBuffer(bgfx::makeRef(indices, sizeof(indices)));
+	
+	m_gbufferTextureUniforms[0] = bgfx::createUniform("albedo", bgfx::UniformType::Int1);
+	m_gbufferTextureUniforms[1] = bgfx::createUniform("normal", bgfx::UniformType::Int1);
+	m_gbufferTextureUniforms[2] = bgfx::createUniform("position", bgfx::UniformType::Int1);
+	m_gbufferTextureUniforms[3] = bgfx::createUniform("depth", bgfx::UniformType::Int1);
 }
 
 void BGFXRenderer::swapBuffers()
@@ -70,7 +114,37 @@ void BGFXRenderer::swapBuffers()
 void BGFXRenderer::beginFrame(CameraBehavior& cam)
 {
 	cam.enable(m_screenWidth, m_screenHeight);
-	bgfx::setViewTransform(0, cam.getViewMatrix().entries, cam.getProjectionMatrix().entries);
+	bgfx::setViewTransform(GEOMETRY_PASS, cam.getViewMatrix().entries, cam.getProjectionMatrix().entries);
+	
+	uint64_t state = 0
+			| BGFX_STATE_WRITE_R
+			| BGFX_STATE_WRITE_G
+			| BGFX_STATE_WRITE_B
+			| BGFX_STATE_WRITE_A
+			| BGFX_STATE_WRITE_Z
+			| BGFX_STATE_DEPTH_TEST_LESS
+			| BGFX_STATE_CULL_CW
+			| BGFX_STATE_MSAA;
+			
+	bgfx::setState(state);
+}
+
+void BGFXRenderer::endFrame()
+{
+	// 0.5 for dx
+	bgfx::setState(0
+			| BGFX_STATE_WRITE_RGB
+			| BGFX_STATE_WRITE_A
+			| BGFX_STATE_DEPTH_TEST_ALWAYS);
+	
+	for(int i = 0; i < 4; i++)
+		bgfx::setTexture(i, m_gbufferTextureUniforms[i], m_gbufferTextures[i]);
+	
+	bgfx::setVertexBuffer(0, m_fullscreenQuad);
+	bgfx::setIndexBuffer(m_fullscreenIndices);
+	bgfx::submit(FULLSCREEN_PASS, getShader(1));
+	
+	swapBuffers();
 }
 
 unsigned int BGFXRenderer::loadShader(const char* path)
@@ -85,10 +159,8 @@ unsigned int BGFXRenderer::loadShader(const char* path)
 	char* fragShaderData = readBinaryFile((fullpath + "_fs.bin").c_str(), &fragShaderSize);
 	auto fragShader = bgfx::createShader(bgfx::copy(fragShaderData, fragShaderSize));
 	
-	m_shaders.push_back(bgfx::createProgram(vertShader, fragShader));
-
-	bgfx::destroy(vertShader);
-	bgfx::destroy(fragShader);
+	auto program = bgfx::createProgram(vertShader, fragShader, true);
+	m_shaders.push_back(program);
 	
 	delete vertShaderData;
 	delete fragShaderData;
