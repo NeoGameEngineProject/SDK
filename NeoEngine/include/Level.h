@@ -7,6 +7,7 @@
 #include <Texture.h>
 
 #include <behaviors/CameraBehavior.h>
+#include <behaviors/LightBehavior.h>
 
 namespace Neo 
 {
@@ -41,6 +42,14 @@ public:
 	CameraBehavior* getCurrentCamera() { return m_currentCamera; }
 	void setCurrentCamera(CameraBehavior* cam) { m_currentCamera = cam; }
 	
+	template<typename T>
+	T* getScratchPad() { return (T*) m_scratchpad.data; }
+	size_t getScratchPadSize() const { return m_scratchpad.count; }
+	
+	template<typename T>
+	size_t getScratchPadSize() const { return m_scratchpad.count / sizeof(T); }
+
+	
 	Array<Object>& getObjects() { return m_objects; }
 	Object* addObject(const char* name);
 	Object* find(const char* name);
@@ -49,6 +58,9 @@ public:
 	// Assets
 	Texture* loadTexture(const char* name);
 	bool load(const char* path);
+	
+	void updateVisibility(const CameraBehavior& camera);
+	void updateVisibility(const CameraBehavior& camera, Array<LightBehavior*>& visibleLights);
 	
 	void begin(Platform& p, Renderer& r) 
 	{ 

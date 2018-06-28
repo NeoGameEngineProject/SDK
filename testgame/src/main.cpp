@@ -17,6 +17,7 @@ extern "C" int main()
 	Neo::Level level;
 	level.load("assets/test.dae");
 	
+	auto light = level.find("Lamp");
 	auto camera = level.find("Camera");
 	auto camBehavior = camera->getBehavior<Neo::CameraBehavior>();
 	
@@ -41,6 +42,19 @@ extern "C" int main()
 		else if(input.isKeyDown(Neo::KEY_RIGHT_ARROW))
 			position += camera->getTransform().getRotatedVector3(Neo::Vector3(1, 0, 0));
 		
+		
+		
+		
+		if(input.isKeyDown(Neo::KEY_W))
+			light->translate(Neo::Vector3(0, 0, -1));
+		else if(input.isKeyDown(Neo::KEY_S))
+			light->translate(Neo::Vector3(0, 0, 1));
+		
+		if(input.isKeyDown(Neo::KEY_A))
+			light->translate(Neo::Vector3(-1, 0, 0));
+		else if(input.isKeyDown(Neo::KEY_D))
+			light->translate(Neo::Vector3(1, 0, 0));
+		
 		if(input.getMouse().isKeyDown(Neo::MOUSE_BUTTON_LEFT))
 		{
 			rotation.z -= input.getMouse().getDirection().x * 0.1;
@@ -53,7 +67,7 @@ extern "C" int main()
 		testCube->rotate(Neo::Vector3(0, 0, 1), 2);
 		
 		level.update(platform, 0.0);
-		renderer->clear(0.4f, 0.4f, 0.4f, true);
+		renderer->clear(57.0f/255.0f, 57.0f/255.0f, 57.0f/255.0f, true);
 		level.draw(*renderer);
 	}
 	level.end();

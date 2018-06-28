@@ -135,7 +135,7 @@ bool LevelLoader::load(Level& level, const char* file)
 		
 		if(AI_SUCCESS == aiGetMaterialFloat(aiMat, AI_MATKEY_SHININESS, &material.shininess))
 		{
-			material.shininess *= 0.25; // Need to quarter values since Assimp multiplies with 4 for some reason.
+			material.shininess *= 0.025; // Need to quarter values since Assimp multiplies with 4 for some reason.
 		}
 		
 		// Textures
@@ -273,9 +273,14 @@ bool LevelLoader::load(Level& level, const char* file)
 		const auto ailight = scene->mLights[i];
 		LightBehavior& light = lights[ailight->mName.C_Str()];
 		
-		light.angle = ailight->mAngleOuterCone;
+		if(ailight->mType != aiLightSourceType::aiLightSource_POINT)
+		{
+			light.exponent = ailight->mAngleInnerCone;
+			light.angle = ailight->mAngleOuterCone;
+		}
+		
+		light.attenuation = ailight->mAttenuationQuadratic;
 		light.brightness = 1.0;
-		light.exponent = ailight->mAngleInnerCone;
 		light.diffuse = Vector3(ailight->mColorDiffuse.r, ailight->mColorDiffuse.g, ailight->mColorDiffuse.b);
 		light.specular = Vector3(ailight->mColorSpecular.r, ailight->mColorSpecular.g, ailight->mColorSpecular.b);
 	}

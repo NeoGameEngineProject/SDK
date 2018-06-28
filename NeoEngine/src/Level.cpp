@@ -32,7 +32,7 @@ Object* Level::find(const char* name)
 void Level::draw(Renderer& r) 
 {
 	assert(m_currentCamera);
-	r.beginFrame(*m_currentCamera);
+	r.beginFrame(*this, *m_currentCamera);
 	for(size_t i = 0; i < m_numObjects; i++)
 		m_objects[i].draw(r);
 	r.endFrame();
@@ -54,4 +54,26 @@ Texture* Level::loadTexture(const char* name)
 bool Level::load(const char* path)
 {
 	return LevelLoader::load(*this, path);
+}
+
+void Level::updateVisibility(const CameraBehavior& camera)
+{
+	
+}
+
+// TODO Culling for lights and objects!
+void Level::updateVisibility(const CameraBehavior& camera, Array<LightBehavior*>& visibleLights)
+{
+	size_t lightNum = 0;
+	for(size_t i = 0; i < visibleLights.count && i < m_numObjects; i++)
+	{
+		auto light = m_objects[i].getBehavior<LightBehavior>();
+		if(light)
+		{
+			visibleLights[lightNum] = light;
+			lightNum++;
+		}
+	}
+	
+	visibleLights[lightNum] = nullptr;
 }

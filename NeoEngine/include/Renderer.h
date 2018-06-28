@@ -5,6 +5,7 @@ namespace Neo
 {
 
 class CameraBehavior;
+class Level;
 class Renderer
 {
 public:
@@ -13,7 +14,9 @@ public:
 	virtual void initialize(unsigned int w, unsigned int h, void* ndt, void* nwh) = 0;
 	virtual void swapBuffers() = 0;
 	
+	virtual void beginFrame(Level& level, CameraBehavior& camera) { beginFrame(camera); }
 	virtual void beginFrame(CameraBehavior& camera) = 0;
+
 	virtual void endFrame() = 0;
 };
 
