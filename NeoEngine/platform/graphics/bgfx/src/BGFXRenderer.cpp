@@ -78,7 +78,7 @@ void BGFXRenderer::initialize(unsigned int w, unsigned int h, void* ndt, void* n
 				
 	m_gbufferTextures[0] = bgfx::createTexture2D(uint16_t(w), uint16_t(h), false, 1, bgfx::TextureFormat::BGRA8, flags);
 	m_gbufferTextures[1] = bgfx::createTexture2D(uint16_t(w), uint16_t(h), false, 1, bgfx::TextureFormat::RGBA16F, flags);
-	m_gbufferTextures[2] = bgfx::createTexture2D(uint16_t(w), uint16_t(h), false, 1, bgfx::TextureFormat::RGBA32F, flags);
+	m_gbufferTextures[2] = bgfx::createTexture2D(uint16_t(w), uint16_t(h), false, 1, bgfx::TextureFormat::RGBA16F, flags);
 	m_gbufferTextures[3] = bgfx::createTexture2D(uint16_t(w), uint16_t(h), false, 1, bgfx::TextureFormat::BGRA8,   flags);
 	m_gbufferTextures[4] = bgfx::createTexture2D(uint16_t(w), uint16_t(h), false, 1, bgfx::TextureFormat::D24,   flags);
 	m_gbuffer = bgfx::createFrameBuffer(5, m_gbufferTextures, true);
@@ -179,9 +179,7 @@ void BGFXRenderer::beginFrame(CameraBehavior& cam)
 			| BGFX_STATE_WRITE_A
 			| BGFX_STATE_WRITE_Z
 			| BGFX_STATE_DEPTH_TEST_LESS
-			| BGFX_STATE_CULL_CW
-			| BGFX_STATE_MSAA;
-			
+			| BGFX_STATE_CULL_CW;
 	bgfx::setState(state);
 }
 

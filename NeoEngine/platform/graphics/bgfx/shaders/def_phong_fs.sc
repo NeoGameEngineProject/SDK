@@ -18,14 +18,6 @@ float rand(vec2 seed)
 	return fract(sin(dot(seed.xy ,vec2(12.9898,78.233))) * 43758.5453);
 }
 
-vec2 blinn(vec3 _lightDir, vec3 _normal, vec3 _viewDir)
-{
-	float ndotl = dot(_normal, _lightDir);
-	vec3 reflected = _lightDir - 2.0*ndotl*_normal; // reflect(_lightDir, _normal);
-	float rdotv = dot(reflected, _viewDir);
-	return vec2(ndotl, rdotv);
-}
-
 vec3 phong(vec3 color) 
 {
 	vec4 positionBuffer = texture2D(position, v_texcoord0);
@@ -84,6 +76,88 @@ vec3 phong(vec3 color)
 	return accumulator; // + vec3(rand(p.xy)) * 0.02;
 }
 
+vec3 cookTorranceSpecular(vec3 color)
+{
+	vec4 positionBuffer = texture2D(position, v_texcoord0);
+	float shininess = positionBuffer.w;
+	
+	float roughness = 0.4f / shininess;
+	
+	vec3 p = positionBuffer.xyz;
+	vec3 n = texture2D(normal, v_texcoord0).xyz;
+	vec3 v = normalize(-p.xyz);
+	
+	vec3 specular = texture2D(material, v_texcoord0).rgb;
+
+	vec3 accumulator = vec3(0, 0, 0); // = Ambient + Emissive;
+	for(int i = 0; i < numLights; i++)
+	{
+		vec4 lightPosition = texelFetch(lights, ivec2(i, 0), 0);
+		vec4 lightColor = texelFetch(lights, ivec2(i, 1), 0);
+		vec4 lightOption = texelFetch(lights, ivec2(i, 2), 0);
+		vec4 lightDirection = texelFetch(lights, ivec2(i, 3), 0);
+
+		float lightBrightness = lightColor.w;
+		float lightAttenuation = lightPosition.w;
+		
+		vec3 l;
+		if (lightOption.x < 1.0)
+			l = lightPosition.xyz - p;
+		else
+			l = -lightDirection.xyz;
+
+		// Gauss constant
+		const float c = 1.0;
+
+		vec3 s = normalize(l);
+		vec3 v = normalize(-p);
+		vec3 h = normalize(v + s);
+
+		float attenuation = (lightBrightness / (1.0f + lightAttenuation * pow(length(lightPosition.xyz - p), 2.5)));
+
+		if (lightOption.x > 0.0 && lightOption.x < 1.0)
+		{
+			float spot = dot(-s, lightDirection.xyz);
+
+			if (spot > lightOption.x)
+			{
+				spot = clamp(pow(spot - lightOption.x, lightOption.y), 0.0, 1.0);
+				attenuation *= spot;
+			}
+			else
+				continue;
+		}
+
+		
+		float nDoth = dot(n, h);
+		float nDotv = dot(n, v);
+		float vDoth = dot(v, h);
+		float nDots = dot(n, s);
+
+		float Geometric =
+			min(1.0, min((2 * nDoth * nDotv) / vDoth, (2 * nDoth * nDots) / vDoth));
+
+		float alpha = acos(nDoth);
+		float Roughness = c * exp(-(alpha / (roughness * roughness)));
+
+		const float normIncidence = 1.0;
+		float F0 = 0.04f;
+		float Fresnel = F0 + pow(1.0f - vDoth, 5.0f) * (1.0f - F0);
+		Fresnel *= (1.0f - normIncidence);
+		Fresnel += normIncidence;
+
+		float numerator = (Fresnel * Geometric * Roughness);
+		float denominator = nDotv * nDots;
+		float rs = numerator / denominator;
+		vec3 retval = max(0.0, nDots) * ((color.rgb * lightColor.rgb) + (lightColor.rgb * specular.rgb) * rs);
+		
+		accumulator += attenuation * retval;
+	}
+	
+	return accumulator;
+}
+
+
 vec3 removeGamma(vec3 color)
 {
 	return vec3(pow(color.x, 2.2f), 
@@ -101,7 +175,7 @@ vec3 applyGamma(vec3 color)
 void main()
 {
 #if 0
-	/*if(v_texcoord0.x > 0.5f)
+	if(v_texcoord0.x > 0.5f)
 	{
 		if(v_texcoord0.y > 0.5f)
 		{
@@ -113,22 +187,9 @@ void main()
 			gl_FragColor = texture2D(normal, v_texcoord0);
 			return;
 		}
-	}*/
+	}
 	
 	gl_FragColor = texture2D(albedo, v_texcoord0);
-	if(gl_FragColor.a == 0.0f)
-		return;
-	
-	vec3 p = texture2D(position, v_texcoord0).xyz;
-	vec3 n = normalize(texture2D(normal, v_texcoord0).xyz * 2 - 1);
-	vec3 v = normalize(-p.xyz);
-	
-	vec4 lightPosition = texelFetch(lights, ivec2(0, 0), 0);
-	vec3 l = lightPosition.xyz - p;
-	vec3 s = normalize(l);
-	vec3 h = normalize(v + s);
-	
-	gl_FragColor *= max(dot(s, n), 0.0);
 	return;
 #endif
 
@@ -136,5 +197,5 @@ void main()
 	if(gl_FragColor.a == 0.0f)
 		return;
 		
-	gl_FragColor = vec4(applyGamma(phong(removeGamma(gl_FragColor.rgb))), 1.0f);
+	gl_FragColor = vec4(applyGamma(cookTorranceSpecular(removeGamma(gl_FragColor.rgb))), 1.0f);
 }

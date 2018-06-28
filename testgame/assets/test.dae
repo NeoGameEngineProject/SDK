@@ -5,8 +5,8 @@
       <author>Blender User</author>
       <authoring_tool>Blender 2.79.0 commit date:2018-05-26, commit time:21:51, hash:32432d91bbe</authoring_tool>
     </contributor>
-    <created>2018-06-28T14:57:02</created>
-    <modified>2018-06-28T14:57:02</modified>
+    <created>2018-06-28T23:29:46</created>
+    <modified>2018-06-28T23:29:46</modified>
     <unit name="meter" meter="1"/>
     <up_axis>Z_UP</up_axis>
   </asset>
@@ -38,7 +38,7 @@
           <color sid="color">1 1 1</color>
           <constant_attenuation>1</constant_attenuation>
           <linear_attenuation>0</linear_attenuation>
-          <quadratic_attenuation>4e-4</quadratic_attenuation>
+          <quadratic_attenuation>10e-7</quadratic_attenuation>
         </point>
       </technique_common>
       <extra>
@@ -54,7 +54,7 @@
           <shadow_g sid="blender_shadow_g" type="float">0</shadow_g>
           <shadow_b sid="blender_shadow_b" type="float">0</shadow_b>
           <energy sid="blender_energy" type="float">1</energy>
-          <dist sid="blender_dist" type="float">50</dist>
+          <dist sid="blender_dist" type="float">1000</dist>
           <spotsize sid="spotsize" type="float">75</spotsize>
           <spotblend sid="spotblend" type="float">0.15</spotblend>
           <halo_intensity sid="blnder_halo_intensity" type="float">1</halo_intensity>
@@ -103,7 +103,7 @@
     <light id="Lamp_001-light" name="Lamp.001">
       <technique_common>
         <point>
-          <color sid="color">1 1 1</color>
+          <color sid="color">1 0.005234401 0.0173318</color>
           <constant_attenuation>1</constant_attenuation>
           <linear_attenuation>0</linear_attenuation>
           <quadratic_attenuation>4e-4</quadratic_attenuation>
@@ -116,8 +116,8 @@
           <mode sid="mode" type="int">8192</mode>
           <gamma sid="blender_gamma" type="float">1</gamma>
           <red sid="red" type="float">1</red>
-          <green sid="green" type="float">1</green>
-          <blue sid="blue" type="float">1</blue>
+          <green sid="green" type="float">0.00523436</green>
+          <blue sid="blue" type="float">0.01733177</blue>
           <shadow_r sid="blender_shadow_r" type="float">0</shadow_r>
           <shadow_g sid="blender_shadow_g" type="float">0</shadow_g>
           <shadow_b sid="blender_shadow_b" type="float">0</shadow_b>
@@ -171,7 +171,7 @@
     <light id="Lamp_002-light" name="Lamp.003">
       <technique_common>
         <point>
-          <color sid="color">1 1 1</color>
+          <color sid="color">0 1 0.005579927</color>
           <constant_attenuation>1</constant_attenuation>
           <linear_attenuation>0</linear_attenuation>
           <quadratic_attenuation>4e-4</quadratic_attenuation>
@@ -183,9 +183,9 @@
           <flag sid="flag" type="int">0</flag>
           <mode sid="mode" type="int">8192</mode>
           <gamma sid="blender_gamma" type="float">1</gamma>
-          <red sid="red" type="float">1</red>
+          <red sid="red" type="float">0</red>
           <green sid="green" type="float">1</green>
-          <blue sid="blue" type="float">1</blue>
+          <blue sid="blue" type="float">0.005579888</blue>
           <shadow_r sid="blender_shadow_r" type="float">0</shadow_r>
           <shadow_g sid="blender_shadow_g" type="float">0</shadow_g>
           <shadow_b sid="blender_shadow_b" type="float">0</shadow_b>
@@ -238,21 +238,21 @@
     </light>
   </library_lights>
   <library_images>
-    <image id="assets_test_png" name="assets_test_png">
-      <init_from>assets/test.png</init_from>
+    <image id="test_png" name="test_png">
+      <init_from>test.png</init_from>
     </image>
   </library_images>
   <library_effects>
     <effect id="Material_001_001-effect">
       <profile_COMMON>
-        <newparam sid="assets_test_png-surface">
+        <newparam sid="test_png-surface">
           <surface type="2D">
-            <init_from>assets_test_png</init_from>
+            <init_from>test_png</init_from>
           </surface>
         </newparam>
-        <newparam sid="assets_test_png-sampler">
+        <newparam sid="test_png-sampler">
           <sampler2D>
-            <source>assets_test_png-surface</source>
+            <source>test_png-surface</source>
           </sampler2D>
         </newparam>
         <technique sid="common">
@@ -264,7 +264,7 @@
               <color sid="ambient">0 0 0 1</color>
             </ambient>
             <diffuse>
-              <texture texture="assets_test_png-sampler"/>
+              <texture texture="test_png-sampler"/>
             </diffuse>
             <specular>
               <color sid="specular">0.015625 0.015625 0.015625 1</color>
@@ -331,6 +331,32 @@
         </technique>
       </profile_COMMON>
     </effect>
+    <effect id="Material_002-effect">
+      <profile_COMMON>
+        <technique sid="common">
+          <phong>
+            <emission>
+              <color sid="emission">0 0 0 1</color>
+            </emission>
+            <ambient>
+              <color sid="ambient">0 0 0 1</color>
+            </ambient>
+            <diffuse>
+              <color sid="diffuse">0.1239638 0.2767709 0.64 1</color>
+            </diffuse>
+            <specular>
+              <color sid="specular">0.5 0.5 0.5 1</color>
+            </specular>
+            <shininess>
+              <float sid="shininess">50</float>
+            </shininess>
+            <index_of_refraction>
+              <float sid="index_of_refraction">1</float>
+            </index_of_refraction>
+          </phong>
+        </technique>
+      </profile_COMMON>
+    </effect>
   </library_effects>
   <library_materials>
     <material id="Material_001_001-material" name="Material_001_001">
@@ -341,6 +367,9 @@
     </material>
     <material id="Material_001-material" name="Material_001">
       <instance_effect url="#Material_001-effect"/>
+    </material>
+    <material id="Material_002-material" name="Material_002">
+      <instance_effect url="#Material_002-effect"/>
     </material>
   </library_materials>
   <library_geometries>
@@ -455,6 +484,38 @@
         </triangles>
       </mesh>
     </geometry>
+    <geometry id="Plane_001-mesh" name="Plane.001">
+      <mesh>
+        <source id="Plane_001-mesh-positions">
+          <float_array id="Plane_001-mesh-positions-array" count="12">-40.07771 -32.77613 0 25.47455 -32.77613 0 -40.07771 32.77613 0 25.47455 32.77613 0</float_array>
+          <technique_common>
+            <accessor source="#Plane_001-mesh-positions-array" count="4" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="Plane_001-mesh-normals">
+          <float_array id="Plane_001-mesh-normals-array" count="3">0 0 1</float_array>
+          <technique_common>
+            <accessor source="#Plane_001-mesh-normals-array" count="1" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <vertices id="Plane_001-mesh-vertices">
+          <input semantic="POSITION" source="#Plane_001-mesh-positions"/>
+        </vertices>
+        <triangles material="Material_002-material" count="2">
+          <input semantic="VERTEX" source="#Plane_001-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#Plane_001-mesh-normals" offset="1"/>
+          <p>1 0 2 0 0 0 1 0 3 0 2 0</p>
+        </triangles>
+      </mesh>
+    </geometry>
   </library_geometries>
   <library_controllers/>
   <library_visual_scenes>
@@ -502,6 +563,16 @@
           <bind_material>
             <technique_common>
               <instance_material symbol="Material_001-material" target="#Material_001-material"/>
+            </technique_common>
+          </bind_material>
+        </instance_geometry>
+      </node>
+      <node id="Plane" name="Plane" type="NODE">
+        <matrix sid="transform">1 0 0 5.436089 0 1 0 3.406565 0 0 1 -2.481684 0 0 0 1</matrix>
+        <instance_geometry url="#Plane_001-mesh" name="Plane">
+          <bind_material>
+            <technique_common>
+              <instance_material symbol="Material_002-material" target="#Material_002-material"/>
             </technique_common>
           </bind_material>
         </instance_geometry>
