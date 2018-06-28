@@ -108,6 +108,13 @@ bool LevelLoader::load(Level& level, const char* file)
 	
 	assert(!scene->HasTextures() && "No embedded textures please!");
 	
+	std::string basepath(file);
+#ifndef WIN32
+	basepath.erase(basepath.find_last_of('/') + 1);
+#else
+	basepath.erase(basepath.find_last_of('\\') + 1);
+#endif
+	
 	// First, load all meshes into the resource cache
 	std::vector<SubMesh> meshes;
 	meshes.reserve(scene->mNumMeshes);
@@ -153,7 +160,7 @@ bool LevelLoader::load(Level& level, const char* file)
 
 			if(AI_SUCCESS == aiMat->GetTexture(aiTextureType_DIFFUSE, 0, &path, &mapping, &uvindex, &blend, &op, (aiTextureMapMode*) &mapmode))
 			{
-				Texture* texture = level.loadTexture(path.C_Str());
+				Texture* texture = level.loadTexture((basepath + path.C_Str()).c_str());
 				if(mapmode == aiTextureMapMode_Clamp)
 				{
 					//texture->setUWrapMode(WRAP_CLAMP);
