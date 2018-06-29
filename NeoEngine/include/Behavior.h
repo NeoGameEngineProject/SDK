@@ -12,6 +12,7 @@ class NEO_ENGINE_EXPORT Behavior
 {
 	Object* m_parent = nullptr;
 public:
+	virtual ~Behavior() {}
 	virtual const char* getName() const = 0;
 	
 	virtual void begin(const Platform& p, Renderer& render) {}

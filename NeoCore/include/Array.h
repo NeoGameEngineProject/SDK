@@ -50,7 +50,15 @@ struct Array
 	~Array()
 	{
 		if(data)
+		{
+			for(size_t i = 0; i < count; i++)
+			{
+				// Call destructors
+				data[i].~T();
+			}
+			
 			free(data);
+		}
 	}
 
 	/**
@@ -59,20 +67,15 @@ struct Array
 	 * Resizing is allowed. If the new size is smaller than the old size
 	 * elements will be cut off at the end.
 	 * 
-	 * @todo Should we require the construct flag?
 	 * @todo Error handling!
 	 * @param count The number of elements in the array.
-	 * @param construct Whether is should call the constructor on new elements.
 	 */
-	void alloc(unsigned int count, bool construct = false)
+	void alloc(unsigned int count)
 	{
 		data = reinterpret_cast<T*>(realloc(data, count * sizeof(T)));
-		if(construct)
-			for(size_t i = this->count; i < count; i++)
-				new (data + i) T;
-		else if(count > this->count)
-			memset(data + this->count, 0, sizeof(T) * count - this->count);
-		
+		for(size_t i = this->count; i < count; i++)
+			new (data + i) T;
+
 		this->count = count;
 	}
 	

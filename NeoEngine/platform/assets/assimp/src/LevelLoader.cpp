@@ -318,5 +318,7 @@ bool LevelLoader::load(Level& level, const char* file)
 	// Second, load all scene nodes and place them
 	// Kick it off!
 	traverseAssimpScene(&level, level.getRoot(), scene->mRootNode, meshes, lights, cameras);
+	aiReleaseImport(scene);
+	
 	return true;
 }
