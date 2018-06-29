@@ -8,7 +8,7 @@ set(ASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT CACHE OFF "" FORCE)
 
 set(ASSIMP_BUILD_COLLADA_IMPORTER ON)
 
-add_subdirectory(assimp EXCLUDE_FROM_ALL)
+add_subdirectory(assimp-external EXCLUDE_FROM_ALL)
 add_library(levelload ${SOURCES} ${INCLUDES})
 
 target_link_libraries(levelload PUBLIC NeoCore NeoEngine assimp)

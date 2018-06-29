@@ -1,7 +1,7 @@
 file(GLOB SOURCES src/*.c*)
 file(GLOB INCLUDES include/*.h)
 
-add_subdirectory(libpng EXCLUDE_FROM_ALL)
+add_subdirectory(libpng-external EXCLUDE_FROM_ALL)
 add_library(textureload ${SOURCES} ${INCLUDES})
 
 target_link_libraries(textureload PUBLIC NeoCore NeoEngine png_static)

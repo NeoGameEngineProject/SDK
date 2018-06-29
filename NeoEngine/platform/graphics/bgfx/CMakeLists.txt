@@ -2,7 +2,7 @@ file(GLOB SOURCES src/*.c*)
 file(GLOB_RECURSE SHADERS shaders/*.sc)
 file(GLOB INCLUDES include/*.h)
 
-add_subdirectory(bgfx-cmake EXCLUDE_FROM_ALL)
+add_subdirectory(bgfx-cmake-external EXCLUDE_FROM_ALL)
 
 add_library(renderer ${SOURCES} ${INCLUDES} ${SHADERS})
 
