@@ -13,9 +13,3 @@ add_library(levelload ${SOURCES} ${INCLUDES})
 
 target_link_libraries(levelload PUBLIC NeoCore NeoEngine assimp)
 target_include_directories(levelload PUBLIC include)
-
-if(NOT NO_TESTS)
-	file(GLOB TEST_SOURCES tests/*.c*)
-	add_executable(LevelLoadTest ${TEST_SOURCES})
-	target_link_libraries(LevelLoadTest ${GTEST_LIBRARIES} platform NeoEngine)
-endif()

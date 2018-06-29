@@ -19,6 +19,5 @@ target_link_libraries(NeoEngine PUBLIC NeoCore ${DL_LIBS} platform)
 if(NOT NO_TESTS)
 	file(GLOB TEST_SOURCES tests/*.c*)
 	add_executable(NeoEngineTest ${TEST_SOURCES})
-	target_link_libraries(NeoEngineTest ${GTEST_LIBRARIES} NeoEngine)
+	target_link_libraries(NeoEngineTest ${GTEST_LIBRARIES} renderer NeoEngine)
 endif()
-

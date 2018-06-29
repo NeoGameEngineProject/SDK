@@ -12,7 +12,7 @@ using namespace Neo;
 TEST(LoadLevel, Load)
 {
 	Level level;
-	ASSERT_TRUE(LevelLoader::loadLevel(level, "assets/test.dae"));
+	ASSERT_TRUE(LevelLoader::load(level, "assets/test.dae"));
 	
 	auto cube = level.find("Cube");
 	auto lamp = level.find("Lamp");
@@ -29,10 +29,4 @@ TEST(LoadLevel, Load)
 	auto root = level.getRoot();
 	ASSERT_NE(nullptr, root);
 	EXPECT_NE(nullptr, root->find("Cube"));
-}
-
-int main(int argc, char* argv[])
-{
-	testing::InitGoogleTest(&argc, argv);
-	return RUN_ALL_TESTS();
 }

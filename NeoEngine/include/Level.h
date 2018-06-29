@@ -75,7 +75,7 @@ public:
 	}
 	
 	void update(const Platform& p, float dt)
-	{ 
+	{
 		for(size_t i = 0; i < m_numObjects; i++)
 			m_objects[i].update(p, dt);
 	}
