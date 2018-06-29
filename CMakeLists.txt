@@ -6,12 +6,13 @@ set(CMAKE_MODULE_PATH
 	${CMAKE_MODULE_PATH}
 )
 
-option(BUILD_SHARED_LIBS ON)
+option(BUILD_SHARED_LIBS OFF)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-
-if(NOT NO_TESTGAME)
-	add_subdirectory(testgame)
+if(CMAKE_BUILD_TYPE STREQUAL "Release")
+	set(CMAKE_CXX_FLAGS "-flto ${CMAKE_CXX_FLAGS}")
+	set(CMAKE_C_FLAGS "-flto ${CMAKE_C_FLAGS}")
+	set(CMAKE_EXE_LINKER_FLAGS "-flto ${CMAKE_EXE_LINKER_FLAGS}")
 endif()
 
 find_package(GTest)
@@ -19,6 +20,20 @@ if(NOT GTEST_FOUND)
 	set(NO_TESTS TRUE)
 endif()
 
+if(ENABLE_SANITIZERS)
+	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fsanitize=address -fsanitize=undefined")
+endif()
+
 add_subdirectory(NeoCore)
 add_subdirectory(NeoEngine)
 # add_subdirectory(Neo2D)
+
+if(ENABLE_SANITIZERS)
+	target_compile_options(NeoEngine PUBLIC -fsanitize=address -fsanitize=undefined -fno-omit-frame-pointer)
+	target_compile_options(NeoCore PUBLIC -fsanitize=address -fsanitize=undefined -fno-omit-frame-pointer)
+endif()
+
+if(NOT NO_TESTGAME)
+	add_subdirectory(testgame)
+endif()
+
