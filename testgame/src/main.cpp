@@ -6,6 +6,8 @@
 #include <behaviors/CameraBehavior.h>
 #include <InputContext.h>
 
+#include <nanovg.h>
+
 extern "C" int main()
 {
 	Neo::Platform platform;
@@ -15,7 +17,11 @@ extern "C" int main()
 	auto& input = platform.getInputContext();
 	
 	Neo::Level level;
-	level.load("assets/test.dae");
+	if(!level.load("assets/test.dae"))
+	{
+		std::cerr << "Could not load level!" << std::endl;
+		return 1;
+	}
 	
 	auto light = level.find("Lamp");
 	auto camera = level.find("Camera");
@@ -29,6 +35,8 @@ extern "C" int main()
 	Neo::Vector3 position = camera->getPosition();
 	Neo::Vector3 rotation = camera->getRotation().getEulerAngles();
 	
+	auto nvg = nvgCreate(0, 0);
+	
 	while(1)
 	{
 		input.handleInput();
@@ -41,9 +49,6 @@ extern "C" int main()
 			position += camera->getTransform().getRotatedVector3(Neo::Vector3(-1, 0, 0));
 		else if(input.isKeyDown(Neo::KEY_RIGHT_ARROW))
 			position += camera->getTransform().getRotatedVector3(Neo::Vector3(1, 0, 0));
-		
-		
-		
 		
 		if(input.isKeyDown(Neo::KEY_W))
 			light->translate(Neo::Vector3(0, 0, -1));
@@ -69,6 +74,17 @@ extern "C" int main()
 		level.update(platform, 0.0);
 		renderer->clear(57.0f/255.0f, 57.0f/255.0f, 57.0f/255.0f, true);
 		level.draw(*renderer);
+		
+		nvgBeginFrame(nvg, 1024, 768, 1.0f);
+		nvgSave(nvg);
+		nvgBeginPath(nvg);
+		nvgRoundedRect(nvg, 20, 20, 100, 100, 5);
+		nvgFillColor(nvg, nvgRGBA(11,11,11,0x66));
+		nvgFill(nvg);
+		nvgRestore(nvg);
+		nvgEndFrame(nvg);
+		
+		renderer->swapBuffers();
 	}
 	level.end();
 	
