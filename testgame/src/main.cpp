@@ -7,72 +7,80 @@
 #include <InputContext.h>
 
 #include <HTMLView.h>
+#include <Game.h>
 
-extern "C" int main()
+class TestGame : public Neo::GameState
 {
-	Neo::Platform platform;
 	Neo::HTML::HTMLView htmlView;
-	
-	auto win = platform.createWindow(1024, 768);
-	auto renderer = win->getRenderer();
-	
-	auto& input = platform.getInputContext();
-	
 	Neo::Level level;
-	if(!level.load("assets/test.dae"))
+	
+	Neo::Object* light, *camera, *testCube;
+	Neo::CameraBehavior* cameraBehavior;
+	
+public:
+	void begin(Neo::Platform & p, Neo::Window& w) override
 	{
-		std::cerr << "Could not load level!" << std::endl;
-		return 1;
+		if(!level.load("assets/test.dae"))
+		{
+			std::cerr << "Could not load level!" << std::endl;
+			exit(1);
+		}
+		
+		light = level.find("Lamp");
+		camera = level.find("Camera");
+		cameraBehavior = camera->getBehavior<Neo::CameraBehavior>();
+		
+		testCube = level.find("Test");
+	
+		level.setCurrentCamera(cameraBehavior);
+		level.begin(p, *w.getRenderer());
+		
+		htmlView.begin(w.getWidth(), w.getHeight());
+		if(!htmlView.loadDocument("assets/test.html"))
+			exit(1);
+		
+		htmlView.addCallback("button1", [this](const char* url) {
+			auto button1 = htmlView.getById("#button1");	
+			static int counter = 0;	
+			button1.setValue(("Button was pressed " + std::to_string(counter++) + " times!").c_str());
+		});
+		
+		htmlView.addCallback("button2", [this](const char* url) {
+			auto button2 = htmlView.getById("#button2");	
+			static int counter = 1;
+			button2.setValue(("Button was pressed " + std::to_string(counter) + " times!").c_str());
+			counter *= 2;
+		});
+		
+		htmlView.addCallback("button3", [this](const char* url) {
+			auto button3 = htmlView.getById("#button3");	
+			static int counter = 0;
+			button3.setValue(("Button was pressed " + std::to_string(counter--) + " times!").c_str());
+		});
 	}
 	
-	auto light = level.find("Lamp");
-	auto camera = level.find("Camera");
-	auto camBehavior = camera->getBehavior<Neo::CameraBehavior>();
-	
-	auto testCube = level.find("Test");
-	
-	level.setCurrentCamera(camBehavior);
-	level.begin(platform, *renderer);
-	
-	Neo::Vector3 position = camera->getPosition();
-	Neo::Vector3 rotation = camera->getRotation().getEulerAngles();
-	
-	htmlView.begin(win->getWidth(), win->getHeight());
-	if(!htmlView.loadDocument("assets/test.html"))
-		return 1;
-	
-	auto button1 = htmlView.getById("#button1");	
-	htmlView.addCallback("button1", [&button1](const char* url) {
-		static int counter = 0;	
-		button1.setValue(("Button was pressed " + std::to_string(counter++) + " times!").c_str());
-	});
-	
-	auto button2 = htmlView.getById("#button2");	
-	htmlView.addCallback("button2", [&button2](const char* url) {
-		static int counter = 1;
-		button2.setValue(("Button was pressed " + std::to_string(counter) + " times!").c_str());
-		counter *= 2;
-	});
-	
-	auto button3 = htmlView.getById("#button3");	
-	htmlView.addCallback("button3", [&button3](const char* url) {
-		static int counter = 0;
-		button3.setValue(("Button was pressed " + std::to_string(counter--) + " times!").c_str());
-	});
-	
-	while(1)
+	void draw(Neo::Renderer& r) override
 	{
+		r.clear(57.0f/255.0f, 57.0f/255.0f, 57.0f/255.0f, true);
+		level.draw(r);
+		htmlView.draw(r);
+		r.swapBuffers();
+	}
+	
+	void update(Neo::Platform & p, float dt) override
+	{
+		auto& input = p.getInputContext();		
 		input.handleInput();
 
 		if(input.isKeyDown(Neo::KEY_UP_ARROW))
-			position += camera->getTransform().getRotatedVector3(Neo::Vector3(0, 0, -1));
+			camera->translate(Neo::Vector3(0, 0, -1), true);
 		else if(input.isKeyDown(Neo::KEY_DOWN_ARROW))
-			position += camera->getTransform().getRotatedVector3(Neo::Vector3(0, 0, 1));
+			camera->translate(Neo::Vector3(0, 0, 1), true);
 		
 		if(input.isKeyDown(Neo::KEY_LEFT_ARROW))
-			position += camera->getTransform().getRotatedVector3(Neo::Vector3(-1, 0, 0));
+			camera->translate(Neo::Vector3(-1, 0, 0), true);
 		else if(input.isKeyDown(Neo::KEY_RIGHT_ARROW))
-			position += camera->getTransform().getRotatedVector3(Neo::Vector3(1, 0, 0));
+			camera->translate(Neo::Vector3(1, 0, 0), true);
 		
 		if(input.isKeyDown(Neo::KEY_W))
 			light->translate(Neo::Vector3(0, 0, -1));
@@ -84,37 +92,30 @@ extern "C" int main()
 		else if(input.isKeyDown(Neo::KEY_D))
 			light->translate(Neo::Vector3(1, 0, 0));
 		
-		if(input.getMouse().isKeyDown(Neo::MOUSE_BUTTON_LEFT) && !htmlView.isMouseOver(platform))
+		if(input.getMouse().isKeyDown(Neo::MOUSE_BUTTON_LEFT) && !htmlView.isMouseOver(p))
 		{
+			auto rotation = camera->getRotation().getEulerAngles();
 			rotation.z -= input.getMouse().getDirection().x * 0.1;
 			rotation.x -= input.getMouse().getDirection().y * 0.1;
+			camera->setRotation(Neo::Quaternion(rotation.x, rotation.y, rotation.z));
 		}
-		
-		camera->setPosition(position);
-		camera->setRotation(Neo::Quaternion(rotation.x, rotation.y, rotation.z));
 		
 		testCube->rotate(Neo::Vector3(0, 0, 1), 2);
 		
-		level.update(platform, 0.0f);
-		htmlView.update(platform, 0.0f);
-		
-		renderer->clear(57.0f/255.0f, 57.0f/255.0f, 57.0f/255.0f, true);
-		level.draw(*renderer);
-		htmlView.draw(*renderer);
-		/*nvgBeginFrame(nvg, 1024, 768, 1.0f);
-		nvgSave(nvg);
-		nvgBeginPath(nvg);
-		nvgRoundedRect(nvg, 20, 20, 100, 100, 5);
-		nvgFillColor(nvg, nvgRGBA(11,11,11,0x66));
-		nvgFill(nvg);
-		nvgRestore(nvg);
-		nvgEndFrame(nvg);*/
-		
-		renderer->swapBuffers();
+		level.update(p, dt);
+		htmlView.update(p, dt);
 	}
 	
-	htmlView.end();
-	level.end();
-	
-	return 0;
+	void end() override
+	{
+		htmlView.end();
+		level.end();
+	}
+};
+
+extern "C" int main()
+{
+	Neo::Game game(1024, 768, "Neo Test Game");
+	game.changeState<TestGame>();
+	return game.run();
 }

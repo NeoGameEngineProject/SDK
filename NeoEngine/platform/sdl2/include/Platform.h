@@ -17,7 +17,7 @@ public:
 	Platform();
 	~Platform();
 	
-	std::unique_ptr<Window> createWindow(unsigned int w, unsigned int h);
+	std::unique_ptr<Window> createWindow(unsigned int w, unsigned int h, const char* title);
 	InputContext& getInputContext() { return m_inputContext; }
 	
 	void showCursor(bool value);

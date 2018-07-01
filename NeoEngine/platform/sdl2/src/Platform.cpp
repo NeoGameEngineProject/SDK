@@ -21,10 +21,11 @@ Platform::~Platform()
 	
 }
 
-std::unique_ptr<Window> Platform::createWindow(unsigned int w, unsigned int h)
+std::unique_ptr<Window> Platform::createWindow(unsigned int w, unsigned int h, const char* title)
 {
 	auto window = std::make_unique<SDLWindow>(w, h);
 	window->setRenderer(createRenderer());
+	window->setTitle(title);
 	return std::move(window);
 }
 
