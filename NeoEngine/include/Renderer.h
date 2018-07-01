@@ -9,6 +9,7 @@ class Level;
 class Renderer
 {
 public:
+	virtual ~Renderer() {}
 	virtual void clear(float r, float g, float b, bool depth) = 0;
 	// ndt and nwh are platform specific window pointers. See SDL_SysWMinfo and bgfx::PlatformData
 	virtual void initialize(unsigned int w, unsigned int h, void* ndt, void* nwh) = 0;

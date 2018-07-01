@@ -26,6 +26,9 @@ public:
 	}
 	
 	virtual void setRenderer(std::unique_ptr<Renderer>&& renderer) = 0;
+	
+	unsigned int getWidth() const { return m_width; }
+	unsigned int getHeight() const { return m_height; }
 };
 
 }

@@ -49,6 +49,8 @@ void BGFXRenderer::initialize(unsigned int w, unsigned int h, void* ndt, void* n
 	pd.backBufferDS = NULL;
 	bgfx::setPlatformData(pd);
 	bgfx::init(init);
+
+	bgfx::setDebug(BGFX_DEBUG_NONE);
 	
 	bgfx::setViewRect(GEOMETRY_PASS, 0, 0, uint16_t(w), uint16_t(h));
 	bgfx::setViewRect(FULLSCREEN_PASS, 0, 0, uint16_t(w), uint16_t(h));
@@ -199,8 +201,6 @@ void BGFXRenderer::endFrame()
 	bgfx::setVertexBuffer(0, m_fullscreenQuad);
 	bgfx::setIndexBuffer(m_fullscreenIndices);
 	bgfx::submit(FULLSCREEN_PASS, getShader(1));
-	
-	swapBuffers();
 }
 
 unsigned int BGFXRenderer::loadShader(const char* path)

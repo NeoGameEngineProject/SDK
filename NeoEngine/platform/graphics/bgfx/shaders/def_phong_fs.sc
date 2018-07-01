@@ -195,7 +195,10 @@ void main()
 
 	gl_FragColor = texture2D(albedo, v_texcoord0);
 	if(gl_FragColor.a == 0.0f)
+	{
+		gl_FragColor.a = 1.0f;
 		return;
-		
+	}
+	
 	gl_FragColor = vec4(applyGamma(cookTorranceSpecular(removeGamma(gl_FragColor.rgb))), 1.0f);
 }

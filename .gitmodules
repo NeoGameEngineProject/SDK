@@ -7,3 +7,6 @@
 [submodule "NeoEngine/platform/assets/png/libpng"]
 	path = NeoEngine/platform/assets/png/libpng-external
 	url = https://github.com/glennrp/libpng.git
+[submodule "NeoHTML/litehtml-external"]
+	path = NeoHTML/litehtml-external
+	url = https://github.com/litehtml/litehtml.git
