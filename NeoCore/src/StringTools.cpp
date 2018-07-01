@@ -243,18 +243,18 @@ char * readTextFile(const char * filename)
 		if(file != NULL)
 		{
 			M_fseek(file, 0, SEEK_END);
-    		count = M_ftell(file);
-    		M_rewind(file);
-			
+			count = M_ftell(file);
+			M_rewind(file);
+				
 			if(count > 0)
 			{
 				content = (char *)malloc(sizeof(char) * (count+1));
 
-                if(!content)
-                {
-                    M_fclose(file);
-                    return NULL;
-                }
+				if(!content)
+				{
+					M_fclose(file);
+					return NULL;
+				}
 
 				count = M_fread(content, sizeof(char), count, file);
 				content[count] = '\0';

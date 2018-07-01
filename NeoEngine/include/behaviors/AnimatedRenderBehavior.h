@@ -9,7 +9,7 @@ namespace Neo
 class AnimatedRenderBehavior : public Neo::Behavior
 {
 public:
-    const char* getName() const override { return "AnimatedRender"; }
+	const char* getName() const override { return "AnimatedRender"; }
 };
 
 }

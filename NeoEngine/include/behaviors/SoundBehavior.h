@@ -9,7 +9,7 @@ namespace Neo
 class SoundBehavior : public Neo::Behavior
 {
 public:
-    const char* getName() const override { return "Sound"; }
+	const char* getName() const override { return "Sound"; }
 };
 
 }

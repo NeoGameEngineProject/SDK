@@ -27,8 +27,8 @@ class NEO_ENGINE_EXPORT Object
 	std::unordered_map<std::string, size_t> m_behaviorMap;
 	
 	// Children
-	// Contains non-owning pointers to children.
-	// Caller needs to ensure their lifetime! (Level most of the time)
+	///< Contains non-owning pointers to children.
+	///< Caller needs to ensure their lifetime! (Level most of the time)
 	std::vector<Object*> m_children;
 	Object* m_parent = nullptr;
 	
@@ -37,18 +37,48 @@ class NEO_ENGINE_EXPORT Object
 	bool m_active = true;
 
 public:
-	Object() : Object("UNNAMMED") {}
+	Object() : Object("UNNAMED") {}
 	Object(const char* name) { setName(name); }
 	Object(Object&& obj)
 	{
 		*this = std::move(obj);
 	}
 	
+	/**
+	 * @brief Registers a new behavior.
+	 * 
+	 * The behavior is bound to this object and will be destroyed when
+	 * the object is destroyed.
+	 * 
+	 * @param behavior The behavior.
+	 * @return The behavior pointer.
+	 */
 	Behavior* addBehavior(BehaviorRef&& behavior);
+	
+	/**
+	 * @brief Removes a behavior.
+	 * @param name  The name of the behavior to remove.
+	 */
 	void removeBehavior(const char* name);
+	
+	/**
+	 * @brief Removes a behavior.
+	 * @param name  The name of the behavior to remove.
+	 */
 	void removeBehavior(const std::string& name);
 	
+	/**
+	 * @brief Finds a behavior.
+	 * @param name  The name of the behavior to find.
+	 * @return The behavior or \b nullptr
+	 */
 	Behavior* getBehavior(const char* name) const;
+	
+	/**
+	 * @brief Finds a behavior.
+	 * @param name  The name of the behavior to find.
+	 * @return The behavior or \b nullptr
+	 */
 	Behavior* getBehavior(const std::string& name) const;
 	
 	Matrix4x4& getTransform() { return m_transform; }
@@ -106,6 +136,9 @@ public:
 	void setVisible(bool v) { m_visible = v; }
 	bool isVisible() const { return m_visible; }
 	
+	/**
+	 * @brief Updates the transformation matrix based on position, rotation and scale.
+	 */
 	void updateMatrix()
 	{
 		m_transform.setRotationAxis(m_rotation.getAngle(), m_rotation.getAxis());
@@ -121,6 +154,9 @@ public:
 		m_needsUpdate = false;
 	}
 	
+	/**
+	 * @brief Updates position, rotation and scale based on the transformation matrix.
+	 */
 	void updateFromMatrix()
 	{
 		m_position = m_transform.getTranslationPart();
@@ -129,6 +165,11 @@ public:
 		m_needsUpdate = false;
 	}
 	
+	/**
+	 * @brief Adds a new behavior with the given type.
+	 * @tparam T The behavior type to add.
+	 * @return The new behavior.
+	 */
 	template<typename T>
 	T* addBehavior()
 	{
@@ -139,12 +180,21 @@ public:
 		return behaviorPtr;
 	}
 	
+	/**
+	 * @brief Finds the behavior with the given type.
+	 * @tparam T The type.
+	 * @return The behavior.
+	 */
 	template<typename T>
 	T* getBehavior() const
 	{
 		return reinterpret_cast<T*>(getBehavior(T().getName()));
 	}
 	
+	/**
+	 * @brief Removes the behavior with the given type.
+	 * @tparam T The type.
+	 */
 	template<typename T>
 	void removeBehavior()
 	{

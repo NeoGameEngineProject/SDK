@@ -31,9 +31,18 @@
 
 namespace Neo
 {
+
+/**
+ * @brief Maps strings to input commands.
+ * 
+ * Can be used to manage user configurable input settings.
+ */
 class NEO_ENGINE_EXPORT InputMapping
 {
+	///< The input context used
 	InputContext& m_input;
+	
+	///< The mapping from name -> key
 	std::unordered_map<std::string, INPUT_KEYS> m_keymap;
 public:
 	InputMapping(InputContext& input)
@@ -41,7 +50,18 @@ public:
 
 	virtual ~InputMapping(void){}
 
+	/**
+	 * @brief Maps one key to the given name.
+	 * @param name The name of the binding.
+	 * @param key The key that is bound.
+	 */
 	void mapKey(const char* name, INPUT_KEYS key) { m_keymap[name] = key; }
+	
+	/**
+	 * @brief Maps one axis to the given name.
+	 * @param name The name of the binding.
+	 * @param key The axis that is bound.
+	 */
 	void mapAxis(const char* name, unsigned int joystickId, unsigned int axis) {}
 
 	bool isKeyDown(const char* name) { return m_input.isKeyDown(m_keymap[name]); }
