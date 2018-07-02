@@ -31,6 +31,7 @@ endif()
 add_subdirectory(NeoCore)
 add_subdirectory(NeoEngine)
 add_subdirectory(NeoHTML)
+add_subdirectory(NeoStates)
 
 if(ENABLE_SANITIZERS)
 	target_compile_options(NeoEngine PUBLIC -fsanitize=address -fsanitize=undefined -fno-omit-frame-pointer)

@@ -11,14 +11,16 @@ namespace Neo
 class Game
 {
 	GameStateRef m_currentGame;
+	GameStateRef m_requestedGame;
+	
 	Platform m_platform;
 	std::unique_ptr<Window> m_window;
 	
 	bool m_running = true;
-	
+	double m_lastFrameTime = 0.0;
 public:
 	Game(unsigned int width, unsigned int height, const char* title);
-	void changeState(GameStateRef&& game);
+	void changeState(GameStateRef&& game, bool now = false); // now: Shold this be done now or in the next frame?
 	
 	template<typename T>
 	void changeState()

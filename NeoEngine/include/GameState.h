@@ -14,6 +14,7 @@ class GameState
 {
 	Game* m_game = nullptr;
 public:
+	virtual ~GameState() {}
 	virtual void begin(Platform& p, Window& w) = 0;
 	virtual void end() = 0;
 	virtual void update(Platform& p, float dt) = 0;

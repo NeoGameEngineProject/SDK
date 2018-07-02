@@ -8,6 +8,7 @@
 
 #include <HTMLView.h>
 #include <Game.h>
+#include <SplashScreen.h>
 
 class TestGame : public Neo::GameState
 {
@@ -100,7 +101,7 @@ public:
 			camera->setRotation(Neo::Quaternion(rotation.x, rotation.y, rotation.z));
 		}
 		
-		testCube->rotate(Neo::Vector3(0, 0, 1), 2);
+		testCube->rotate(Neo::Vector3(0, 0, 1), 20*dt);
 		
 		level.update(p, dt);
 		htmlView.update(p, dt);
@@ -116,6 +117,9 @@ public:
 extern "C" int main()
 {
 	Neo::Game game(1024, 768, "Neo Test Game");
-	game.changeState<TestGame>();
+
+	auto testGame = std::make_unique<TestGame>();
+	auto splash = new Neo::States::SplashScreen(std::move(testGame), 5, 3, { "assets/Splash1.png", "assets/Splash2.png" });
+	game.changeState(std::unique_ptr<Neo::States::SplashScreen>(splash));
 	return game.run();
 }
