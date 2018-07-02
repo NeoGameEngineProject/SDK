@@ -10,3 +10,6 @@
 [submodule "NeoHTML/litehtml-external"]
 	path = NeoHTML/litehtml-external
 	url = https://github.com/litehtml/litehtml.git
+[submodule "NeoEngine/platform/assets/zipvfs/libzip-external"]
+	path = NeoEngine/platform/assets/zipvfs/libzip-external
+	url = https://github.com/nih-at/libzip.git
