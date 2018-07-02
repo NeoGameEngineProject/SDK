@@ -6,6 +6,8 @@
 #include <behaviors/CameraBehavior.h>
 #include <InputContext.h>
 
+#include <ZipFile.h>
+
 #include <HTMLView.h>
 #include <Game.h>
 #include <SplashScreen.h>
@@ -116,6 +118,12 @@ public:
 
 extern "C" int main()
 {
+	if(!Neo::ZipOpenHook::mount())
+	{
+		std::cerr << "Could not open assets file!" << std::endl;
+		return 1;
+	}
+		
 	Neo::Game game(1024, 768, "Neo Test Game");
 
 	auto testGame = std::make_unique<TestGame>();

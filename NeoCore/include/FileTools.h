@@ -110,5 +110,7 @@ NEO_CORE_EXPORT long	 M_ftell(File * stream);
 /// Sets the file position indicator to the beginning of the file.
 /// \param stream   File stream
 NEO_CORE_EXPORT void	 M_rewind(File * stream);
+
+NEO_CORE_EXPORT size_t	M_fsize(File* stream);
 }
 #endif

@@ -106,6 +106,10 @@ public:
 	
 	/// Destroy file stream.
 	virtual void	destroy() = 0;
+	
+	/// Calculates the size of the file
+	/// \return The full file size in bytes.
+	virtual size_t size() = 0;
 };
 
 // File Open Hook

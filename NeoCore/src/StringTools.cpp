@@ -234,7 +234,7 @@ char * readTextFile(const char * filename)
 {
 	File * file;
 	char * content = NULL;
-	int count = 0;
+	size_t count = 0;
 	
 	if(filename != NULL)
 	{
@@ -242,10 +242,7 @@ char * readTextFile(const char * filename)
 		
 		if(file != NULL)
 		{
-			M_fseek(file, 0, SEEK_END);
-			count = M_ftell(file);
-			M_rewind(file);
-				
+			count = M_fsize(file);
 			if(count > 0)
 			{
 				content = (char *)malloc(sizeof(char) * (count+1));

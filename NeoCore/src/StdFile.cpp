@@ -117,3 +117,12 @@ void StdFile::rewind(void)
 	if(m_file)
 		frewind(m_file);
 }
+
+size_t StdFile::size()
+{
+	auto state = tell();
+	seek(0, SEEK_END);
+	auto retval = tell();
+	seek(state, SEEK_SET);
+	return retval;
+}

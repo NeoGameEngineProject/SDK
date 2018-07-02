@@ -313,13 +313,11 @@ char* readBinaryFile(const char* filename, unsigned int* sizeRead)
 	if(!file)
 		return nullptr;
 	
-	M_fseek(file, 0, SEEK_END);
-	*sizeRead = M_ftell(file);
-	M_fseek(file, 0, SEEK_SET);
+	*sizeRead = M_fsize(file);
 	
 	// TODO Error handling of fread!
 	char* buffer = new char[*sizeRead];
-	M_fread(buffer, *sizeRead, 1, file);
+	*sizeRead = M_fread(buffer, *sizeRead, 1, file);
 	M_fclose(file);
 	
 	return buffer;
@@ -415,5 +413,13 @@ void M_rewind(File * stream)
 {
     if(stream)
         stream->rewind();
+}
+
+size_t	M_fsize(File* stream)
+{
+	if(stream)
+		return stream->size();
+	
+	return 0;
 }
 }

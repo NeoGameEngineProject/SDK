@@ -99,14 +99,14 @@ void SplashScreen::begin(Neo::Platform& p, Neo::Window& w)
 		Neo::Texture image;
 		if(!Neo::TextureLoader::load(image, k.c_str()))
 		{
-			std::cerr << "Could not image: " << k << std::endl;
+			std::cerr << "Could not load image: " << k << std::endl;
 			continue;
 		}
 		
 		int texture = nvgCreateImageRGBA(m_nv, image.getWidth(), image.getHeight(), 0, (const unsigned char*) image.getData());
 		if(texture == -1)
 		{
-			std::cerr << "Could not image: " << k << std::endl;
+			std::cerr << "Could not load image: " << k << std::endl;
 			continue;
 		}
 		m_slideshowTextures.push_back(texture);

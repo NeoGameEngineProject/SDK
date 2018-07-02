@@ -62,6 +62,7 @@ public:
 	
 	bool 	isOpen(){ return m_file != 0; }
 	void	destroy(void);
+	size_t	size();
 };
 }
 #endif
