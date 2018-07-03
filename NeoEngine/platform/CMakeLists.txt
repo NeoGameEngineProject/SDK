@@ -9,5 +9,7 @@ else()
 	add_subdirectory(graphics/bgfx)
 	add_subdirectory(assets/assimp)
 	add_subdirectory(assets/png)
-	add_subdirectory(assets/zipvfs)
+	
+	add_subdirectory(assets/physfs)
+	#add_subdirectory(assets/zipvfs)
 endif()

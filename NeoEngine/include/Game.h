@@ -20,7 +20,7 @@ class Game
 	double m_lastFrameTime = 0.0;
 public:
 	Game(unsigned int width, unsigned int height, const char* title);
-	void changeState(GameStateRef&& game, bool now = false); // now: Shold this be done now or in the next frame?
+	void changeState(GameStateRef&& game, bool now = false); // now: Should this be done now or in the next frame?
 	
 	template<typename T>
 	void changeState()

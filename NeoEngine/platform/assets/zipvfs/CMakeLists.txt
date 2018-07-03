@@ -3,6 +3,6 @@ file(GLOB INCLUDES include/*.h)
 
 add_subdirectory(libzip-external EXCLUDE_FROM_ALL)
 
-add_library(zipvfs ${SOURCES} ${INCLUDES})
-target_include_directories(zipvfs PUBLIC include libzip-external/lib)
-target_link_libraries(zipvfs PUBLIC zip NeoCore)
+add_library(vfs ${SOURCES} ${INCLUDES})
+target_include_directories(vfs PUBLIC include libzip-external/lib)
+target_link_libraries(vfs PUBLIC zip NeoCore)

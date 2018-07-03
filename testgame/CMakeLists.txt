@@ -1,5 +1,5 @@
 
-add_executable(testgame src/main.cpp)
+add_game(testgame src/main.cpp assets/)
 target_link_libraries(testgame PUBLIC NeoEngine NeoHTML NeoStates)
 
 configure_file(assets/test.html ${CMAKE_BINARY_DIR}/bin/assets/test.html)

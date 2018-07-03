@@ -6,7 +6,7 @@
 #include <behaviors/CameraBehavior.h>
 #include <InputContext.h>
 
-#include <ZipFile.h>
+#include <VFSFile.h>
 
 #include <HTMLView.h>
 #include <Game.h>
@@ -72,7 +72,7 @@ public:
 	
 	void update(Neo::Platform & p, float dt) override
 	{
-		auto& input = p.getInputContext();		
+		auto& input = p.getInputContext();
 		input.handleInput();
 
 		if(input.isKeyDown(Neo::KEY_UP_ARROW))
@@ -116,18 +116,25 @@ public:
 	}
 };
 
-extern "C" int main()
+#ifndef ASSET_MODE
+#define ASSET_MODE 0
+#endif
+
+extern "C" int main(int argc, char** argv)
 {
-	if(!Neo::ZipOpenHook::mount())
+#if ASSET_MODE != 0
+	const char* pkg = (ASSET_MODE == 1 ? argv[0] : "data.neo");
+	if(!Neo::VFSOpenHook::mount(pkg, argv[0]))
 	{
 		std::cerr << "Could not open assets file!" << std::endl;
 		return 1;
 	}
-		
+#endif
+	
 	Neo::Game game(1024, 768, "Neo Test Game");
 
 	auto testGame = std::make_unique<TestGame>();
-	auto splash = new Neo::States::SplashScreen(std::move(testGame), 5, 3, { "assets/Splash1.png", "assets/Splash2.png" });
+	auto splash = new Neo::States::SplashScreen(std::move(testGame), 2, 1, { "assets/Splash1.png", "assets/Splash2.png" });
 	game.changeState(std::unique_ptr<Neo::States::SplashScreen>(splash));
 	return game.run();
 }

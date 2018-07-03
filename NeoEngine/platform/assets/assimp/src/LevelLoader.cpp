@@ -6,9 +6,11 @@
 #include <cassert>
 #include <assimp/postprocess.h>
 #include <assimp/cimport.h>
+#include <assimp/cfileio.h>
 
 #include <Object.h>
 #include <Level.h>
+#include <FileTools.h>
 
 #include <behaviors/LightBehavior.h>
 #include <behaviors/MeshBehavior.h>
@@ -16,6 +18,64 @@
 #include <behaviors/StaticRenderBehavior.h>
 
 using namespace Neo;
+
+
+#define GET_FILE(ai) ((File*) (ai->UserData))
+static const int aiSeekTable[] = { SEEK_SET, SEEK_CUR, SEEK_END };
+
+size_t aiRead(aiFile* file, char* data, size_t sz, size_t count)
+{
+	return M_fread(data, sz, count, GET_FILE(file));
+}
+
+aiReturn aiSeek(aiFile* file, size_t offset, aiOrigin origin)
+{
+	return (aiReturn) M_fseek(GET_FILE(file), offset, aiSeekTable[origin]);
+}
+
+size_t aiTell(aiFile* f)
+{
+	return M_ftell(GET_FILE(f));
+}
+
+size_t aiSize(aiFile* f)
+{
+	return M_fsize(GET_FILE(f));
+}
+
+size_t aiWrite(aiFile* file, const char* data, size_t sz, size_t count)
+{
+	return M_fwrite(data, sz, count, GET_FILE(file));
+}
+
+void aiClose(aiFileIO* io, aiFile* file)
+{
+	M_fclose(GET_FILE(file));
+	delete file;
+}
+
+void aiFlush(aiFile* file)
+{
+	
+}
+
+aiFile* aiOpen(aiFileIO* io, const char* path, const char* mode)
+{
+	File* f = M_fopen(path, mode);
+	if(!f)
+		return NULL;
+	
+	aiFile* file = new aiFile;
+	file->UserData = (aiUserData) f;
+	file->FlushProc = aiFlush;
+	file->ReadProc = aiRead;
+	file->SeekProc = aiSeek;
+	file->TellProc = aiTell;
+	file->WriteProc = aiWrite;
+	file->FileSizeProc = aiSize;
+	
+	return file;
+}
 
 static void loadMatrix(Matrix4x4& neoMat, aiMatrix4x4& aiMat)
 {
@@ -97,12 +157,18 @@ static void traverseAssimpScene(Level* level,
 
 bool LevelLoader::load(Level& level, const char* file)
 {
+	aiFileIO iostruct;
+	iostruct.OpenProc = aiOpen;
+	iostruct.CloseProc = aiClose;
+	
 	// Import scene from the given file!
-	const aiScene* scene = aiImportFile(file, aiProcessPreset_TargetRealtime_MaxQuality 
+	const aiScene* scene = aiImportFileEx(file, aiProcessPreset_TargetRealtime_MaxQuality 
 							| aiProcess_Triangulate 
 							| aiProcess_OptimizeMeshes 
 							| aiProcess_ImproveCacheLocality
-							| aiProcess_SplitLargeMeshes);
+							| aiProcess_SplitLargeMeshes,
+							
+							&iostruct);
 
 	if(!scene)
 	{

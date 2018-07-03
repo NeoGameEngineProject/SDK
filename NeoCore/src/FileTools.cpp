@@ -317,7 +317,7 @@ char* readBinaryFile(const char* filename, unsigned int* sizeRead)
 	
 	// TODO Error handling of fread!
 	char* buffer = new char[*sizeRead];
-	*sizeRead = M_fread(buffer, *sizeRead, 1, file);
+	*sizeRead = M_fread(buffer, 1, *sizeRead, file);
 	M_fclose(file);
 	
 	return buffer;

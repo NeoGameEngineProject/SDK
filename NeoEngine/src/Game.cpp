@@ -48,7 +48,7 @@ void Game::draw()
 int Game::run()
 {
 	m_running = true;
-	while(m_running && m_currentGame || m_requestedGame)
+	while(m_running && (m_currentGame || m_requestedGame))
 	{
 		update();
 		draw();
