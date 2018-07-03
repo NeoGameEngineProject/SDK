@@ -1,5 +1,5 @@
-#ifndef NEO_ZIPFILE_H
-#define NEO_ZIPFILE_H
+#ifndef NEO_VFSFILE_H
+#define NEO_VFSFILE_H
 
 #include <FileTools.h>
 #include <File.h>
@@ -10,15 +10,15 @@
 namespace Neo
 {
 
-class ZipOpenHook;
-class ZipFile : public File
+class VFSOpenHook;
+class VFSFile : public File
 {
-	ZipOpenHook& m_zip;
+	VFSOpenHook& m_zip;
 	zip_file_t* m_file = nullptr;
 	std::string m_path;
 	
 public:
-	ZipFile(ZipOpenHook& hook):
+	VFSFile(VFSOpenHook& hook):
 		m_zip(hook) {}
 	
 	void destroy() override;
@@ -36,22 +36,22 @@ public:
 
 };
 
-class ZipOpenHook : public FileOpenHook
+class VFSOpenHook : public FileOpenHook
 {
 	zip* m_zip = nullptr;
 	std::string m_package;
 	
 	bool openPackage();
 public:
-	ZipOpenHook() = default;
-	ZipOpenHook(const char* name) : m_package(name) {}
+	VFSOpenHook() = default;
+	VFSOpenHook(const char* name) : m_package(name) {}
 	File* open(const char * path, const char * mode) override;
 	
 	zip* getZip() { return m_zip; }
 	
 	static FileOpenHook* mount(const char* pkg)
 	{
-		ZipOpenHook* hook = new ZipOpenHook(pkg);
+		VFSOpenHook* hook = new VFSOpenHook(pkg);
 		if(!hook->openPackage())
 		{
 			delete hook;

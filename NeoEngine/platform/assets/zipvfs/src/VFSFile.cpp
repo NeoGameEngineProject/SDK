@@ -1,10 +1,10 @@
-#include "ZipFile.h"
+#include "VFSFile.h"
 #include <iostream>
 #include <cassert>
 
 using namespace Neo;
 
-bool ZipOpenHook::openPackage()
+bool VFSOpenHook::openPackage()
 {
 	int err = 0;
 	m_zip = zip_open(m_package.c_str(), ZIP_RDONLY, &err);
@@ -17,74 +17,74 @@ bool ZipOpenHook::openPackage()
 	return true;
 }
 
-File* ZipOpenHook::open(const char* path, const char* mode)
+File* VFSOpenHook::open(const char* path, const char* mode)
 {
 	if(!m_zip)
 		return nullptr;
 	
-	ZipFile* file = new ZipFile(*this);
+	VFSFile* file = new VFSFile(*this);
 	file->open(path, mode);
 	return file;
 }
 
-void ZipFile::destroy()
+void VFSFile::destroy()
 {
 	close();
 	delete this;
 }
 
-bool ZipFile::isOpen()
+bool VFSFile::isOpen()
 {
 	return m_file != nullptr;
 }
 
-void ZipFile::rewind()
+void VFSFile::rewind()
 {
 	close();
 	open(m_path.c_str(), "");
 }
 
-long int ZipFile::tell()
+long int VFSFile::tell()
 {
 	return zip_ftell(m_file);
 }
 
-int ZipFile::seek(long int offset, int whence)
+int VFSFile::seek(long int offset, int whence)
 {
 	return zip_fseek(m_file, offset, whence);
 }
 
-int ZipFile::print(const char* format, va_list args)
+int VFSFile::print(const char* format, va_list args)
 {
 	errno = ENOTSUP;
 	return 0;
 }
 
-int ZipFile::print(const char* format, ...)
+int VFSFile::print(const char* format, ...)
 {
 	errno = ENOTSUP;
 	return 0;
 }
 
-size_t ZipFile::write(const void* str, size_t size, size_t count)
+size_t VFSFile::write(const void* str, size_t size, size_t count)
 {
 	errno = ENOTSUP;
 	return 0;
 }
 
-size_t ZipFile::size()
+size_t VFSFile::size()
 {
 	zip_stat_t st;
 	zip_stat(m_zip.getZip(), m_path.c_str(), 0, &st);
 	return st.size;
 }
 
-size_t ZipFile::read(void* dest, size_t size, size_t count)
+size_t VFSFile::read(void* dest, size_t size, size_t count)
 {
 	return zip_fread(m_file, dest, size*count);
 }
 
-int ZipFile::close()
+int VFSFile::close()
 {
 	if(!m_file) return 0;
 	auto retval = zip_fclose(m_file);
@@ -92,7 +92,7 @@ int ZipFile::close()
 	return retval;
 }
 
-void ZipFile::open(const char* path, const char* mode)
+void VFSFile::open(const char* path, const char* mode)
 {
 	close();
 	m_path = path;
