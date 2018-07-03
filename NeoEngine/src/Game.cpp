@@ -2,6 +2,10 @@
 
 using namespace Neo;
 
+#ifndef ASSET_MODE
+#define ASSET_MODE 0
+#endif
+
 Game::Game(unsigned int width, unsigned int height, const char* title)
 {
 	m_window = m_platform.createWindow(width, height, title);
@@ -47,6 +51,16 @@ void Game::draw()
 
 int Game::run()
 {
+	// Set loading mode
+#if ASSET_MODE != 0
+	const char* pkg = (ASSET_MODE == 1 ? argv[0] : "data.neo");
+	if(!Neo::VFSOpenHook::mount(pkg, argv[0]))
+	{
+		std::cerr << "Could not open assets file!" << std::endl;
+		return 1;
+	}
+#endif
+	
 	m_running = true;
 	while(m_running && (m_currentGame || m_requestedGame))
 	{

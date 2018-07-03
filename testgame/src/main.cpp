@@ -116,21 +116,8 @@ public:
 	}
 };
 
-#ifndef ASSET_MODE
-#define ASSET_MODE 0
-#endif
-
 extern "C" int main(int argc, char** argv)
 {
-#if ASSET_MODE != 0
-	const char* pkg = (ASSET_MODE == 1 ? argv[0] : "data.neo");
-	if(!Neo::VFSOpenHook::mount(pkg, argv[0]))
-	{
-		std::cerr << "Could not open assets file!" << std::endl;
-		return 1;
-	}
-#endif
-	
 	Neo::Game game(1024, 768, "Neo Test Game");
 
 	auto testGame = std::make_unique<TestGame>();
