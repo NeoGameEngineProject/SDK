@@ -2,22 +2,28 @@
 file(GLOB_RECURSE HEADERS include/*.h)
 file(GLOB_RECURSE SOURCES src/*.c*)
 
-add_subdirectory(platform)
+include(AddPlatformModule)
 
 set(CMAKE_SHARED_LIBRARY_PREFIX "")
-add_library(NeoEngine ${SOURCES} ${HEADERS})
+add_subdirectory(platform)
+
+get_property(NEO_PLATFORM_LIBS GLOBAL PROPERTY NEO_PLATFORM_LIBS_PROP)
+get_property(NEO_PLATFORM_SRCS GLOBAL PROPERTY NEO_PLATFORM_SRCS_PROP)
+get_property(NEO_PLATFORM_INCS GLOBAL PROPERTY NEO_PLATFORM_INCS_PROP)
+
+add_library(NeoEngine ${SOURCES} ${HEADERS} ${NEO_PLATFORM_SRCS})
 
 target_compile_definitions(NeoEngine PRIVATE -DNEO_CORE_DLL)
-target_include_directories(NeoEngine PUBLIC include)
+target_include_directories(NeoEngine PUBLIC include ${NEO_PLATFORM_INCS})
 
 if(NOT WII)
 set(DL_LIBS ${CMAKE_DL_LIBS})
 endif()
 
-target_link_libraries(NeoEngine PUBLIC NeoCore ${DL_LIBS} platform)
+target_link_libraries(NeoEngine PUBLIC NeoCore ${DL_LIBS} ${NEO_PLATFORM_LIBS})
 
 if(NOT NO_TESTS)
 	file(GLOB TEST_SOURCES tests/*.c*)
 	add_executable(NeoEngineTest ${TEST_SOURCES})
-	target_link_libraries(NeoEngineTest ${GTEST_LIBRARIES} renderer NeoEngine)
+	target_link_libraries(NeoEngineTest ${GTEST_LIBRARIES} NeoEngine)
 endif()

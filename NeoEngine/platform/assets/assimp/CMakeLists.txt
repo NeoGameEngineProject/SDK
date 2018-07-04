@@ -9,7 +9,9 @@ set(ASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT CACHE OFF "" FORCE)
 set(ASSIMP_BUILD_COLLADA_IMPORTER ON)
 
 add_subdirectory(assimp-external EXCLUDE_FROM_ALL)
-add_library(levelload ${SOURCES} ${INCLUDES})
 
-target_link_libraries(levelload PUBLIC NeoCore NeoEngine assimp)
-target_include_directories(levelload PUBLIC include)
+add_platform_module(
+	SOURCES ${SOURCES} ${INCLUDES}
+	INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/../../include
+	LIBRARIES assimp)
+

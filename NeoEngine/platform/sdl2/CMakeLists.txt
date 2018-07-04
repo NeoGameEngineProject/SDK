@@ -6,7 +6,8 @@ find_package(SDL2 REQUIRED)
 set(PNG_SHARED CACHE OFF "" FORCE)
 set(PNG_TESTS CACHE OFF "" FORCE)
 
-add_library(platform ${SOURCES} ${INCLUDES})
-
-target_link_libraries(platform PUBLIC NeoCore NeoEngine ${SDL2_LIBRARY} renderer levelload textureload vfs)
-target_include_directories(platform PUBLIC include ../../include ${SDL2_INCLUDE_DIR})
+add_platform_module(
+	SOURCES ${SOURCES} ${INCLUDES}
+	INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/../../include ${SDL2_INCLUDE_DIR}
+	LIBRARIES "${SDL2_LIBRARY}")
+	

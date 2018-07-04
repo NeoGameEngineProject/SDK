@@ -3,6 +3,9 @@ file(GLOB INCLUDES include/*.h)
 
 add_subdirectory(libzip-external EXCLUDE_FROM_ALL)
 
-add_library(vfs ${SOURCES} ${INCLUDES})
-target_include_directories(vfs PUBLIC include libzip-external/lib)
-target_link_libraries(vfs PUBLIC zip NeoCore)
+add_platform_module(
+	SOURCES ${SOURCES} ${INCLUDES}
+	INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/../../include libzip-external/lib
+	LIBRARIES zip)
+	
+

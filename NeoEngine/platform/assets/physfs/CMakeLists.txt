@@ -5,6 +5,7 @@ set(PHYSFS_BUILD_SHARED CACHE "" OFF FORCE)
 set(PHYSFS_BUILD_TEST CACHE "" OFF FORCE)
 add_subdirectory(physfs-external EXCLUDE_FROM_ALL)
 
-add_library(vfs ${SOURCES} ${INCLUDES})
-target_include_directories(vfs PUBLIC include physfs-external/src)
-target_link_libraries(vfs PUBLIC physfs-static NeoCore)
+add_platform_module(
+	SOURCES ${SOURCES} ${INCLUDES}
+	INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/../../include ${CMAKE_CURRENT_SOURCE_DIR}/physfs-external/src
+	LIBRARIES physfs-static)
