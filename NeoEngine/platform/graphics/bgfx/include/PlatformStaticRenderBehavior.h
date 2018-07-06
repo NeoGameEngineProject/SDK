@@ -23,7 +23,7 @@ class PlatformStaticRenderBehavior : public Neo::Behavior
 	bgfx::UniformHandle m_uTextureConfig;
 public:
 	const char* getName() const override { return "PlatformStaticRender"; }
-	void begin(const Neo::Platform & p, Neo::Renderer & render) override;
+	void begin(Neo::Platform & p, Neo::Renderer & render) override;
 	void end() override;
 	
 	void draw(Neo::Renderer& render) override;

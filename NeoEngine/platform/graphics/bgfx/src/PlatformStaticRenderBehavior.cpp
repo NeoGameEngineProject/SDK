@@ -5,7 +5,7 @@
 
 using namespace Neo;
 
-void PlatformStaticRenderBehavior::begin(const Neo::Platform& p, Neo::Renderer& render)
+void PlatformStaticRenderBehavior::begin(Neo::Platform& p, Neo::Renderer& render)
 {
 	BGFXRenderer* bgfxRender = reinterpret_cast<BGFXRenderer*>(&render);
 	m_mesh = getParent()->getBehavior<MeshBehavior>();
