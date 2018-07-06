@@ -31,11 +31,47 @@
 
 using namespace Neo;
 
+#include "stb_vorbis.hpp"
+
+bool loadVorbisSound(const char * filename, Sound* sound)
+{
+	unsigned int size = 0;
+	void* file = readBinaryFile(filename, &size);
+	
+	if(!file)
+		return false;
+	
+	int channels, sample_rate;
+	short* output;
+	
+	size_t samples = stb_vorbis_decode_memory((const unsigned char*) file, size, &channels, &sample_rate, &output);
+	free(file);
+	file = nullptr;
+	
+	SOUND_FORMAT format;
+	if(channels == 2) format = SOUND_FORMAT_STEREO16;
+	else if(channels == 1) format = SOUND_FORMAT_MONO16;
+	else 
+	{
+		std::cerr << "Error: Could not load sound: Invalid channel count (" << channels << ")" << std::endl;
+		free(output);
+		return false;
+	}
+	
+	std::cout << "Loaded vorbis: channels=" << channels << " sample_rate=" << sample_rate << " samples=" << samples << std::endl;
+	
+	// FIXME: We need to copy. Allow moving the pointer in!
+	sound->create(filename, SOUND_FORMAT_STEREO16, channels * samples * 2, sample_rate);
+	memcpy(sound->getData(), output, sound->getSize());
+	
+	free(output);
+	return true;
+}
 
 bool loadWAVSound(const char * filename, Sound* sound)
 {
 	File * file = M_fopen(filename, "rb");
-	if(! file)
+	if(!file)
 	{
 		printf("ERROR Load Sound : unable to read %s file\n", filename);
 		return false;
@@ -129,5 +165,5 @@ bool loadWAVSound(const char * filename, Sound* sound)
 
 bool SoundLoader::load(Sound& sound, const char* filename)
 {
-	return loadWAVSound(filename, &sound);
+	return (loadWAVSound(filename, &sound) || loadVorbisSound(filename, &sound));
 }
