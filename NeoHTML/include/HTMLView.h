@@ -33,6 +33,8 @@ public:
 
 class HTMLView : public litehtml::document_container
 {
+	std::string m_basePath = "./";
+	
 	NVGcontext* m_nv = nullptr;
 	std::shared_ptr<litehtml::document> m_document = nullptr;
 	litehtml::context m_context;

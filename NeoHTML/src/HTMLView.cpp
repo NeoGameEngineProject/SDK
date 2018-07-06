@@ -61,6 +61,13 @@ bool HTMLView::loadDocument(const char* file)
 	if(!text)
 		return false;
 	
+	m_basePath = file;
+	auto lastSlash = m_basePath.find_last_of('/');
+	if(lastSlash != std::string::npos)
+		m_basePath.erase(lastSlash + 1);
+	else
+		m_basePath = "./";
+	
 	m_document = litehtml::document::createFromUTF8(text, this, &m_context);
 	delete text;
 	
@@ -129,7 +136,7 @@ void HTMLView::update(Platform& p, float dt)
 // Override stuff
 litehtml::uint_ptr HTMLView::create_font(const litehtml::tchar_t* faceName, int size, int weight, litehtml::font_style italic, unsigned int decoration, litehtml::font_metrics* fm) 
 {
-	std::string path = std::string("assets/") + faceName + ".ttf";
+	std::string path = m_basePath + faceName + ".ttf";
 	
 	unsigned int byteSize = 0;
 	void* data = readBinaryFile(path.c_str(), &byteSize);
@@ -219,8 +226,7 @@ void HTMLView::load_image(const litehtml::tchar_t* src, const litehtml::tchar_t*
 	auto image = m_images.find(src);
 	if(image == m_images.end())
 	{
-		std::string file = baseurl ? baseurl : "";
-		file += src;
+		std::string file = m_basePath + src;
 		
 		Image& img = m_images[src];
 		if(!TextureLoader::load(img.texture, file.c_str()) || img.texture.getComponents() != 4)
@@ -446,11 +452,11 @@ void HTMLView::transform_text(litehtml::tstring& text, litehtml::text_transform 
 
 void HTMLView::import_css(litehtml::tstring& text, const litehtml::tstring& url, litehtml::tstring& baseurl) 
 {
-	char* file = readTextFile((baseurl + url).c_str());
+	char* file = readTextFile((m_basePath + url).c_str());
 	
 	if(!file)
 	{
-		std::cerr << "Could not load CSS: " << baseurl << url << std::endl;
+		std::cerr << "Could not load CSS: " << m_basePath << url << std::endl;
 		return;
 	}
 	
