@@ -29,6 +29,7 @@ class NEO_ENGINE_EXPORT Level
 	
 	std::unordered_map<std::string, Texture> m_textures;
 	
+	std::vector<Sound> m_sounds;
 public:
 	/**
 	 * @brief Constructs a new level.
@@ -110,6 +111,7 @@ public:
 	 * @return The texture pointer.
 	 */
 	Texture* loadTexture(const char* name);
+	SoundHandle loadSound(const char* name);
 	
 	/**
 	 * @brief Loads a level from a file.
@@ -168,7 +170,7 @@ public:
 	 * @param p The platform context.
 	 * @param dt The delta time since the last frame.
 	 */
-	void update(const Platform& p, float dt)
+	void update(Platform& p, float dt)
 	{
 		for(size_t i = 0; i < m_numObjects; i++)
 			m_objects[i].update(p, dt);

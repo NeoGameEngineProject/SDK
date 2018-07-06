@@ -33,6 +33,8 @@ public:
 	
 	void stop() { m_running = false; }
 	int run();
+	
+	Platform& getPlatform() { return m_platform; }
 };
 
 }

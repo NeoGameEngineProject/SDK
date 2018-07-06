@@ -13,3 +13,6 @@
 [submodule "NeoEngine/platform/assets/zipvfs/libzip-external"]
 	path = NeoEngine/platform/assets/zipvfs/libzip-external
 	url = https://github.com/nih-at/libzip.git
+[submodule "NeoEngine/platform/assets/sound/openal-soft-external"]
+	path = NeoEngine/platform/assets/sound/openal-soft-external
+	url = https://github.com/kcat/openal-soft.git

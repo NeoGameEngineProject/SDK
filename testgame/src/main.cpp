@@ -1,9 +1,12 @@
+
 #include <Platform.h>
 
 #include <iostream>
 #include <InputContext.h>
 #include <Level.h>
 #include <behaviors/CameraBehavior.h>
+#include <behaviors/SoundBehavior.h>
+
 #include <InputContext.h>
 
 #include <VFSFile.h>
@@ -19,6 +22,7 @@ class TestGame : public Neo::GameState
 	
 	Neo::Object* light, *camera, *testCube;
 	Neo::CameraBehavior* cameraBehavior;
+	Neo::SoundBehavior sound;
 	
 public:
 	void begin(Neo::Platform & p, Neo::Window& w) override
@@ -60,6 +64,13 @@ public:
 			static int counter = 0;
 			button3.setValue(("Button was pressed " + std::to_string(counter--) + " times!").c_str());
 		});
+		
+		sound = std::move(Neo::SoundBehavior(level.loadSound("assets/beethoven9.wav")));
+		sound.initialize(getGame()->getPlatform());
+		sound.play();
+		
+		//getGame()->getPlatform().sleep(10000);
+		//sound.stop();
 	}
 	
 	void draw(Neo::Renderer& r) override

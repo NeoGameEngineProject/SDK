@@ -2,10 +2,12 @@
 #include <cstring>
 #include <iostream>
 #include <cassert>
+#include <algorithm>
 
 #include <Texture.h>
 #include <TextureLoader.h>
 #include <LevelLoader.h>
+#include <SoundLoader.h>
 
 using namespace Neo;
 
@@ -77,3 +79,27 @@ void Level::updateVisibility(const CameraBehavior& camera, Array<LightBehavior*>
 	
 	visibleLights[lightNum] = nullptr;
 }
+
+SoundHandle Level::loadSound(const char* name)
+{
+	auto soundIter = std::find_if(m_sounds.begin(), m_sounds.end(), [name](const Sound& s) {
+		if(!strcmp(s.getName(), name))
+			return true;
+		
+		return false;
+	});
+	
+	if(soundIter != m_sounds.end())
+		return SoundHandle(&m_sounds, soundIter - m_sounds.begin());
+	
+	Sound sound;
+	if(!SoundLoader::load(sound, name))
+	{
+		std::cerr << "Error: Could not load sound " << name << std::endl;
+		return SoundHandle();
+	}
+	
+	m_sounds.push_back(std::move(sound));
+	return SoundHandle(&m_sounds, m_sounds.size() - 1);
+}
+

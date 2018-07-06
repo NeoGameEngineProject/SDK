@@ -36,14 +36,14 @@ public:
 	 * @param p The platform context.
 	 * @param render The rendering context.
 	 */
-	virtual void begin(const Platform& p, Renderer& render) {}
+	virtual void begin(Platform& p, Renderer& render) {}
 	
 	/**
 	 * @brief Updates the behavior.
 	 * @param p The platform context.
 	 * @param dt The delta time since the last frame.
 	 */
-	virtual void update(const Platform& p, float dt) {}
+	virtual void update(Platform& p, float dt) {}
 	
 	/**
 	 * @brief Draws graphics needed by the behavior.

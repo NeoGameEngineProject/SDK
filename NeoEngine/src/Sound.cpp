@@ -28,23 +28,24 @@
 using namespace Neo;
 
 Sound::Sound(void):
-m_data(NULL),
-m_format(SOUND_FORMAT_MONO8),
-m_sampleRate(0),
-m_size(0)
-{}
+	m_data(NULL),
+	m_format(SOUND_FORMAT_MONO8),
+	m_sampleRate(0),
+	m_size(0) {}
 
 Sound::~Sound(void)
 {
-    SAFE_FREE(m_data);
+	SAFE_FREE(m_data);
 }
 
-void Sound::create(SOUND_FORMAT format, unsigned int size, unsigned int sampleRate)
+void Sound::create(const char* name, SOUND_FORMAT format, unsigned int size, unsigned int sampleRate)
 {
+	m_name = name;
 	m_size = size;
 	m_format = format;
 	m_sampleRate = sampleRate;
-    SAFE_FREE(m_data);
+	SAFE_FREE(m_data);
 
 	m_data = malloc(m_size);
 }
+

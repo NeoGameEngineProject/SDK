@@ -6,6 +6,7 @@
 
 #include <SDLInputContext.h>
 #include <BGFXRenderer.h>
+#include <OpenALContext.h>
 
 namespace Neo
 {
@@ -13,8 +14,10 @@ namespace Neo
 class Platform
 {
 	SDLInputContext m_inputContext;
+	OpenALContext m_soundContext;
+	
 public:
-	Platform();
+	Platform(const char* soundDevice = nullptr);
 	~Platform();
 	
 	std::unique_ptr<Window> createWindow(unsigned int w, unsigned int h, const char* title);
@@ -25,6 +28,7 @@ public:
 	void sleep(long int millis);
 	
 	std::unique_ptr<Renderer> createRenderer() { return std::make_unique<BGFXRenderer>(); }
+	SoundContext& getSoundContext() { return m_soundContext; }
 };
 
 }

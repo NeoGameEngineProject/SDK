@@ -1,14 +1,17 @@
 
 if(WII)
-	add_definitions(-Dstrcasecmp=strcmp -Dstrncasecmp=strncmp)
+	add_definitions(-include ${CMAKE_CURRENT_SOURCE_DIR}/wii/src/Wii.h)
 	
 	add_subdirectory(wii)
-	add_subdirectory(assets/collada)
+	add_subdirectory(assets/png)
+	add_subdirectory(assets/assimp)
+	add_subdirectory(assets/zipvfs)
 else()
 	add_subdirectory(sdl2)
 	add_subdirectory(graphics/bgfx)
 	add_subdirectory(assets/assimp)
 	add_subdirectory(assets/png)
+	add_subdirectory(assets/sound)
 	
 	add_subdirectory(assets/physfs)
 	# add_subdirectory(assets/zipvfs)

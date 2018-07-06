@@ -233,7 +233,7 @@ public:
 			k->end();
 	}
 	
-	void update(const Platform& p, float dt)
+	void update(Platform& p, float dt)
 	{
 		if(!m_active)
 			return;
