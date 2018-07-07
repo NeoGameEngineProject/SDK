@@ -20,15 +20,19 @@ namespace HTML
 class HTMLView;
 class HTMLElement
 {
-	HTMLView* m_view;
+	HTMLView* m_view = nullptr;
 	std::shared_ptr<litehtml::element> m_element;
 public:
 	HTMLElement(HTMLView* view, const std::shared_ptr<litehtml::element>& element): 
 		m_element(element),
 		m_view(view) {}
 	
+	HTMLElement() {}
+	
 	std::string getValue() const;
 	void setValue(const char* str);
+	
+	void setStyle(const char* name, const char* value);
 };
 
 class HTMLView : public litehtml::document_container

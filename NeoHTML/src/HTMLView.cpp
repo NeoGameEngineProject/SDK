@@ -38,6 +38,18 @@ void HTMLElement::setValue(const char* str)
 	m_view->renderPage();
 }
 
+void HTMLElement::setStyle(const char* name, const char* value)
+{
+	m_element->refresh_styles();
+
+	litehtml::style style;
+	style.add_property(name, value, nullptr, true);
+	m_element->add_style(style);
+	m_element->parse_styles(true);
+	
+	m_view->renderPage();
+}
+
 void HTMLView::begin(unsigned int w, unsigned int h)
 {
 	assert(!m_nv && "Already initialized!");
