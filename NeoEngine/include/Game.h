@@ -18,6 +18,7 @@ class Game
 	
 	bool m_running = true;
 	double m_lastFrameTime = 0.0;
+	
 public:
 	Game(unsigned int width, unsigned int height, const char* title);
 	void changeState(GameStateRef&& game, bool now = false); // now: Should this be done now or in the next frame?
@@ -28,11 +29,12 @@ public:
 		changeState(std::move(std::make_unique<T>()));
 	}
 	
+	void begin();
 	void update();
 	void draw();
 	
 	void stop() { m_running = false; }
-	int run();
+	int run(int argc, char** argv);
 	
 	Platform& getPlatform() { return m_platform; }
 };

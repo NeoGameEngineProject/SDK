@@ -4,6 +4,7 @@
 #include "NeoEngine.h"
 #include "Behavior.h"
 
+#include <Handle.h>
 #include <Vector3.h>
 #include <Quaternion.h>
 #include <Matrix4x4.h>
@@ -12,6 +13,10 @@
 
 namespace Neo
 {
+class Object;
+typedef Handle<Object, std::vector<Object>> ObjectHandle;
+typedef Handle<Object, Array<Object>> ObjectHandleArray;
+
 class NEO_ENGINE_EXPORT Object
 {
 	Vector3 m_position, m_scale = Vector3(1.0f, 1.0f, 1.0f);
@@ -29,20 +34,24 @@ class NEO_ENGINE_EXPORT Object
 	// Children
 	///< Contains non-owning pointers to children.
 	///< Caller needs to ensure their lifetime! (Level most of the time)
-	std::vector<Object*> m_children;
-	Object* m_parent = nullptr;
+	std::vector<ObjectHandle> m_children;
+	ObjectHandle m_parent;
 	
 	bool m_needsUpdate = true;
 	bool m_visible = true;
 	bool m_active = true;
+	
+	ObjectHandle m_self;
 
 public:
-	Object() : Object("UNNAMED") {}
-	Object(const char* name) { setName(name); }
+	Object(ObjectHandle self = ObjectHandle()) : Object("UNNAMED", self) {}
+	Object(const char* name, ObjectHandle self = ObjectHandle()): m_self(self) { setName(name); }
 	Object(Object&& obj)
 	{
 		*this = std::move(obj);
 	}
+	
+	ObjectHandle getSelf() { return m_self; }
 	
 	/**
 	 * @brief Registers a new behavior.
@@ -123,12 +132,12 @@ public:
 	const char* getName() const { return m_name; }
 	void setName(const char* name);
 	
-	std::vector<Object*>& getChildren() { return m_children; }
-	Object* addChild(Object* object);
-	Object* find(const char* name);
+	std::vector<ObjectHandle>& getChildren() { return m_children; }
+	ObjectHandle addChild(ObjectHandle object);
+	ObjectHandle find(const char* name);
 	
-	Object* getParent() const { return m_parent; }
-	void setParent(Object* object) { m_parent = object; } 
+	ObjectHandle getParent() const { return m_parent; }
+	void setParent(ObjectHandle object) { m_parent = object; } 
 	
 	void setActive(bool v) { m_active = v; }
 	bool isActive() const { return m_active; }
@@ -145,7 +154,7 @@ public:
 		m_transform.setTranslationPart(m_position);
 		m_transform.scale(m_scale);
 		
-		if(m_parent)
+		if(!m_parent.empty())
 		{
 			m_parent->updateMatrix();
 			m_transform = m_parent->getTransform() * m_transform;
@@ -216,6 +225,7 @@ public:
 			
 			m_active = obj.m_active;
 			m_visible = obj.m_visible;
+			m_self = obj.m_self;
 		}
 		
 		return *this;

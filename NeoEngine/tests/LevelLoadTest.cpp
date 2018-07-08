@@ -18,15 +18,15 @@ TEST(LoadLevel, Load)
 	auto lamp = level.find("Lamp");
 	auto camera = level.find("Camera");
 	
-	ASSERT_NE(nullptr, cube);
-	ASSERT_NE(nullptr, lamp);
-	ASSERT_NE(nullptr, camera);
+	ASSERT_NE(ObjectHandle(), cube);
+	ASSERT_NE(ObjectHandle(), lamp);
+	ASSERT_NE(ObjectHandle(), camera);
 	
 	ASSERT_NE(nullptr, cube->getBehavior<MeshBehavior>());
 	ASSERT_NE(nullptr, lamp->getBehavior<LightBehavior>());
 	ASSERT_NE(nullptr, camera->getBehavior<CameraBehavior>());
 	
 	auto root = level.getRoot();
-	ASSERT_NE(nullptr, root);
-	EXPECT_NE(nullptr, root->find("Cube"));
+	ASSERT_NE(ObjectHandle(), root);
+	EXPECT_NE(ObjectHandle(), root->find("Cube"));
 }

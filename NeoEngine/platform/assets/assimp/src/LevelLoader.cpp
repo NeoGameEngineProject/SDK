@@ -16,6 +16,7 @@
 #include <behaviors/MeshBehavior.h>
 #include <behaviors/CameraBehavior.h>
 #include <behaviors/StaticRenderBehavior.h>
+#include <Object.h>
 
 using namespace Neo;
 
@@ -84,7 +85,7 @@ static void loadMatrix(Matrix4x4& neoMat, aiMatrix4x4& aiMat)
 }
 
 static void traverseAssimpScene(Level* level,
-				Object* neoRoot, 
+				ObjectHandle neoRoot, 
 				aiNode* root, 
 				const std::vector<SubMesh>& meshes, 
 				const std::unordered_map<std::string, LightBehavior>& lights,
@@ -96,7 +97,7 @@ static void traverseAssimpScene(Level* level,
 	for(int i = 0; i < root->mNumChildren; i++)
 	{
 		aiNode* child = root->mChildren[i];
-		Object* neoChild = neoRoot->addChild(level->addObject(child->mName.C_Str()));
+		ObjectHandle neoChild = neoRoot->addChild(level->addObject(child->mName.C_Str()));
 
 		// No mesh means it is either a camera or light!
 		if(child->mNumMeshes  == 0)

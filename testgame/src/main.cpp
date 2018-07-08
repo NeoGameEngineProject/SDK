@@ -18,7 +18,7 @@ class TestGame : public Neo::GameState
 	Neo::HTML::HTMLView htmlView;
 	Neo::Level level;
 	
-	Neo::Object* light, *camera, *testCube;
+	Neo::ObjectHandle light, camera, testCube;
 	Neo::CameraBehavior* cameraBehavior;
 	Neo::SoundBehavior sound;
 	

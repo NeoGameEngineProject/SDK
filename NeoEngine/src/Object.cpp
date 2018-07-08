@@ -52,17 +52,17 @@ void Object::setName(const char* name)
 	m_name[sizeof(m_name)-1] = 0;
 }
 
-Object* Object::addChild(Object* object)
+ObjectHandle Object::addChild(ObjectHandle object)
 {
-	object->setParent(this);
+	object->setParent(m_self);
 	m_children.push_back(object);
 	return object;
 }
 
-Object* Object::find(const char* name)
+ObjectHandle Object::find(const char* name)
 {
 	if(!strcmp(name, getName()))
-		return this;
+		return m_self;
 	
 	for(auto k : m_children)
 	{
@@ -70,5 +70,5 @@ Object* Object::find(const char* name)
 			return k;
 	}
 	
-	return nullptr;
+	return ObjectHandle();
 }

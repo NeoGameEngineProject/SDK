@@ -21,14 +21,11 @@ namespace Neo
  */
 class NEO_ENGINE_EXPORT Level
 {
-	size_t m_numObjects = 0;
-	Array<Object> m_objects;
+	std::vector<Object> m_objects;
 	Array<char> m_scratchpad;
 	
 	CameraBehavior* m_currentCamera = nullptr;
-	
 	std::unordered_map<std::string, Texture> m_textures;
-	
 	std::vector<Sound> m_sounds;
 public:
 	/**
@@ -39,18 +36,14 @@ public:
 	Level(size_t maxObjects = 4096, size_t scratchpad = 4096)
 	{
 		m_scratchpad.alloc(scratchpad);
-		m_objects.alloc(maxObjects+1);
-		m_objects[0] = std::move(Object("ROOT"));
-		m_numObjects++;
+		m_objects.reserve(maxObjects+1);
+		m_objects.push_back(std::move(Object("ROOT")));
 	}
 	
 	Level(Level&& level):
 		m_objects(std::move(level.m_objects)), 
-		m_scratchpad(std::move(level.m_scratchpad)),
-		m_numObjects(level.m_numObjects) 
-		{
-			level.m_numObjects = 0;
-		}
+		m_scratchpad(std::move(level.m_scratchpad))
+		{ }
 	
 	CameraBehavior* getCurrentCamera() { return m_currentCamera; }
 	void setCurrentCamera(CameraBehavior* cam) { m_currentCamera = cam; }
@@ -78,7 +71,7 @@ public:
 	size_t getScratchPadSize() const { return m_scratchpad.count / sizeof(T); }
 
 	
-	Array<Object>& getObjects() { return m_objects; }
+	std::vector<Object>& getObjects() { return m_objects; }
 	
 	/**
 	 * @brief Adds a new object as long as a slot is free.
@@ -88,15 +81,15 @@ public:
 	 * @param name The name of the object.
 	 * @return The new object.
 	 */
-	Object* addObject(const char* name);
+	ObjectHandle addObject(const char* name);
 	
 	/**
 	 * @brief Finds an object by name.
 	 * @param name The name.
 	 * @return The object or nullptr.
 	 */
-	Object* find(const char* name);
-	Object* getRoot() { return &m_objects[0]; }
+	ObjectHandle find(const char* name);
+	ObjectHandle getRoot() { return ObjectHandle(&m_objects, 0); }
 	
 	// Assets
 	
@@ -147,7 +140,7 @@ public:
 	 */
 	void begin(Platform& p, Renderer& r) 
 	{ 
-		for(size_t i = 0; i < m_numObjects; i++)
+		for(size_t i = 0; i < m_objects.size(); i++)
 			m_objects[i].begin(p, r);
 	}
 	
@@ -158,7 +151,7 @@ public:
 	 */
 	void end() 
 	{ 
-		for(size_t i = 0; i < m_numObjects; i++)
+		for(size_t i = 0; i < m_objects.size(); i++)
 			m_objects[i].end();
 	}
 	
@@ -172,7 +165,7 @@ public:
 	 */
 	void update(Platform& p, float dt)
 	{
-		for(size_t i = 0; i < m_numObjects; i++)
+		for(size_t i = 0; i < m_objects.size(); i++)
 			m_objects[i].update(p, dt);
 	}
 	
