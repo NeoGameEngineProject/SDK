@@ -21,7 +21,6 @@ else()
 	add_subdirectory(assets/png)
 	add_subdirectory(assets/sound)
 	
-	add_subdirectory(assets/npkfs)
-	# add_subdirectory(assets/physfs)
+	add_subdirectory(assets/physfs)
 	# add_subdirectory(assets/zipvfs)
 endif()
