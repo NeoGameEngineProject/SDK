@@ -7,7 +7,7 @@ class Level;
 class LevelLoader
 {
 public:
-	static bool load(Level& level, const char* file);
+	static bool load(Level& level, const char* file, const char* rootNode = nullptr);
 };
 
 }

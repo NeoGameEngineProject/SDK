@@ -156,8 +156,14 @@ static void traverseAssimpScene(Level* level,
 }
 
 
-bool LevelLoader::load(Level& level, const char* file)
+bool LevelLoader::load(Level& level, const char* file, const char* rootNode)
 {
+	ObjectHandle root;
+	if(rootNode)
+		root = level.find(rootNode);
+	else
+		root = level.getRoot();
+	
 	aiFileIO iostruct;
 	iostruct.OpenProc = aiOpen;
 	iostruct.CloseProc = aiClose;
@@ -384,7 +390,7 @@ bool LevelLoader::load(Level& level, const char* file)
 	
 	// Second, load all scene nodes and place them
 	// Kick it off!
-	traverseAssimpScene(&level, level.getRoot(), scene->mRootNode, meshes, lights, cameras);
+	traverseAssimpScene(&level, root, scene->mRootNode, meshes, lights, cameras);
 	aiReleaseImport(scene);
 	
 	return true;
