@@ -18,7 +18,7 @@ void main()
 	gl_FragData[2] = vec4(v_position, u_shininess);
 	gl_FragData[3] = specular;
 	
-	if(u_numTextures == 0)
+	if(u_numTextures == 0.0f)
 	{
 		gl_FragData[0] = vec4(diffuse.xyz, 1.0f);
 	}

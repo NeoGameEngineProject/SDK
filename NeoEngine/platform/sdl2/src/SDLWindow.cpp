@@ -15,14 +15,12 @@ SDLWindow::SDLWindow(unsigned int w, unsigned int h) : Window(w, h)
 	
 	if(m_win == nullptr)
 	{
-		//std::cout << "SDL_CreateWindow Error: " << SDL_GetError() << std::endl;
-		//SDL_Quit();
 		std::cerr << "Could not create window! " << SDL_GetError() << std::endl;
 	}
 	
 	// TODO Configuration
-	// SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-	// SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 8);
+	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 8);
 	
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 5);
@@ -56,6 +54,7 @@ void SDLWindow::setRenderer(std::unique_ptr<Renderer>&& renderer)
 {
 	void* ndt = nullptr, *nwh = nullptr;
 	
+#ifndef __EMSCRIPTEN__
 	SDL_SysWMinfo wmi;
 	SDL_VERSION(&wmi.version);
 	if(!SDL_GetWindowWMInfo(m_win, &wmi))
@@ -77,6 +76,7 @@ void SDLWindow::setRenderer(std::unique_ptr<Renderer>&& renderer)
 //		ndt          = wmi.info.vivante.display;
 //		nwh          = wmi.info.vivante.window;
 #endif
+#endif // __EMSCRIPTEN__
 	Window::setRenderer(std::move(renderer), ndt, nwh);
 }
 

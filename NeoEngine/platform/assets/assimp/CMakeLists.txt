@@ -12,6 +12,8 @@ add_subdirectory(assimp-external EXCLUDE_FROM_ALL)
 
 add_platform_module(
 	SOURCES ${SOURCES} ${INCLUDES}
-	INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/../../include
+	INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/../../include 
+		${CMAKE_CURRENT_SOURCE_DIR}/assimp-external/include
+		${CMAKE_CURRENT_BINARY_DIR}/assimp-external/include
 	LIBRARIES assimp)
 

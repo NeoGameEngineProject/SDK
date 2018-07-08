@@ -46,7 +46,9 @@ public:
 	
 	OBJECT* get() 
 	{ 
-		assert(m_manager && m_handle != -1 && m_handle < m_manager->size());
+		assert(m_manager);
+		assert(m_handle != -1);
+		assert(m_handle < m_manager->size());
 		return &(*m_manager)[m_handle]; 
 	}
 	bool empty() { return m_manager == nullptr; }

@@ -6,6 +6,9 @@ using namespace Neo;
 
 PlatformSoundBehavior::~PlatformSoundBehavior()
 {
+	if(m_sound.empty())
+		return;
+	
 	auto buffer = m_sound->getBufferHandle();
 	if(buffer != -1)
 	{

@@ -22,12 +22,14 @@ target_include_directories(nanovg PUBLIC
 	${FREETYPE_INCLUDE_DIRS})
 	
 target_link_libraries(nanovg PUBLIC bgfx bx bimg ${FREETYPE_LIBRARIES})
-	
-add_shader(shaders/base/base_vs.sc VERTEX OUTPUT ${CMAKE_BINARY_DIR}/bin/assets PLATFORMS glsl GLSL_VERSION 130)
-add_shader(shaders/base/base_fs.sc FRAGMENT OUTPUT ${CMAKE_BINARY_DIR}/bin/assets PLATFORMS glsl GLSL_VERSION 130)
 
-add_shader(shaders/def_phong_vs.sc VERTEX OUTPUT ${CMAKE_BINARY_DIR}/bin/assets PLATFORMS glsl GLSL_VERSION 130)
-add_shader(shaders/def_phong_fs.sc FRAGMENT OUTPUT ${CMAKE_BINARY_DIR}/bin/assets PLATFORMS glsl GLSL_VERSION 130)
+if(NOT EMSCRIPTEN)
+	add_shader(shaders/base/base_vs.sc VERTEX OUTPUT ${CMAKE_BINARY_DIR}/bin/assets PLATFORMS glsl asm.js GLSL_VERSION 130)
+	add_shader(shaders/base/base_fs.sc FRAGMENT OUTPUT ${CMAKE_BINARY_DIR}/bin/assets PLATFORMS glsl asm.js GLSL_VERSION 130)
+
+	add_shader(shaders/def_phong_vs.sc VERTEX OUTPUT ${CMAKE_BINARY_DIR}/bin/assets PLATFORMS glsl asm.js  GLSL_VERSION 130)
+	add_shader(shaders/def_phong_fs.sc FRAGMENT OUTPUT ${CMAKE_BINARY_DIR}/bin/assets PLATFORMS glsl asm.js GLSL_VERSION 130)
+endif()
 
 add_platform_module(
 	SOURCES ${SOURCES} ${INCLUDES}

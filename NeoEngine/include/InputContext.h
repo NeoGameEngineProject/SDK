@@ -219,7 +219,7 @@ class NEO_ENGINE_EXPORT Keyboard : public InputDevice
 	unsigned int m_character; // The last unicode character that was typed
 public:
 	// Reserve enough memory to hold all keys!
-	Keyboard() : InputDevice(KEY_DUMMY + 1), m_character(EOF) {}
+	Keyboard() : InputDevice(KEY_DUMMY + 1), m_character(-1) {}
 
 	unsigned int getCharacter() const { return m_character; }
 	void setCharacter(unsigned int c) { m_character = c; }

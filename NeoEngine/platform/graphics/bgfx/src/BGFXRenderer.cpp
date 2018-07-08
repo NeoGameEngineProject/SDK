@@ -35,7 +35,13 @@ void BGFXRenderer::initialize(unsigned int w, unsigned int h, void* ndt, void* n
 	m_screenHeight = h;
 	
 	bgfx::Init init;
+	
+#ifdef EMSCRIPTEN
+	init.type = bgfx::RendererType::OpenGLES;
+#else
 	init.type = bgfx::RendererType::OpenGL;
+#endif
+	
 	init.resolution.width  = w;
 	init.resolution.height = h;
 	init.resolution.reset  = BGFX_RESET_VSYNC;
@@ -66,8 +72,13 @@ void BGFXRenderer::initialize(unsigned int w, unsigned int h, void* ndt, void* n
 			
 	bgfx::setState(state);
 	
+#ifdef EMSCRIPTEN
+	loadShader("assets/asm.js/base");
+	loadShader("assets/asm.js/def_phong");
+#else
 	loadShader("assets/glsl/base");
 	loadShader("assets/glsl/def_phong");
+#endif
 	
 	// Set up framebuffers
 	const uint32_t flags = 0

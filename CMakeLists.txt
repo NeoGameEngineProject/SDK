@@ -8,7 +8,10 @@ set(CMAKE_MODULE_PATH
 
 option(BUILD_SHARED_LIBS OFF)
 
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
 if(CMAKE_BUILD_TYPE STREQUAL "Release" AND "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 	set(CMAKE_CXX_FLAGS "-flto -s ${CMAKE_CXX_FLAGS}")
 	set(CMAKE_C_FLAGS "-flto -s ${CMAKE_C_FLAGS}")
@@ -19,11 +22,17 @@ elseif(CMAKE_BUILD_TYPE STREQUAL "Release" AND "${CMAKE_CXX_COMPILER_ID}" STREQU
 	set(CMAKE_EXE_LINKER_FLAGS "-flto=thin -s ${CMAKE_EXE_LINKER_FLAGS}")
 endif()
 
+if(EMSCRIPTEN)
+	include(EmscriptenConfig)
+endif()
+
 include(AddGame)
 
-find_package(GTest)
-if(NOT GTEST_FOUND)
-	set(NO_TESTS TRUE)
+if(NOT NO_TESTS)
+	find_package(GTest)
+	if(NOT GTEST_FOUND)
+		set(NO_TESTS TRUE)
+	endif()
 endif()
 
 if(ENABLE_SANITIZERS)
@@ -34,6 +43,7 @@ add_subdirectory(NeoCore)
 add_subdirectory(NeoEngine)
 add_subdirectory(NeoHTML)
 add_subdirectory(NeoStates)
+# add_subdirectory(Neo2D)
 
 if(ENABLE_SANITIZERS)
 	target_compile_options(NeoEngine PUBLIC -fsanitize=address -fsanitize=undefined -fno-omit-frame-pointer)

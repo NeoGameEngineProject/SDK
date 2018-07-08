@@ -11,7 +11,14 @@ SAMPLER2D(depth, 4);
 SAMPLER2D(lights, 5);
 
 uniform vec4 deferredConfig;
-#define numLights deferredConfig.x
+#define numLights int(deferredConfig.x)
+
+#ifdef BX_PLATFORM_EMSCRIPTEN
+#define WIDTH 256.0f // FIXME: Not always!
+#define HEIGHT 5.0f
+#define ivec2 vec2
+#define texelFetch(sampler, pos, x) texture2D(sampler, (pos) / vec2(WIDTH, HEIGHT) + vec2(1.0/WIDTH * 0.5f, 1.0/HEIGHT * 0.5f))
+#endif
 
 float rand(vec2 seed)
 {
@@ -68,7 +75,7 @@ vec3 phong(vec3 color)
 		}
 		
 		float sDotN = max(dot(s, n.xyz), 0.0);
-		float spec = pow(max(dot(h, n), 0.0), 32 * shininess);
+		float spec = pow(max(dot(h, n), 0.0), 32.0f * shininess);
 		
 		accumulator += spotAttenuation * attenuation * (color.rgb * lightColor.rgb * sDotN + specular * spec * lightColor.rgb);
 	}
@@ -135,7 +142,7 @@ vec3 cookTorranceSpecular(vec3 color)
 		float nDots = dot(n, s);
 
 		float Geometric =
-			min(1.0, min((2 * nDoth * nDotv) / vDoth, (2 * nDoth * nDots) / vDoth));
+			min(1.0, min((2.0f * nDoth * nDotv) / vDoth, (2.0f * nDoth * nDots) / vDoth));
 
 		float alpha = acos(nDoth);
 		float Roughness = c * exp(-(alpha / (roughness * roughness)));

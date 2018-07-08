@@ -9,8 +9,6 @@
 
 #include <InputContext.h>
 
-#include <VFSFile.h>
-
 #include <HTMLView.h>
 #include <Game.h>
 #include <SplashScreen.h>
@@ -65,7 +63,7 @@ public:
 			button3.setValue(("Button was pressed " + std::to_string(counter--) + " times!").c_str());
 		});
 		
-		sound = std::move(Neo::SoundBehavior(level.loadSound("assets/beethoven9.wav")));
+		sound = std::move(Neo::SoundBehavior(level.loadSound("assets/kansas.ogg")));
 		sound.initialize(getGame()->getPlatform());
 		sound.play();
 		
@@ -134,5 +132,5 @@ extern "C" int main(int argc, char** argv)
 	auto testGame = std::make_unique<TestGame>();
 	auto splash = new Neo::States::SplashScreen(std::move(testGame), 2, 1, { "assets/Splash1.png", "assets/Splash2.png" });
 	game.changeState(std::unique_ptr<Neo::States::SplashScreen>(splash));
-	return game.run();
+	return game.run(argc, argv);
 }
