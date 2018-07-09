@@ -111,7 +111,7 @@ public:
 	 * @param path The level file path.
 	 * @return \b true on success \b false otherwise.
 	 */
-	bool load(const char* path);
+	bool load(const char* path, const char* parentNode = nullptr);
 	
 	/**
 	 * @brief Updates the visibility of objects relative to the given camera.

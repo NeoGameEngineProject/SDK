@@ -169,15 +169,8 @@ bool LevelLoader::load(Level& level, const char* file, const char* rootNode)
 	iostruct.CloseProc = aiClose;
 	
 	// Import scene from the given file!
-	const aiScene* scene = aiImportFileEx(file, aiProcessPreset_TargetRealtime_MaxQuality 
-							| aiProcess_Triangulate 
-							| aiProcess_OptimizeMeshes 
-							| aiProcess_ImproveCacheLocality
-							| aiProcess_SplitLargeMeshes,
-							
-							&iostruct);
-
-	if(!scene)
+	const aiScene* scene = aiImportFileEx(file, 0, &iostruct);
+	if(!scene || !aiApplyPostProcessing(scene, aiProcess_Triangulate | aiProcess_FindInstances | aiProcess_ImproveCacheLocality | aiProcess_SplitLargeMeshes))
 	{
 		std::cerr << "Could not load level: " << aiGetErrorString() << std::endl;
 		return false;

@@ -48,9 +48,9 @@ Texture* Level::loadTexture(const char* name)
 	return &texture->second;
 }
 
-bool Level::load(const char* path)
+bool Level::load(const char* path, const char* parentNode)
 {
-	return LevelLoader::load(*this, path);
+	return LevelLoader::load(*this, path, parentNode);
 }
 
 void Level::updateVisibility(const CameraBehavior& camera)
