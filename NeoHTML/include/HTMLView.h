@@ -33,6 +33,7 @@ public:
 	void setValue(const char* str);
 	
 	void setStyle(const char* name, const char* value);
+	bool empty() const { return m_view == nullptr || m_element == nullptr; }
 };
 
 class HTMLView : public litehtml::document_container
