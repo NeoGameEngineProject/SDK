@@ -32,9 +32,11 @@ std::string HTMLElement::getValue() const
 void HTMLElement::setValue(const char* str)
 {
 	auto tag = std::make_shared<litehtml::el_text>(str, m_element->get_document());
-	
+
 	m_element->clearRecursive();
 	m_element->appendChild(tag);
+	
+	tag->parse_styles(true);
 	m_view->renderPage();
 }
 
