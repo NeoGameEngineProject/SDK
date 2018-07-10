@@ -20,6 +20,14 @@ class Game
 	double m_lastFrameTime = 0.0;
 	
 public:
+	Game(Game&& g):
+		m_currentGame(std::move(g.m_currentGame)),
+		m_requestedGame(std::move(g.m_requestedGame)),
+		m_platform(std::move(g.m_platform)),
+		m_window(std::move(g.m_window)),
+		m_running(g.m_running),
+		m_lastFrameTime(g.m_lastFrameTime) {}
+	
 	Game(unsigned int width, unsigned int height, const char* title);
 	void changeState(GameStateRef&& game, bool now = false); // now: Should this be done now or in the next frame?
 	

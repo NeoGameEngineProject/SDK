@@ -56,6 +56,16 @@ void BGFXRenderer::initialize(unsigned int w, unsigned int h, void* ndt, void* n
 	bgfx::setPlatformData(pd);
 	bgfx::init(init);
 
+	// Check capabilities
+	const bgfx::Caps* caps = bgfx::getCaps();
+	if(caps->limits.maxFBAttachments < 4)
+	{
+		std::cerr << "Your graphics solution does not support this renderer: Not enough framebuffer attachements, " 
+			<< caps->limits.maxFBAttachments << " < 4" << std::endl;
+		exit(1);
+	}
+	
+	
 	bgfx::setDebug(BGFX_DEBUG_NONE);
 	
 	bgfx::setViewRect(GEOMETRY_PASS, 0, 0, uint16_t(w), uint16_t(h));
