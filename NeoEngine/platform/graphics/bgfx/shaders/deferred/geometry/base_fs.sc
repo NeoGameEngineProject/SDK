@@ -5,8 +5,8 @@ $input v_position, v_normal, v_texcoord0
 uniform sampler2D diffuseTexture;
 
 uniform vec4 textureConfig;
-uniform vec4 diffuse;
-uniform vec4 specular;
+uniform vec4 u_diffuse;
+uniform vec4 u_specular;
 
 #define u_numTextures textureConfig.x
 #define u_shininess textureConfig.y
@@ -16,11 +16,11 @@ void main()
 
 	gl_FragData[1] = vec4(v_normal, 1.0f);
 	gl_FragData[2] = vec4(v_position, u_shininess);
-	gl_FragData[3] = specular;
+	gl_FragData[3] = u_specular;
 	
 	if(u_numTextures == 0.0f)
 	{
-		gl_FragData[0] = vec4(diffuse.xyz, 1.0f);
+		gl_FragData[0] = vec4(u_diffuse.xyz, 1.0f);
 	}
 	else
 	{

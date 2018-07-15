@@ -7,7 +7,7 @@ using namespace Neo;
 
 void PlatformStaticRenderBehavior::begin(Neo::Platform& p, Neo::Renderer& render)
 {
-	BGFXRenderer* bgfxRender = reinterpret_cast<BGFXRenderer*>(&render);
+	PlatformRenderer* bgfxRender = reinterpret_cast<PlatformRenderer*>(&render);
 	m_mesh = getParent()->getBehavior<MeshBehavior>();
 	auto& subMeshes = m_mesh->getSubMeshes();
 	size_t bufferCount = subMeshes.size();
@@ -42,12 +42,12 @@ void PlatformStaticRenderBehavior::begin(Neo::Platform& p, Neo::Renderer& render
 		}
 	}
 	
-	m_uMaterialDiffuse = bgfx::createUniform("diffuse", bgfx::UniformType::Vec4);
+	m_uMaterialDiffuse = bgfx::createUniform("u_diffuse", bgfx::UniformType::Vec4);
+	m_uMaterialSpecular = bgfx::createUniform("u_specular", bgfx::UniformType::Vec4);
+	m_uMaterialEmit = bgfx::createUniform("u_emit", bgfx::UniformType::Vec4);
+	
 	m_uDiffuseTexture = bgfx::createUniform("diffuseTexture", bgfx::UniformType::Int1);
 	m_uTextureConfig = bgfx::createUniform("textureConfig", bgfx::UniformType::Vec4);
-	
-	m_uMaterialSpecular = bgfx::createUniform("specular", bgfx::UniformType::Vec4);
-	m_uMaterialEmit = bgfx::createUniform("emit", bgfx::UniformType::Vec4);
 }
 
 void PlatformStaticRenderBehavior::end()
@@ -55,10 +55,9 @@ void PlatformStaticRenderBehavior::end()
 	
 }
 
-#include <iostream>
 void PlatformStaticRenderBehavior::draw(Neo::Renderer& render)
 {
-	BGFXRenderer* bgfxRender = reinterpret_cast<BGFXRenderer*>(&render);
+	PlatformRenderer* bgfxRender = reinterpret_cast<PlatformRenderer*>(&render);
 	auto& subMeshes = m_mesh->getSubMeshes();
 	
 	bgfx::setTransform(getParent()->getTransform().entries);

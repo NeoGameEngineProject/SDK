@@ -4,6 +4,7 @@
 #include <GameState.h>
 #include <Window.h>
 #include <Platform.h>
+#include <string>
 
 namespace Neo
 {
@@ -19,6 +20,9 @@ class Game
 	bool m_running = true;
 	double m_lastFrameTime = 0.0;
 	
+	unsigned int m_initialWidth, m_initialHeight;
+	std::string m_title;
+	
 public:
 	Game(Game&& g):
 		m_currentGame(std::move(g.m_currentGame)),
@@ -26,7 +30,10 @@ public:
 		m_platform(std::move(g.m_platform)),
 		m_window(std::move(g.m_window)),
 		m_running(g.m_running),
-		m_lastFrameTime(g.m_lastFrameTime) {}
+		m_lastFrameTime(g.m_lastFrameTime),
+		m_initialWidth(g.m_initialWidth),
+		m_initialHeight(g.m_initialHeight),
+		m_title(std::move(g.m_title)){}
 	
 	Game(unsigned int width, unsigned int height, const char* title);
 	void changeState(GameStateRef&& game, bool now = false); // now: Should this be done now or in the next frame?

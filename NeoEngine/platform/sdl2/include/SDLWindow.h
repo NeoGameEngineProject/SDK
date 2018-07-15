@@ -11,6 +11,7 @@ class SDLWindow : public Window
 {
 	SDL_Window* m_win = nullptr;
 	SDL_GLContext m_context = nullptr;
+	
 public:
 	SDLWindow(unsigned int w, unsigned int h);
 	~SDLWindow();

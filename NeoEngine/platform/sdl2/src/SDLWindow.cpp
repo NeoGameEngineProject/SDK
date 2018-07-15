@@ -18,7 +18,7 @@ SDLWindow::SDLWindow(unsigned int w, unsigned int h) : Window(w, h)
 		std::cerr << "Could not create window! " << SDL_GetError() << std::endl;
 	}
 	
-#ifndef EMSCRIPTEN
+#ifndef __EMSCRIPTEN__
 	// TODO Configuration
 	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
 	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 8);
@@ -26,6 +26,12 @@ SDLWindow::SDLWindow(unsigned int w, unsigned int h) : Window(w, h)
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 5);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+	
+	m_context = SDL_GL_CreateContext(m_win);
+#else
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
 	
 	m_context = SDL_GL_CreateContext(m_win);
 #endif

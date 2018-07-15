@@ -1,4 +1,4 @@
-#include "BGFXRenderer.h"
+#include <PlatformRenderer.h>
 
 #include <bgfx/bgfx.h>
 #include <bgfx/platform.h>
@@ -17,7 +17,7 @@ using namespace Neo;
 #define GEOMETRY_PASS 0
 #define FULLSCREEN_PASS 1
 
-void BGFXRenderer::clear(float r, float g, float b, bool depth)
+void PlatformRenderer::clear(float r, float g, float b, bool depth)
 {
 	unsigned char red = 255*r;
 	unsigned char green = 255*g;
@@ -29,7 +29,7 @@ void BGFXRenderer::clear(float r, float g, float b, bool depth)
 			0);
 }
 
-void BGFXRenderer::initialize(unsigned int w, unsigned int h, void* ndt, void* nwh)
+void PlatformRenderer::initialize(unsigned int w, unsigned int h, void* ndt, void* nwh)
 {
 	m_screenWidth = w;
 	m_screenHeight = h;
@@ -143,13 +143,13 @@ void BGFXRenderer::initialize(unsigned int w, unsigned int h, void* ndt, void* n
 	m_deferredConfig = bgfx::createUniform("deferredConfig", bgfx::UniformType::Vec4);
 }
 
-void BGFXRenderer::swapBuffers()
+void PlatformRenderer::swapBuffers()
 {
 	// bgfx::touch(0);
 	bgfx::frame();
 }
 
-void BGFXRenderer::beginFrame(Level& level, CameraBehavior& cam)
+void PlatformRenderer::beginFrame(Level& level, CameraBehavior& cam)
 {
 	beginFrame(cam);
 	level.updateVisibility(cam, m_visibleLights);
@@ -190,7 +190,7 @@ void BGFXRenderer::beginFrame(Level& level, CameraBehavior& cam)
 	bgfx::setUniform(m_deferredConfig, &vec4);
 }
 
-void BGFXRenderer::beginFrame(CameraBehavior& cam)
+void PlatformRenderer::beginFrame(CameraBehavior& cam)
 {
 	cam.enable(m_screenWidth, m_screenHeight);
 	bgfx::setViewTransform(GEOMETRY_PASS, cam.getViewMatrix().entries, cam.getProjectionMatrix().entries);
@@ -206,7 +206,7 @@ void BGFXRenderer::beginFrame(CameraBehavior& cam)
 	bgfx::setState(state);
 }
 
-void BGFXRenderer::endFrame()
+void PlatformRenderer::endFrame()
 {
 	// 0.5 for dx
 	bgfx::setState(0
@@ -223,36 +223,3 @@ void BGFXRenderer::endFrame()
 	bgfx::setIndexBuffer(m_fullscreenIndices);
 	bgfx::submit(FULLSCREEN_PASS, getShader(1));
 }
-
-unsigned int BGFXRenderer::loadShader(const char* path)
-{
-	std::string fullpath = path;
-	
-	unsigned int vertShaderSize = 0;
-	char* vertShaderData = readBinaryFile((fullpath + "_vs.bin").c_str(), &vertShaderSize);
-	auto vertShader = bgfx::createShader(bgfx::copy(vertShaderData, vertShaderSize));
-	
-	unsigned int fragShaderSize = 0;
-	char* fragShaderData = readBinaryFile((fullpath + "_fs.bin").c_str(), &fragShaderSize);
-	auto fragShader = bgfx::createShader(bgfx::copy(fragShaderData, fragShaderSize));
-	
-	auto program = bgfx::createProgram(vertShader, fragShader, true);
-	m_shaders.push_back(program);
-	
-	delete vertShaderData;
-	delete fragShaderData;
-	
-	return m_shaders.size() - 1;
-}
-
-size_t BGFXRenderer::createTexture(Texture* tex)
-{
-	const auto texRef = bgfx::makeRef(tex->getData(), tex->getStorageSize());
-	auto format = bgfx::TextureFormat::RGBA8;
-	if(tex->getComponents() == 3)
-		format = bgfx::TextureFormat::RGB8;
-	
-	m_textures.push_back(bgfx::createTexture2D(tex->getWidth(), tex->getHeight(), tex->hasMipMap(), 1, format, 0, texRef));
-	return m_textures.size() - 1;
-}
-

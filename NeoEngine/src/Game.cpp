@@ -18,14 +18,21 @@ using namespace Neo;
 void doIteration();
 #endif
 
-Game::Game(unsigned int width, unsigned int height, const char* title)
+Game::Game(unsigned int width, unsigned int height, const char* title):
+	m_initialWidth(width),
+	m_initialHeight(height),
+	m_title(title)
 {
 #ifdef __EMSCRIPTEN__
 	emscripten_set_main_loop(doIteration, 60, 0);
 	emscripten_pause_main_loop();
 #endif
-	
-	m_window = m_platform.createWindow(width, height, title);
+}
+
+void Game::begin()
+{
+	m_window = m_platform.createWindow(m_initialWidth, m_initialHeight, m_title.c_str());
+	m_running = true;
 }
 
 void Game::changeState(GameStateRef&& game, bool now)
@@ -84,7 +91,7 @@ int Game::run(int argc, char** argv)
 	}
 #endif
 	
-	m_running = true;
+	begin();
 	while(m_running && (m_currentGame || m_requestedGame))
 	{
 		update();
@@ -118,13 +125,14 @@ int Game::run(int argc, char** argv)
 	emscripten_async_wget((fullpath + "data.neo").c_str(), "data.neo",
 		[](const char* s){
 			std::cout << "Done downloading " << s << std::endl;
-		
 			if(!Neo::VFSOpenHook::mount("data.neo", arg0))
 			{
 				std::cerr << "Could not open assets file!" << std::endl;
 				return;
 			}
 
+			// Now create the window. We should have all data now!
+			game->begin();
 			emscripten_resume_main_loop();
 		},
 

@@ -9,12 +9,42 @@ macro(add_game name sources assetdir)
 	add_executable(${name} ${sources})
 	target_link_libraries(${name} PUBLIC NeoEngine NeoHTML NeoStates)
 	
-	if("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
+	if(NOT EMSCRIPTEN)
+		add_custom_target(build-package-${name} 
+			COMMAND ${CMAKE_COMMAND} -E tar "cf" "${CMAKE_CURRENT_BINARY_DIR}/data.neo" --format=zip ${assetdir}
+			WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+			COMMENT "Building package")
+		
+		add_custom_target(copy-shaders
+			COMMAND ${CMAKE_COMMAND} -E remove_directory ${assetdir}/glsl ## TODO Find real shader output!
+			COMMAND ${CMAKE_COMMAND} -E remove_directory ${assetdir}/asm.js ## TODO Find real shader output!
+
+			COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/assets/glsl ${assetdir}/glsl ## TODO Find real shader output!
+			COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/assets/asm.js ${assetdir}/asm.js ## TODO Find real shader output!
+
+			WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+			COMMENT "Copying shaders"
+			DEPENDS build-shaders
+		)
+		add_dependencies(${name} copy-shaders)
+		add_dependencies(build-package-${name} copy-shaders)
+	else()
+		add_custom_target(build-package-${name} 
+			COMMAND ${CMAKE_COMMAND} -E tar "cf" "${CMAKE_BINARY_DIR}/bin/data.neo" --format=zip ${assetdir}
+			COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/scripts/logo.png ${CMAKE_BINARY_DIR}/bin/ ## TODO Find real shader output!
+			WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+			COMMENT "Building package")
+		add_dependencies(${name} build-package-${name})
+	endif()
+	
+	if("${CMAKE_BUILD_TYPE}" STREQUAL "Release" AND NOT EMSCRIPTEN)
 		target_compile_definitions(${name} PRIVATE -DASSET_MODE=1)
 		if(${USE_CAT})
 			add_custom_command(TARGET ${name} POST_BUILD
 				## Zip assets
 				COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/assets/glsl ${assetdir}/glsl ## TODO Find real shader output!
+				COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/assets/asm.js ${assetdir}/asm.js
+				
 				COMMAND ${CMAKE_COMMAND} -E tar "cf" "${CMAKE_CURRENT_BINARY_DIR}/data.neo" --format=zip ${assetdir}
 				COMMAND ${CMAKE_COMMAND} -E remove_directory  ${assetdir}/glsl
 
@@ -30,7 +60,8 @@ macro(add_game name sources assetdir)
 			add_custom_command(TARGET ${name} POST_BUILD
 				## Zip assets
 				COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/assets/glsl ${assetdir}/glsl ## TODO Find real shader output!
-				COMMAND ${CMAKE_COMMAND} -E tar "cfv" "${CMAKE_CURRENT_BINARY_DIR}/data.neo" --format=zip ${assetdir}
+				COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/assets/asm.js ${assetdir}/asm.js
+				COMMAND ${CMAKE_COMMAND} -E tar "cf" "${CMAKE_CURRENT_BINARY_DIR}/data.neo" --format=zip ${assetdir}
 				COMMAND ${CMAKE_COMMAND} -E remove_directory  ${assetdir}/glsl
 				
 				## Cat files
@@ -41,11 +72,5 @@ macro(add_game name sources assetdir)
 		endif()
 	else() ## For debug builds we just copy the built shaders to the assets directory so the game can be run there
 		target_compile_definitions(${name} PRIVATE -DASSET_MODE=0)
-		add_custom_command(TARGET ${name} POST_BUILD
-				COMMAND ${CMAKE_COMMAND} -E remove_directory ${assetdir}/glsl ## TODO Find real shader output!
-				COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/assets/glsl ${assetdir}/glsl ## TODO Find real shader output!
-				WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-				COMMENT "Copying shaders"
-			)
 	endif()
 endmacro()

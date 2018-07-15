@@ -1,6 +1,27 @@
-file(GLOB SOURCES src/*.c*)
-file(GLOB INCLUDES include/*.h)
+#file(GLOB SOURCES src/*.c*)
+#file(GLOB INCLUDES include/*.h)
 file(GLOB_RECURSE SHADERS shaders/*.sc)
+
+set(USE_DEFERRED OFF)
+set(SOURCES 
+	${CMAKE_CURRENT_SOURCE_DIR}/src/PlatformStaticRenderBehavior.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/Common.cpp
+)
+if(USE_DEFERRED AND NOT EMSCRIPTEN)
+	set(SOURCES 
+		${SOURCES}
+		${CMAKE_CURRENT_SOURCE_DIR}/src/deferred/PlatformRenderer.cpp)
+		
+	set(INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include/deferred)
+	add_definitions(-DBGFX_DEFERRED=1)
+else()
+	set(SOURCES 
+		${SOURCES}
+		${CMAKE_CURRENT_SOURCE_DIR}/src/forward/PlatformRenderer.cpp)
+	
+	set(INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include/forward)
+	add_definitions(-DBGFX_FORWARD=1)
+endif()
 
 set(BGFX_AMALGAMATED CACHE "" ON FORCE)
 set(BX_AMALGAMATED CACHE "" ON FORCE)
@@ -30,15 +51,22 @@ if(NOT EMSCRIPTEN)
 	#add_shader(shaders/def_phong_vs.sc VERTEX OUTPUT ${CMAKE_BINARY_DIR}/bin/assets PLATFORMS glsl asm.js  GLSL_VERSION 130)
 	#add_shader(shaders/def_phong_fs.sc FRAGMENT OUTPUT ${CMAKE_BINARY_DIR}/bin/assets PLATFORMS glsl asm.js GLSL_VERSION 130)
 	
-	add_shader(shaders/base/base_vs.sc VERTEX OUTPUT ${CMAKE_BINARY_DIR}/bin/assets PLATFORMS glsl GLSL_VERSION 130)
-	add_shader(shaders/base/base_fs.sc FRAGMENT OUTPUT ${CMAKE_BINARY_DIR}/bin/assets PLATFORMS glsl GLSL_VERSION 130)
+	if(USE_DEFERRED)
+		add_shader(shaders/deferred/geometry/base_vs.sc VERTEX OUTPUT ${CMAKE_BINARY_DIR}/bin/assets PLATFORMS glsl asm.js GLSL_VERSION 130)
+		add_shader(shaders/deferred/geometry/base_fs.sc FRAGMENT OUTPUT ${CMAKE_BINARY_DIR}/bin/assets PLATFORMS glsl asm.js GLSL_VERSION 130)
 
-	add_shader(shaders/def_phong_vs.sc VERTEX OUTPUT ${CMAKE_BINARY_DIR}/bin/assets PLATFORMS glsl GLSL_VERSION 130)
-	add_shader(shaders/def_phong_fs.sc FRAGMENT OUTPUT ${CMAKE_BINARY_DIR}/bin/assets PLATFORMS glsl GLSL_VERSION 130)
+		add_shader(shaders/deferred/def_phong_vs.sc VERTEX OUTPUT ${CMAKE_BINARY_DIR}/bin/assets PLATFORMS glsl GLSL_VERSION 130)
+		add_shader(shaders/deferred/def_phong_fs.sc FRAGMENT OUTPUT ${CMAKE_BINARY_DIR}/bin/assets PLATFORMS glsl GLSL_VERSION 130)
+	else()
+		add_shader(shaders/forward/geometry/phong_vs.sc VERTEX OUTPUT ${CMAKE_BINARY_DIR}/bin/assets PLATFORMS glsl asm.js GLSL_VERSION 130)
+		add_shader(shaders/forward/geometry/phong_fs.sc FRAGMENT OUTPUT ${CMAKE_BINARY_DIR}/bin/assets PLATFORMS glsl asm.js GLSL_VERSION 130)
+	endif()
+	
+	add_custom_target(build-shaders SOURCES ${SHADERS})
 endif()
 
 add_platform_module(
 	SOURCES ${SOURCES} ${INCLUDES}
-	INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/../../include
+	INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/../../include ${INCLUDE_DIR}
 	LIBRARIES bgfx nanovg)
 	

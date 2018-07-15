@@ -5,7 +5,7 @@
 #include <memory>
 
 #include <SDLInputContext.h>
-#include <BGFXRenderer.h>
+#include <PlatformRenderer.h>
 #include <OpenALContext.h>
 
 namespace Neo
@@ -27,7 +27,7 @@ public:
 	unsigned long getTime();
 	void sleep(long int millis);
 	
-	std::unique_ptr<Renderer> createRenderer() { return std::make_unique<BGFXRenderer>(); }
+	std::unique_ptr<Renderer> createRenderer() { return std::make_unique<PlatformRenderer>(); }
 	SoundContext& getSoundContext() { return m_soundContext; }
 };
 

@@ -71,7 +71,6 @@ void Level::updateVisibility(const CameraBehavior& camera, Array<LightBehavior*>
 			lightNum++;
 		}
 	}
-	
 	visibleLights[lightNum] = nullptr;
 }
 
