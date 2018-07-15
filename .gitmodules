@@ -3,7 +3,7 @@
 	url = https://github.com/assimp/assimp.git
 [submodule "NeoEngine/platform/graphics/bgfx/bgfx-cmake"]
 	path = NeoEngine/platform/graphics/bgfx/bgfx-cmake-external
-	url = https://github.com/JoshuaBrookover/bgfx.cmake.git
+	url = https://github.com/Sponk/bgfx.cmake.git
 [submodule "NeoEngine/platform/assets/png/libpng"]
 	path = NeoEngine/platform/assets/png/libpng-external
 	url = https://github.com/glennrp/libpng.git
