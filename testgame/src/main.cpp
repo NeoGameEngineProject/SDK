@@ -40,7 +40,7 @@ public:
 		level.setCurrentCamera(cameraBehavior);
 		level.begin(p, *w.getRenderer());
 		
-		htmlView.begin(w.getWidth(), w.getHeight());
+		htmlView.begin(w.getWidth(), w.getHeight(), w.getDPI());
 		if(!htmlView.loadDocument("assets/test.html"))
 			exit(1);
 		
@@ -63,9 +63,9 @@ public:
 			button3.setValue(("Button was pressed " + std::to_string(counter--) + " times!").c_str());
 		});
 		
-		sound = std::move(Neo::SoundBehavior(level.loadSound("assets/kansas.ogg")));
-		sound.initialize(getGame()->getPlatform());
-		sound.play();
+		//sound = std::move(Neo::SoundBehavior(level.loadSound("assets/kansas.ogg")));
+		//sound.initialize(getGame()->getPlatform());
+		//sound.play();
 		
 		//getGame()->getPlatform().sleep(10000);
 		//sound.stop();

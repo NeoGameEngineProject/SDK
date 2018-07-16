@@ -51,7 +51,7 @@ class HTMLView : public litehtml::document_container
 		int descent = 0;
 	};
 	
-	const float m_dpi = 96;
+	float m_dpi = 96;
 	unsigned int m_width = 0, m_height = 0;
 	bool m_needsRender = true;
 	
@@ -69,11 +69,14 @@ class HTMLView : public litehtml::document_container
 	std::unordered_map<std::string, std::function<void(const char* url)>> m_callbacks;
 	
 public:
-	void begin(unsigned int w, unsigned int h);
+	void begin(unsigned int w, unsigned int h, float dpi = 96.0f);
 	void end();
 	
 	void addCallback(const char* id, const std::function<void(const char* url)> cb) { m_callbacks[id] = cb; }
 	void removeCallback(const char* id) { m_callbacks.erase(id); }
+	
+	float getDPI() const { return m_dpi; }
+	void setDPI(float f) { m_dpi = f; }
 	
 	HTMLElement getById(const char* id)
 	{

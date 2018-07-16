@@ -26,6 +26,7 @@ public:
 	}
 	
 	virtual void setRenderer(std::unique_ptr<Renderer>&& renderer) = 0;
+	virtual float getDPI() { return 96.0f; }
 	
 	unsigned int getWidth() const { return m_width; }
 	unsigned int getHeight() const { return m_height; }

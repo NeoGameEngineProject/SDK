@@ -72,8 +72,18 @@ void SDLWindow::setRenderer(std::unique_ptr<Renderer>&& renderer)
 	}
 
 #if defined(__linux__)
-	ndt = wmi.info.x11.display;
-	nwh = (void*)(uintptr_t)wmi.info.x11.window;
+
+	if(wmi.subsystem == SDL_SYSWM_WAYLAND)
+	{
+		ndt = wmi.info.wl.display;
+		nwh = (void*)(uintptr_t)wmi.info.wl.surface;
+	}
+	else if(wmi.subsystem == SDL_SYSWM_X11)
+	{
+		ndt = wmi.info.x11.display;
+		nwh = (void*)(uintptr_t)wmi.info.x11.window;
+	}
+	
 #elif defined(__apple__)
 	ndt = NULL;
 	nwh = wmi.info.cocoa.window;
@@ -86,5 +96,14 @@ void SDLWindow::setRenderer(std::unique_ptr<Renderer>&& renderer)
 #endif
 #endif // __EMSCRIPTEN__
 	Window::setRenderer(std::move(renderer), ndt, nwh);
+}
+
+float SDLWindow::getDPI()
+{
+	float dpi;
+	int display = SDL_GetWindowDisplayIndex(m_win);
+	
+	SDL_GetDisplayDPI(display, &dpi, nullptr, nullptr);
+	return dpi;
 }
 

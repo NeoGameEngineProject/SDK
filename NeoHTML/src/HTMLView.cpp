@@ -52,7 +52,7 @@ void HTMLElement::setStyle(const char* name, const char* value)
 	m_view->renderPage();
 }
 
-void HTMLView::begin(unsigned int w, unsigned int h)
+void HTMLView::begin(unsigned int w, unsigned int h, float dpi)
 {
 	assert(!m_nv && "Already initialized!");
 	m_nv = nvgCreate(1, 2);
@@ -60,6 +60,7 @@ void HTMLView::begin(unsigned int w, unsigned int h)
 	m_context.load_master_stylesheet(s_masterCSS);
 	m_width = w;
 	m_height = h;
+	m_dpi = dpi;
 }
 
 void HTMLView::end()

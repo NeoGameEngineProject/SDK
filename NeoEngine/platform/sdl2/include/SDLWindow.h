@@ -21,6 +21,7 @@ public:
 	void swapBuffers() override;
 	
 	void setRenderer(std::unique_ptr<Renderer>&& renderer) override;
+	float getDPI() override;
 };
 
 }
