@@ -12,6 +12,11 @@
 namespace Neo 
 {
 
+struct AABB
+{
+	Vector3 min, max;
+};
+
 struct MeshVertex
 {
 	Vector3 position, normal;
@@ -60,6 +65,8 @@ public:
 	const Material& getMaterial() const { return m_material; }
 	void setMaterial(Material& material) { m_material = material; }
 	
+	AABB calculateBoundingBox();
+	
 private:
 	std::vector<unsigned int> m_indices;
 	std::vector<MeshVertex> m_meshVertices;
@@ -71,6 +78,7 @@ private:
 class MeshBehavior : public Neo::Behavior
 {
 	std::vector<SubMesh> m_submeshes;
+	AABB m_boundingBox;
 	
 public:
 	MeshBehavior() {}
@@ -91,6 +99,9 @@ public:
 		
 		return *this;
 	}
+	
+	void updateBoundingBox();
+	AABB getBoundingBox() const { return m_boundingBox; }
 };
 
 }

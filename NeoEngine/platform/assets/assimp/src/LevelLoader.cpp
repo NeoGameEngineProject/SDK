@@ -83,7 +83,7 @@ static void loadMatrix(Matrix4x4& neoMat, aiMatrix4x4& aiMat)
 	neoMat = Matrix4x4((float*) &aiMat);
 	neoMat.transpose();
 }
-
+#include <iostream>
 static void traverseAssimpScene(Level* level,
 				ObjectHandle neoRoot, 
 				aiNode* root, 
@@ -142,7 +142,9 @@ static void traverseAssimpScene(Level* level,
 			subMeshes.push_back(meshes[child->mMeshes[j]]);
 		}
 		
+		meshBehavior->updateBoundingBox();
 		neoChild->addBehavior(std::move(meshBehavior));
+
 		// Make it renderable
 		// TODO Selet type of renderer!
 		neoChild->addBehavior(std::make_unique<StaticRenderBehavior>());
