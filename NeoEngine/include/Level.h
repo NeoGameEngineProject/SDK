@@ -177,6 +177,20 @@ public:
 	 * @param r The rendering context.
 	 */
 	void draw(Renderer& r);
+	
+	/**
+	 * @brief Casts a ray into the level.
+	 * 
+	 * It finds a hit point and the object being hit and stores it into the given pointers.
+	 * 
+	 * @param origin The point of origin.
+	 * @param direction The direction to cast into.
+	 * @param distance The maximum distance to check for intersections (optional).
+	 * @param hitPoint [out] Will be assigned the hit point if set (optional).
+	 * @param object [out] Will be assigned the object that was hit if set (optional).
+	 * @return \b true if something was hit, \b false otherwise
+	 */
+	bool castRay(const Vector3& origin, const Vector3& direction, float distance = 1000.0f, Vector3* hitPoint = nullptr, ObjectHandle* hitObject = nullptr);
 };
 
 }

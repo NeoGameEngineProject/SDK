@@ -9,6 +9,9 @@
 #include <LevelLoader.h>
 #include <SoundLoader.h>
 
+#include <Maths.h>
+#include <behaviors/MeshBehavior.h>
+
 using namespace Neo;
 
 ObjectHandle Level::addObject(const char* name)
@@ -95,5 +98,49 @@ SoundHandle Level::loadSound(const char* name)
 	
 	m_sounds.push_back(std::move(sound));
 	return SoundHandle(&m_sounds, m_sounds.size() - 1);
+}
+
+bool Level::castRay(const Vector3& origin, const Vector3& direction, float distance, Vector3* hitPoint, ObjectHandle* hitObject)
+{
+	Vector3 dest = origin + direction * distance; // TODO: As argument?
+	float hitDistance = distance;
+	Vector3 point;
+	bool hitFound = false;
+	
+	for(auto& object : m_objects)
+	{
+		auto mesh = object.getBehavior<MeshBehavior>();
+		if(!object.isActive() || !mesh || !isEdgeToBoxCollision(origin, dest, mesh->getBoundingBox().min, mesh->getBoundingBox().max))
+			continue;
+
+		for(auto& submesh : mesh->getSubMeshes())
+		{
+			auto& indices = submesh.getIndices();
+			auto& vertices = submesh.getVertices();
+			
+			for(size_t i = 0; i < indices.size();)
+			{
+				const Vector3& a = object.getTransform() * vertices[indices[i++]].position;
+				const Vector3& b = object.getTransform() * vertices[indices[i++]].position;
+				const Vector3& c = object.getTransform() * vertices[indices[i++]].position;
+				const Vector3 normal = getTriangleNormal(c, b, a);
+
+				if(!isEdgeTriangleIntersection(origin, dest, c, b, a, normal, &point))
+					continue;
+				
+				float distance = (point - origin).getLength();
+				if(distance < hitDistance)
+				{
+					hitDistance = distance;
+					if(hitPoint) *hitPoint = point;
+					if(hitObject) *hitObject = object.getSelf();
+					
+					hitFound = true;
+				}
+			}
+		}
+	}
+	
+	return hitFound;
 }
 
