@@ -46,11 +46,19 @@ public:
 		m_textureChannels(std::move(b.m_textureChannels)),
 		m_material(b.m_material) {}
 	
-	SubMesh(const SubMesh& b):
-		m_indices(b.m_indices),
-		m_meshVertices(b.m_meshVertices),
-		m_textureChannels(b.m_textureChannels),
-		m_material(b.m_material) {}
+	SubMesh(const SubMesh& b)
+	{
+		*this = b;
+	}
+	
+	SubMesh& operator= (const SubMesh& b)
+	{
+		m_indices = b.m_indices;
+		m_meshVertices = b.m_meshVertices;
+		m_textureChannels = b.m_textureChannels;
+		m_material = b.m_material;
+		return *this;
+	}
 	
 	std::vector<MeshVertex>& getVertices() { return m_meshVertices; }
 	std::vector<unsigned int>& getIndices() { return m_indices; }
@@ -88,6 +96,8 @@ public:
 		m_submeshes(b.m_submeshes) {}
 	
 	const char* getName() const override { return "Mesh"; }
+	Behavior* getNew() const override { return new MeshBehavior; }
+
 	std::vector<SubMesh>& getSubMeshes() { return m_submeshes; }
 	
 	MeshBehavior& operator= (MeshBehavior&& b)
@@ -99,6 +109,8 @@ public:
 		
 		return *this;
 	}
+	
+	MeshBehavior& operator= (const MeshBehavior& b);
 	
 	void updateBoundingBox();
 	AABB getBoundingBox() const { return m_boundingBox; }

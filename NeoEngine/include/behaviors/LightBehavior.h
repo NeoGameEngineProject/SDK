@@ -11,7 +11,8 @@ class LightBehavior : public Neo::Behavior
 {
 public:
 	const char* getName() const override{ return "Light"; }
-    
+	Behavior* getNew() const override { return new LightBehavior; }
+	
 	float angle = 0.0f;
 	float brightness = 1.0f;
 	float exponent = 0.0f;

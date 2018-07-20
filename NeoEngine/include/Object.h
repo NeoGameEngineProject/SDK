@@ -231,6 +231,8 @@ public:
 		return *this;
 	}
 	
+	Object& operator= (const Object& obj);
+	
 	void begin(Platform& p, Renderer& r) 
 	{ 
 		for(auto& k : m_behaviors)

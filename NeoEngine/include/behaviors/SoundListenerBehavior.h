@@ -12,6 +12,7 @@ class SoundListenerBehavior : public Neo::PlatformSoundListenerBehavior
 public:
 	SoundListenerBehavior() {}
 	const char* getName() const override { return "SoundListener"; }
+	Behavior* getNew() const override { return new SoundListenerBehavior; }
 };
 
 }

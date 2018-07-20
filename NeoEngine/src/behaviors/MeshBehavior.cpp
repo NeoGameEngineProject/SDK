@@ -65,3 +65,13 @@ void MeshBehavior::updateBoundingBox()
 						MAX(box.max.z, m_boundingBox.max.z));
 	}
 }
+
+MeshBehavior& MeshBehavior::operator= (const MeshBehavior& b)
+{
+	if(this != &b)
+	{
+		m_submeshes = b.m_submeshes;
+	}
+	
+	return *this;
+}

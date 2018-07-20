@@ -84,6 +84,17 @@ public:
 	ObjectHandle addObject(const char* name);
 	
 	/**
+	 * @brief Clones the given object and adds it to the scene.
+	 * 
+	 * @attention The returned object will not be fully initialized. Call begin to do that.
+	 * 
+	 * @param name The name of the new object.
+	 * @param object THe object to clone.
+	 * @return The handle to the new object.
+	 */
+	ObjectHandle instantiate(const char* name, const Object& object);
+	
+	/**
 	 * @brief Finds an object by name.
 	 * @param name The name.
 	 * @return The object or nullptr.

@@ -72,3 +72,30 @@ ObjectHandle Object::find(const char* name)
 	
 	return ObjectHandle();
 }
+
+Object& Object::operator= (const Object& obj)
+{
+	if(this != &obj)
+	{
+		for(auto& behavior : obj.m_behaviors)
+		{
+			m_behaviors.push_back(std::move(behavior->clone()));
+		}
+		
+		for(auto& behavior : obj.m_behaviorMap)
+		{
+			m_behaviorMap[behavior.first] = behavior.second;
+		}
+		
+		m_transform = obj.m_transform;
+		m_rotation = obj.m_rotation;
+		m_scale = obj.m_scale;
+		
+		setName(obj.m_name);
+		
+		m_active = obj.m_active;
+		m_visible = obj.m_visible;
+	}
+	
+	return *this;
+}

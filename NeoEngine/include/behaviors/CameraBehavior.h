@@ -13,7 +13,8 @@ class CameraBehavior : public Behavior
 	float m_fov = 60.0f, m_near = 0.1f, m_far = 1000.0f; 
 public:
 	const char* getName() const override { return "Camera"; }
-	
+	Behavior* getNew() const override { return new CameraBehavior; }
+
 	void setPerspectiveView(float fov, float ratio, float zNear, float zFar);
 	void setOrthoView(float left, float right, float bottom, float top, float zNear, float zFar);
 	void enable(float width, float height);

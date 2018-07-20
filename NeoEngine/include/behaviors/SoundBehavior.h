@@ -14,6 +14,7 @@ public:
 	SoundBehavior(const SoundHandle& sh): PlatformSoundBehavior(sh) {}
 	
 	const char* getName() const override { return "Sound"; }
+	Behavior* getNew() const override { return new SoundBehavior; }
 };
 
 }

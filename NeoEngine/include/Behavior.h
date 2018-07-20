@@ -52,6 +52,13 @@ public:
 	}
 	
 	/**
+	 * @brief Clones the behavior into a new object.
+	 */
+	virtual std::unique_ptr<Behavior> clone() const;
+	
+	virtual Behavior* getNew() const = 0;
+	
+	/**
 	 * @brief Returns a static string containing the name of the behavior
 	 * @return A static string.
 	 */

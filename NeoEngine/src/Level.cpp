@@ -144,3 +144,9 @@ bool Level::castRay(const Vector3& origin, const Vector3& direction, float dista
 	return hitFound;
 }
 
+ObjectHandle Level::instantiate(const char* name, const Object& object)
+{
+	auto newObject = addObject(name);
+	*newObject = object;
+	return newObject;
+}
