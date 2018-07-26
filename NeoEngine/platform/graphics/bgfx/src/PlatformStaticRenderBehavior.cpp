@@ -97,10 +97,9 @@ void PlatformStaticRenderBehavior::draw(Neo::Renderer& render)
 			| BGFX_STATE_WRITE_G
 			| BGFX_STATE_WRITE_B
 			| BGFX_STATE_WRITE_A
-			| BGFX_STATE_WRITE_Z
 			| BGFX_STATE_DEPTH_TEST_LESS
 			| BGFX_STATE_CULL_CW;
-			
+		
 		switch(material.blendMode)
 		{
 			case BLENDING_ALPHA: state |= BGFX_STATE_BLEND_ALPHA; break;
@@ -113,9 +112,16 @@ void PlatformStaticRenderBehavior::draw(Neo::Renderer& render)
 			case BLENDING_NONE: break;
 		}
 		
+		int depth = 1;
+		if(material.opacity == 1.0f)
+		{
+			depth = 0;
+			state |= BGFX_STATE_WRITE_Z;
+		}
+		
 		bgfx::setState(state);
 		
 		bgfx::setIndexBuffer(m_indexBuffers[i]);
-		bgfx::submit(0, bgfxRender->getShader(0));
+		bgfx::submit(0, bgfxRender->getShader(0), depth);
 	}
 }

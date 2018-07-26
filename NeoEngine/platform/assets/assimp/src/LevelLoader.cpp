@@ -207,7 +207,9 @@ bool LevelLoader::load(Level& level, const char* file, const char* rootNode)
 			material.specular = Vector3(color.r, color.g, color.b);
 		
 		if(AI_SUCCESS == aiGetMaterialColor(aiMat, AI_MATKEY_COLOR_EMISSIVE, &color))
-			material.emit = Vector3(color.r, color.g, color.b);
+			material.emit = Vector3(color.r * material.diffuse.x, 
+						color.g * material.diffuse.y,
+						color.b * material.diffuse.z);
 	
 		if(AI_SUCCESS == aiGetMaterialFloat(aiMat, AI_MATKEY_OPACITY, &material.opacity))
 		{}

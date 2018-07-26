@@ -109,6 +109,8 @@ void PlatformRenderer::initialize(unsigned int w, unsigned int h, void * ndt, vo
 	bgfx::setPlatformData(pd);
 	bgfx::init(init);
 	
+	bgfx::setViewMode(0, bgfx::ViewMode::DepthDescending);
+	
 	bgfx::setDebug(BGFX_DEBUG_NONE);
 	bgfx::setViewRect(0, 0, 0, uint16_t(w), uint16_t(h));
 	

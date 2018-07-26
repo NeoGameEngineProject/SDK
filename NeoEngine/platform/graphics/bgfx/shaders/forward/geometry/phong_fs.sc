@@ -13,6 +13,7 @@ uniform vec4 u_config;
 uniform vec4 textureConfig;
 uniform vec4 u_diffuse;
 uniform vec4 u_specular;
+uniform vec4 u_emit;
 
 #define u_opacity u_diffuse.a;
 
@@ -132,7 +133,7 @@ void main()
 	
 	float roughness = 0.4f / u_shininess;
 	vec3 v = normalize(-v_position);
-	vec3 accumulator = vec3(0, 0, 0); // = Ambient + Emissive;
+	vec3 accumulator = u_emit.rgb; // = Ambient + Emissive;
 	
 	if(u_numLights >= 1)
 	{
