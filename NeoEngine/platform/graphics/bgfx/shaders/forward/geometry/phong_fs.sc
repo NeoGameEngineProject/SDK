@@ -14,6 +14,8 @@ uniform vec4 textureConfig;
 uniform vec4 u_diffuse;
 uniform vec4 u_specular;
 
+#define u_opacity u_diffuse.a;
+
 uniform vec4 u_lightPositions[8];
 uniform vec4 u_lightColors[8];
 uniform vec4 u_lightDirections[8];
@@ -193,4 +195,5 @@ void main()
 		}
 	}
 	gl_FragColor.rgb = applyGamma(accumulator.rgb);
+	gl_FragColor.a = u_opacity;
 }

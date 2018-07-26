@@ -67,6 +67,7 @@ void PlatformStaticRenderBehavior::draw(Neo::Renderer& render)
 		
 		Vector4 tmp;
 		tmp = Vector4(material.diffuse);
+		tmp.w = material.opacity;
 		bgfx::setUniform(m_uMaterialDiffuse, &tmp);
 		
 		tmp = Vector4(material.specular);
@@ -80,7 +81,6 @@ void PlatformStaticRenderBehavior::draw(Neo::Renderer& render)
 		tmp.z = material.opacity;
 
 		bgfx::setUniform(m_uTextureConfig, &tmp);
-
 		bgfx::setVertexBuffer(0, m_vertexBuffers[i]);
 		
 		if(subMeshes[i].getTextureChannels().size())
@@ -91,7 +91,30 @@ void PlatformStaticRenderBehavior::draw(Neo::Renderer& render)
 			bgfx::setVertexBuffer(1, m_texcoordBuffers[i][0]);
 			bgfx::setTexture(0, m_uDiffuseTexture, bgfxRender->getTexture(texture->getID()));
 		}
-				
+		
+		uint64_t state = 0
+			| BGFX_STATE_WRITE_R
+			| BGFX_STATE_WRITE_G
+			| BGFX_STATE_WRITE_B
+			| BGFX_STATE_WRITE_A
+			| BGFX_STATE_WRITE_Z
+			| BGFX_STATE_DEPTH_TEST_LESS
+			| BGFX_STATE_CULL_CW;
+			
+		switch(material.blendMode)
+		{
+			case BLENDING_ALPHA: state |= BGFX_STATE_BLEND_ALPHA; break;
+			case BLENDING_ADD: state |= BGFX_STATE_BLEND_ADD; break;
+			case BLENDING_SUB: state |= BGFX_STATE_BLEND_DARKEN; break;
+			case BLENDING_LIGHT: state |= BGFX_STATE_BLEND_LIGHTEN; break;
+			case BLENDING_PRODUCT: state |= BGFX_STATE_BLEND_MULTIPLY; break;
+			
+			default:
+			case BLENDING_NONE: break;
+		}
+		
+		bgfx::setState(state);
+		
 		bgfx::setIndexBuffer(m_indexBuffers[i]);
 		bgfx::submit(0, bgfxRender->getShader(0));
 	}

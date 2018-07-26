@@ -83,7 +83,7 @@ static void loadMatrix(Matrix4x4& neoMat, aiMatrix4x4& aiMat)
 	neoMat = Matrix4x4((float*) &aiMat);
 	neoMat.transpose();
 }
-#include <iostream>
+
 static void traverseAssimpScene(Level* level,
 				ObjectHandle neoRoot, 
 				aiNode* root, 
@@ -217,6 +217,17 @@ bool LevelLoader::load(Level& level, const char* file, const char* rootNode)
 			material.shininess *= 0.025; // Need to quarter values since Assimp multiplies with 4 for some reason.
 		}
 		
+		int blendMode;
+		if(AI_SUCCESS == aiGetMaterialInteger(aiMat, AI_MATKEY_BLEND_FUNC, &blendMode))
+		{
+			switch(blendMode)
+			{
+				default:
+				case aiBlendMode_Default: material.blendMode = BLENDING_ALPHA; break;
+				case aiBlendMode_Additive: material.blendMode = BLENDING_ADD; break;
+			}
+		}
+	
 		// Textures
 		{
 			aiString path;

@@ -12,6 +12,39 @@
 namespace Neo 
 {
 
+enum BLENDING_MODES
+{
+	BLENDING_NONE = 0,
+	BLENDING_ALPHA,
+	BLENDING_ADD,
+	BLENDING_SUB,
+	BLENDING_LIGHT,
+	BLENDING_PRODUCT
+};
+
+enum TEX_MODES
+{
+	TEX_DEPTH = 0,
+	TEX_R = 1,
+	TEX_RG = 2,
+	TEX_RGB = 3,
+	TEX_RGBA = 4
+};
+
+enum WRAP_MODES
+{
+	WRAP_REPEAT = 0,
+	WRAP_CLAMP
+};
+
+enum CULL_MODES
+{
+	CULL_NONE = 0,
+	CULL_FRONT,
+	CULL_BACK,
+	CULL_FRONT_BACK
+};
+
 struct AABB
 {
 	Vector3 min, max;
@@ -34,6 +67,7 @@ struct Material
 	Vector3 emit;
 	Vector3 customColor;
 	Texture* textures[4] {nullptr, nullptr, nullptr, nullptr};
+	BLENDING_MODES blendMode = BLENDING_ALPHA;
 };
 
 class SubMesh
