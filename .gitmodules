@@ -25,3 +25,6 @@
 [submodule "NeoEngine/platform/3rdparty/zlib-external"]
 	path = NeoEngine/platform/3rdparty/zlib-external
 	url = https://github.com/madler/zlib.git
+[submodule "NeoAI/recast-external"]
+	path = NeoAI/recast-external
+	url = https://github.com/recastnavigation/recastnavigation.git
