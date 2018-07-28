@@ -25,6 +25,7 @@ public:
 	static std::future<FunctionResult>
 	schedule(Function&& f, Args&&... args)
 	{
+#ifndef NEO_SINGLE_THREAD
 		auto promise = std::make_shared<std::promise<FunctionResult>>();
 		auto result = promise->get_future();
 		
@@ -34,6 +35,11 @@ public:
 		
 		ThreadPool::pushJob(job);
 		return result;
+#else
+		std::promise<FunctionResult> promise;
+		promise.set_value(f(args...));
+		return promise.get_future();
+#endif
 	}
 	
 #undef FunctionResult

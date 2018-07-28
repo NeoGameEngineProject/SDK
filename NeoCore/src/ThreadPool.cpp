@@ -11,16 +11,19 @@ using namespace Neo;
 
 namespace
 {
+#ifndef NEO_SINGLE_THREAD
 moodycamel::ConcurrentQueue<std::function<void()>> jobs(QUEUE_SIZE);
 std::vector<std::thread> threads;
 std::atomic<bool> running(false);
 std::atomic<size_t> numJobs(0);
 
 std::condition_variable conditional;
+#endif
 }
 
 void ThreadPool::start(unsigned int numThreads)
 {
+#ifndef NEO_SINGLE_THREAD
 	assert(threads.size() == 0 && numThreads > 0 && !running);
 	
 	running = true;
@@ -29,10 +32,12 @@ void ThreadPool::start(unsigned int numThreads)
 		std::thread thread(ThreadPool::work);
 		threads.push_back(std::move(thread));
 	}
+#endif
 }
 
 void ThreadPool::stop()
 {
+#ifndef NEO_SINGLE_THREAD
 	running = false;
 	conditional.notify_all();
 	
@@ -43,17 +48,21 @@ void ThreadPool::stop()
 	}
 	
 	threads.clear();
+#endif
 }
 
 void ThreadPool::pushJob(const std::function<void()>& job)
 {
+#ifndef NEO_SINGLE_THREAD
 	numJobs++;
 	jobs.enqueue(job);
 	conditional.notify_one();
+#endif
 }
 
 void ThreadPool::work()
 {
+#ifndef NEO_SINGLE_THREAD
 	while(running)
 	{
 		std::mutex mtx;
@@ -84,14 +93,17 @@ void ThreadPool::work()
 		job();
 		numJobs--;
 	}
+#endif
 }
 
 void ThreadPool::synchronize()
 {
+#ifndef NEO_SINGLE_THREAD
 	std::function<void()> job;
 	while(jobs.try_dequeue(job))
 	{
 		job();
 		numJobs--;
 	}
+#endif
 }

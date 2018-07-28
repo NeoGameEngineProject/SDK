@@ -22,10 +22,11 @@ if(NOT BUILD_SHARED_LIBS)
 	target_compile_definitions(NeoCore PUBLIC -DNEO_CORE_STATIC)
 endif()
 
+if(EMSCRIPTEN OR NEO_SINGLE_THREAD)
+	target_compile_definitions(NeoCore PUBLIC -DNEO_SINGLE_THREAD)
+endif()
+
 target_compile_definitions(NeoCore PRIVATE -DNEO_CORE_DLL)
-<<<<<<< HEAD
+
 target_include_directories(NeoCore PUBLIC include PRIVATE src)
-=======
-target_include_directories(NeoCore PUBLIC include)
 target_link_libraries(NeoCore PUBLIC ${CMAKE_THREAD_LIBS_INIT})
->>>>>>> + [NEOCORE] Implemented thread pool
