@@ -8,6 +8,8 @@ class TestBehavior: public Behavior
 public:
 	const char* getName() const override { return "Test"; }
 	static const char* getStaticName() { return "Test"; }
+	
+	Behavior* getNew() const override { return new TestBehavior(); }
 };
 
 TEST(Object, AddBehaviorTemplate)

@@ -27,6 +27,10 @@ if(EMSCRIPTEN OR NEO_SINGLE_THREAD)
 endif()
 
 target_compile_definitions(NeoCore PRIVATE -DNEO_CORE_DLL)
+	target_include_directories(NeoCore PUBLIC include)
 
-target_include_directories(NeoCore PUBLIC include PRIVATE src)
+if(WIN32)
+	target_include_directories(NeoCore PRIVATE dirent)
+endif()
+
 target_link_libraries(NeoCore PUBLIC ${CMAKE_THREAD_LIBS_INIT})
