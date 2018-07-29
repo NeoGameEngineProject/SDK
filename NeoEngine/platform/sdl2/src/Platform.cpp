@@ -3,13 +3,13 @@
 
 #include <iostream>
 
-#include <SDL2/SDL.h>
+#include <SDL.h>
 
 using namespace Neo;
 
 Platform::Platform(const char* soundDevice)
 {
-	if(SDL_Init(SDL_INIT_VIDEO))
+	if(SDL_Init(SDL_INIT_EVERYTHING))
 	{
 		std::cerr << "Could not initialize SDL2!" << std::endl;
 		exit(1);

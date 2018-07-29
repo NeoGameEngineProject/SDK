@@ -1,0 +1,5 @@
+
+add_subdirectory(zlib-external EXCLUDE_FROM_ALL)
+set(ZLIB_FOUND TRUE PARENT_SCOPE)
+set(ZLIB_LIBRARY zlib PARENT_SCOPE)
+set(ZLIB_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/zlib-external/ ${CMAKE_CURRENT_SOURCE_DIR}/zlib-external/ PARENT_SCOPE)

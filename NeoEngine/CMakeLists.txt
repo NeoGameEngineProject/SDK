@@ -13,11 +13,15 @@ get_property(NEO_PLATFORM_INCS GLOBAL PROPERTY NEO_PLATFORM_INCS_PROP)
 
 add_library(NeoEngine ${SOURCES} ${HEADERS} ${NEO_PLATFORM_SRCS})
 
-target_compile_definitions(NeoEngine PRIVATE -DNEO_CORE_DLL)
+if(NOT BUILD_SHARED_LIBS)
+	target_compile_definitions(NeoCore PUBLIC -DNEO_ENGINE_STATIC)
+endif()
+
+target_compile_definitions(NeoEngine PRIVATE -DNEO_ENGINE_DLL)
 target_include_directories(NeoEngine PUBLIC include ${NEO_PLATFORM_INCS})
 
 if(NOT WII)
-set(DL_LIBS ${CMAKE_DL_LIBS})
+	set(DL_LIBS ${CMAKE_DL_LIBS})
 endif()
 
 target_link_libraries(NeoEngine PUBLIC NeoCore ${DL_LIBS} ${NEO_PLATFORM_LIBS})

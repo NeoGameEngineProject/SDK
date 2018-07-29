@@ -290,7 +290,7 @@ class NEO_ENGINE_EXPORT InputContext
 private:
 	Keyboard m_keyboard; /// Contains the overall state of the keyboard
 	Mouse m_mouse;
-	bool m_mouseRelative;
+	bool m_mouseRelative = false;
 
 protected:
 #ifndef SWIG

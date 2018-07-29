@@ -14,5 +14,9 @@ if(NOT NO_TESTS)
   target_link_libraries(NeoCoreTest ${GTEST_LIBRARIES} NeoCore)
 endif()
 
+if(NOT BUILD_SHARED_LIBS)
+	target_compile_definitions(NeoCore PUBLIC -DNEO_CORE_STATIC)
+endif()
+
 target_compile_definitions(NeoCore PRIVATE -DNEO_CORE_DLL)
-target_include_directories(NeoCore PUBLIC include)
+target_include_directories(NeoCore PUBLIC include PRIVATE src)

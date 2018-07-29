@@ -16,3 +16,12 @@
 [submodule "NeoEngine/platform/assets/sound/openal-soft-external"]
 	path = NeoEngine/platform/assets/sound/openal-soft-external
 	url = https://github.com/kcat/openal-soft.git
+[submodule "NeoEngine/platform/sdl2/sdl2-external"]
+	path = NeoEngine/platform/sdl2/sdl2-external
+	url = https://github.com/spurious/SDL-mirror
+[submodule "NeoEngine/platform/graphics/bgfx/freetype2-external"]
+	path = NeoEngine/platform/graphics/bgfx/freetype2-external
+	url = https://git.savannah.gnu.org/git/freetype/freetype2.git
+[submodule "NeoEngine/platform/3rdparty/zlib-external"]
+	path = NeoEngine/platform/3rdparty/zlib-external
+	url = https://github.com/madler/zlib.git

@@ -80,7 +80,7 @@ public:
 	
 	HTMLElement getById(const char* id)
 	{
-		auto ptr = m_document->root()->select_one(id);
+		auto ptr = m_document->root()->select_one(litehtml::tstring(id));
 		return HTMLElement(this, ptr);
 	}
 	

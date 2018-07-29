@@ -2,7 +2,7 @@
 #define NEO_SDLWINDOW_H
 
 #include <Window.h>
-#include <SDL2/SDL.h>
+#include <SDL.h>
 
 namespace Neo
 {

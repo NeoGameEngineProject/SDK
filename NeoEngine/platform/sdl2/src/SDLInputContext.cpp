@@ -1,8 +1,9 @@
 #include "SDLInputContext.h"
 #include <NeoEngine.h>
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include <algorithm>
 #include <limits>
+#include <cstring>
 
 #ifdef max // Defined by the Windows SDK
 #undef max

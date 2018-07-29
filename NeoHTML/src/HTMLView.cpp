@@ -114,7 +114,7 @@ void HTMLView::draw(Renderer& render)
 	nvgBeginFrame(m_nv, m_width, m_height, 1.0f);
 	nvgSave(m_nv);
 	
-	m_document->draw(nullptr, 0, 0, nullptr);
+	m_document->draw(0, 0, 0, nullptr);
 		
 	nvgRestore(m_nv);
 	nvgEndFrame(m_nv);

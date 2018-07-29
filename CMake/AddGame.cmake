@@ -6,8 +6,8 @@ else()
 endif()
 
 macro(add_game name sources assetdir)
-	add_executable(${name} ${sources})
-	target_link_libraries(${name} PUBLIC NeoEngine NeoHTML NeoStates)
+	add_executable(${name} WIN32 ${sources})
+	target_link_libraries(${name} PUBLIC NeoEngine NeoCore NeoHTML NeoStates)
 	
 	if(NOT EMSCRIPTEN)
 		add_custom_target(build-package-${name} 

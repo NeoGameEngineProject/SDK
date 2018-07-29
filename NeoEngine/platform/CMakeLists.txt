@@ -15,6 +15,10 @@ elseif(EMSCRIPTEN)
 	
 	add_subdirectory(assets/physfs)
 else()
+	# if(WIN32)
+	add_subdirectory(3rdparty)
+	# endif()
+
 	add_subdirectory(sdl2)
 	add_subdirectory(graphics/bgfx)
 	add_subdirectory(assets/assimp)
@@ -22,5 +26,6 @@ else()
 	add_subdirectory(assets/sound)
 	
 	add_subdirectory(assets/physfs)
+	
 	# add_subdirectory(assets/zipvfs)
 endif()

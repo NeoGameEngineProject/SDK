@@ -29,7 +29,16 @@ set(OpenGL_GL_PREFERENCE GLVND)
 add_subdirectory(bgfx-cmake-external EXCLUDE_FROM_ALL)
 
 ## NanoVG used by Neo2D
-find_package(Freetype REQUIRED)
+find_package(Freetype)
+if(NOT FREETYPE_FOUND)
+	file(GLOB_RECURSE FREETYPE2_SRC freetype2-external/src/*.c*)
+	set(FREETYPE_LIBRARIES freetype)
+	set(FREETYPE_INCLUDE_DIRS freetype2-external/include)
+	set(SKIP_INSTALL_ALL ON)
+
+	add_subdirectory(freetype2-external)
+endif()
+
 file(GLOB NANOVG_SOURCES bgfx-cmake-external/bgfx/examples/common/nanovg/*.c*)
 add_definitions(-DFONS_USE_FREETYPE)
 

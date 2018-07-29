@@ -13,6 +13,8 @@
 #include <Game.h>
 #include <SplashScreen.h>
 
+#include <WinMain.hpp>
+
 class TestGame : public Neo::GameState
 {
 	Neo::HTML::HTMLView htmlView;
@@ -82,8 +84,6 @@ public:
 	void update(Neo::Platform & p, float dt) override
 	{
 		auto& input = p.getInputContext();
-		input.handleInput();
-
 		if(input.isKeyDown(Neo::KEY_UP_ARROW))
 			camera->translate(Neo::Vector3(0, 0, -1), true);
 		else if(input.isKeyDown(Neo::KEY_DOWN_ARROW))

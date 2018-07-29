@@ -1,7 +1,7 @@
 #include "SDLWindow.h"
 #include <iostream>
 
-#include <SDL2/SDL_syswm.h>
+#include <SDL_syswm.h>
 
 using namespace Neo;
 

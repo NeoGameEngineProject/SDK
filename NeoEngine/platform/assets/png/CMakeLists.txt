@@ -1,6 +1,9 @@
 file(GLOB SOURCES src/*.c*)
 file(GLOB INCLUDES include/*.h)
 
+set(SKIP_INSTALL_ALL ON)
+set(PNG_BUILD_ZLIB ON)
+
 add_subdirectory(libpng-external EXCLUDE_FROM_ALL)
 
 add_platform_module(

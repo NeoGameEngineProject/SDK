@@ -3,7 +3,7 @@
 
 #include <InputContext.h>
 #include <unordered_map>
-#include <SDL2/SDL.h>
+#include <SDL.h>
 
 class SDLInputContext : public Neo::InputContext
 {
