@@ -51,6 +51,15 @@ void ThreadPool::stop()
 #endif
 }
 
+unsigned int threadCount()
+{
+#ifndef NEO_SINGLE_THREAD
+	return threads.size();
+#else
+	return 0;
+#endif
+}
+
 void ThreadPool::pushJob(const std::function<void()>& job)
 {
 #ifndef NEO_SINGLE_THREAD
