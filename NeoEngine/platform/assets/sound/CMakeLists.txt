@@ -3,10 +3,10 @@ file(GLOB INCLUDES include/*.h)
 
 if(NOT EMSCRIPTEN)
 	message("-- Setting OpenAL-Soft libtype to static. CHANGE TO SHARED FOR PROPRIETARY PROJECTS!")
-	set(LIBTYPE CACHE "STATIC" "" FORCE)
-	set(ALSOFT_UTILS CACHE OFF "")
-	set(ALSOFT_EXAMPLES CACHE OFF "")
-	set(ALSOFT_TESTS CACHE OFF "")
+	set(LIBTYPE "STATIC" CACHE STRING "" FORCE)
+	set(ALSOFT_UTILS OFF CACHE BOOL "")
+	set(ALSOFT_EXAMPLES OFF CACHE BOOL "")
+	set(ALSOFT_TESTS OFF CACHE BOOL "")
 	add_subdirectory(openal-soft-external EXCLUDE_FROM_ALL)
 	
 	add_platform_module(
