@@ -19,7 +19,6 @@ public:
 	Vector3 diffuse = Vector3(0.8f, 0.8f, 0.8f);
 	Vector3 specular = Vector3(1, 1, 1);
 	float attenuation = 0.01;
-
 };
 
 }

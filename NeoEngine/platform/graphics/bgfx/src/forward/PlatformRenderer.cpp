@@ -6,6 +6,7 @@
 #include <Vector4.h>
 #include <behaviors/CameraBehavior.h>
 #include <behaviors/LightBehavior.h>
+#include <behaviors/MeshBehavior.h>
 
 #include <iostream>
 
@@ -19,10 +20,11 @@ void PlatformRenderer::beginFrame(Neo::CameraBehavior& camera)
 
 void PlatformRenderer::beginFrame(Level& level, CameraBehavior& cam)
 {
+	m_currentCamera = &cam;
 	beginFrame(cam);
 	level.updateVisibility(cam, m_visibleLights);
 	
-	Matrix4x4 MVP = cam.getViewMatrix();
+	/*Matrix4x4 MVP = cam.getViewMatrix();
 	
 	Vector4* scratchpad = level.getScratchPad<Vector4>();
 	assert(level.getScratchPadSize<Vector4>() > MAX_LIGHTS_PER_OBJECT);
@@ -58,6 +60,53 @@ void PlatformRenderer::beginFrame(Level& level, CameraBehavior& cam)
 	bgfx::setUniform(m_lightUniforms.direction, direction, i);
 	
 	Vector4 vec4(i);
+	bgfx::setUniform(m_config, &vec4);*/
+}
+
+void PlatformRenderer::updateLights(MeshBehavior* mesh)
+{
+	assert(m_currentCamera);
+	
+	Vector4 scratchpad[MAX_LIGHTS_PER_OBJECT*5];
+	unsigned short indices[MAX_LIGHTS_PER_OBJECT]; // Here we will gather all light indices into the m_visibleLights field
+	unsigned short lightCount = 0;
+	gatherLights(m_visibleLights, mesh, indices, MAX_LIGHTS_PER_OBJECT, lightCount);
+	
+	// Not required because gatherLights should ensure this, just to be sure we do it anyways
+	assert(lightCount <= MAX_LIGHTS_PER_OBJECT);
+	
+	Vector4* position = scratchpad;
+	Vector4* color = position + MAX_LIGHTS_PER_OBJECT;
+	Vector4* option = color + MAX_LIGHTS_PER_OBJECT;
+	Vector4* direction = option + MAX_LIGHTS_PER_OBJECT;
+	
+	size_t i = 0;
+	for(i = 0; i < lightCount; i++)
+	{
+		auto light = m_visibleLights[indices[i]];
+		if(light == nullptr)
+			break;
+		
+		Object* parent = light->getParent();
+		
+		position[i] = m_currentCamera->getViewMatrix() * parent->getPosition();
+		position[i].w = light->attenuation;
+		
+		color[i] = Vector4(light->diffuse);
+		color[i].w = light->brightness;
+
+		
+		option[i] = Vector4(light->angle, light->exponent, 0, 0);
+		
+		direction[i] = (m_currentCamera->getViewMatrix() * parent->getTransform() * Vector4(0, 0, -1, 0));
+	}
+	
+	bgfx::setUniform(m_lightUniforms.position, position, i);
+	bgfx::setUniform(m_lightUniforms.color, color, i);
+	bgfx::setUniform(m_lightUniforms.option, option, i);
+	bgfx::setUniform(m_lightUniforms.direction, direction, i);
+	
+	Vector4 vec4(i);
 	bgfx::setUniform(m_config, &vec4);
 }
 
@@ -80,6 +129,8 @@ void PlatformRenderer::endFrame()
 #ifdef __EMSCRIPTEN__
 	bgfx::frame();
 #endif
+	
+	m_currentCamera = nullptr;
 }
 
 void PlatformRenderer::initialize(unsigned int w, unsigned int h, void * ndt, void * nwh)
@@ -133,4 +184,20 @@ void PlatformRenderer::initialize(unsigned int w, unsigned int h, void * ndt, vo
 void PlatformRenderer::swapBuffers()
 {
 	bgfx::frame();
+}
+
+void PlatformRenderer::gatherLights(Array<LightBehavior*>& lights, MeshBehavior* mesh, unsigned short* buffer, unsigned short max, unsigned short& count)
+{
+	for(size_t i = 0; i < lights.count && lights[i] != nullptr && count < max; i++)
+	{
+		auto parent = lights[i]->getParent();
+		float distance = (mesh->getParent()->getPosition() - parent->getPosition()).getLength() - mesh->getBoundingBox().diameter / 2.0f;
+		float radius = sqrt(1.0f / (lights[i]->attenuation * 0.15f)); // 0.15 = Minimum brightness
+		
+		if(distance <= radius)
+		{
+			buffer[count] = i;
+			count++;
+		}
+	}
 }

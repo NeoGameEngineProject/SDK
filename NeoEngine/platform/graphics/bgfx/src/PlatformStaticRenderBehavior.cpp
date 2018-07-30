@@ -60,6 +60,7 @@ void PlatformStaticRenderBehavior::draw(Neo::Renderer& render)
 	PlatformRenderer* bgfxRender = reinterpret_cast<PlatformRenderer*>(&render);
 	auto& subMeshes = m_mesh->getMeshes();
 	
+	bgfxRender->updateLights(m_mesh);
 	bgfx::setTransform(getParent()->getTransform().entries);
 	for(size_t i = 0; i < m_vertexBuffers.count; i++)
 	{
