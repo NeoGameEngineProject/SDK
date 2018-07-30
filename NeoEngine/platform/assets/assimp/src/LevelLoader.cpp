@@ -87,7 +87,7 @@ static void loadMatrix(Matrix4x4& neoMat, aiMatrix4x4& aiMat)
 static void traverseAssimpScene(Level* level,
 				ObjectHandle neoRoot, 
 				aiNode* root, 
-				const std::vector<Mesh>& meshes, 
+				const std::vector<MeshHandle>& meshes, 
 				const std::unordered_map<std::string, LightBehavior>& lights,
 				const std::unordered_map<std::string, std::pair<Matrix4x4, CameraBehavior>>& cameras)
 {
@@ -188,7 +188,7 @@ bool LevelLoader::load(Level& level, const char* file, const char* rootNode)
 #endif
 	
 	// First, load all meshes into the resource cache
-	std::vector<Mesh> meshes;
+	std::vector<MeshHandle> meshes;
 	meshes.reserve(scene->mNumMeshes);
 	
 	std::vector<Material> materials;
@@ -350,7 +350,7 @@ bool LevelLoader::load(Level& level, const char* file, const char* rootNode)
 		}
 		
 		subMesh.setMaterial(materials[mesh->mMaterialIndex]);
-		meshes.push_back(std::move(subMesh));
+		meshes.push_back(level.addMesh(std::move(subMesh)));
 	}
 	
 	// We need to find all lights in the scene.
