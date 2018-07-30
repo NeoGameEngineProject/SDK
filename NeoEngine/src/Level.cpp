@@ -113,7 +113,7 @@ bool Level::castRay(const Vector3& origin, const Vector3& direction, float dista
 		if(!object.isActive() || !mesh || !isEdgeToBoxCollision(origin, dest, mesh->getBoundingBox().min, mesh->getBoundingBox().max))
 			continue;
 
-		for(auto& submesh : mesh->getSubMeshes())
+		for(auto& submesh : mesh->getMeshes())
 		{
 			auto& indices = submesh.getIndices();
 			auto& vertices = submesh.getVertices();

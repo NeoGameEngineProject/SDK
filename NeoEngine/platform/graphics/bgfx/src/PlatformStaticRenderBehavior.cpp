@@ -9,7 +9,7 @@ void PlatformStaticRenderBehavior::begin(Neo::Platform& p, Neo::Renderer& render
 {
 	PlatformRenderer* bgfxRender = reinterpret_cast<PlatformRenderer*>(&render);
 	m_mesh = getParent()->getBehavior<MeshBehavior>();
-	auto& subMeshes = m_mesh->getSubMeshes();
+	auto& subMeshes = m_mesh->getMeshes();
 	size_t bufferCount = subMeshes.size();
 	
 	m_vertexBuffers.alloc(bufferCount);
@@ -58,7 +58,7 @@ void PlatformStaticRenderBehavior::end()
 void PlatformStaticRenderBehavior::draw(Neo::Renderer& render)
 {
 	PlatformRenderer* bgfxRender = reinterpret_cast<PlatformRenderer*>(&render);
-	auto& subMeshes = m_mesh->getSubMeshes();
+	auto& subMeshes = m_mesh->getMeshes();
 	
 	bgfx::setTransform(getParent()->getTransform().entries);
 	for(size_t i = 0; i < m_vertexBuffers.count; i++)

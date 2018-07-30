@@ -3,11 +3,14 @@
 
 #include "NeoEngine.h"
 #include "Object.h"
+
 #include <Array.h>
 #include <Texture.h>
+#include <Sound.h>
 
 #include <behaviors/CameraBehavior.h>
 #include <behaviors/LightBehavior.h>
+#include <behaviors/SoundBehavior.h>
 
 namespace Neo 
 {

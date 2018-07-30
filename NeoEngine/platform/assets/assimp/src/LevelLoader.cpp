@@ -87,7 +87,7 @@ static void loadMatrix(Matrix4x4& neoMat, aiMatrix4x4& aiMat)
 static void traverseAssimpScene(Level* level,
 				ObjectHandle neoRoot, 
 				aiNode* root, 
-				const std::vector<SubMesh>& meshes, 
+				const std::vector<Mesh>& meshes, 
 				const std::unordered_map<std::string, LightBehavior>& lights,
 				const std::unordered_map<std::string, std::pair<Matrix4x4, CameraBehavior>>& cameras)
 {
@@ -133,7 +133,7 @@ static void traverseAssimpScene(Level* level,
 		
 		// Insert into parent list
 		auto meshBehavior = std::make_unique<MeshBehavior>();
-		auto& subMeshes = meshBehavior->getSubMeshes();
+		auto& subMeshes = meshBehavior->getMeshes();
 		subMeshes.reserve(child->mNumMeshes);
 		
 		for(size_t j = 0; j < child->mNumMeshes; j++)
@@ -188,7 +188,7 @@ bool LevelLoader::load(Level& level, const char* file, const char* rootNode)
 #endif
 	
 	// First, load all meshes into the resource cache
-	std::vector<SubMesh> meshes;
+	std::vector<Mesh> meshes;
 	meshes.reserve(scene->mNumMeshes);
 	
 	std::vector<Material> materials;
@@ -311,7 +311,7 @@ bool LevelLoader::load(Level& level, const char* file, const char* rootNode)
 	
 	for(size_t i = 0; i < scene->mNumMeshes; i++)
 	{
-		SubMesh subMesh;
+		Mesh subMesh;
 		const aiMesh* mesh = scene->mMeshes[i];
 		subMesh.set(mesh->mNumVertices, 
 			    (Vector3*) mesh->mVertices, 
