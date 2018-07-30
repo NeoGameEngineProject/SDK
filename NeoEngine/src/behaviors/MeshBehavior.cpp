@@ -9,10 +9,10 @@ void MeshBehavior::updateBoundingBox()
 	if(m_submeshes.size() == 0)
 		return;
 	
-	m_boundingBox = m_submeshes[0].calculateBoundingBox();
+	m_boundingBox = m_submeshes[0]->calculateBoundingBox();
 	for(size_t i = 1; i < m_submeshes.size(); i++)
 	{
-		auto box = m_submeshes[i].calculateBoundingBox();
+		auto box = m_submeshes[i]->calculateBoundingBox();
 		m_boundingBox.min = Vector3(MIN(box.min.x, m_boundingBox.min.x),
 						MIN(box.min.y, m_boundingBox.min.y),
 						MIN(box.min.z, m_boundingBox.min.z));

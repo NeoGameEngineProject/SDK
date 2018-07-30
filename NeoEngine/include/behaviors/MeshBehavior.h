@@ -9,7 +9,7 @@ namespace Neo
 
 class MeshBehavior : public Neo::Behavior
 {
-	std::vector<Mesh> m_submeshes;
+	std::vector<MeshHandle> m_submeshes;
 	AABB m_boundingBox;
 	
 public:
@@ -22,7 +22,7 @@ public:
 	const char* getName() const override { return "Mesh"; }
 	Behavior* getNew() const override { return new MeshBehavior; }
 
-	std::vector<Mesh>& getMeshes() { return m_submeshes; }
+	std::vector<MeshHandle>& getMeshes() { return m_submeshes; }
 	
 	MeshBehavior& operator= (MeshBehavior&& b)
 	{

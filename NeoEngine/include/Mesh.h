@@ -6,6 +6,7 @@
 #include <Vector2.h>
 #include <Image.h>
 #include <Array.h>
+#include <Handle.h>
 
 namespace Neo
 {
@@ -114,6 +115,9 @@ private:
 	
 	Material m_material;
 };
+
+typedef Handle<Mesh, std::vector<Mesh>> MeshHandle;
+typedef Handle<Mesh, Array<Mesh>> MeshHandleArray;
 
 }
 

@@ -7,6 +7,7 @@
 #include <Array.h>
 #include <Texture.h>
 #include <Sound.h>
+#include <Mesh.h>
 
 #include <behaviors/CameraBehavior.h>
 #include <behaviors/LightBehavior.h>
@@ -30,6 +31,7 @@ class NEO_ENGINE_EXPORT Level
 	CameraBehavior* m_currentCamera = nullptr;
 	std::unordered_map<std::string, Texture> m_textures;
 	std::vector<Sound> m_sounds;
+	std::vector<Mesh> m_meshes;
 public:
 	/**
 	 * @brief Constructs a new level.
@@ -119,6 +121,10 @@ public:
 	 */
 	Texture* loadTexture(const char* name);
 	SoundHandle loadSound(const char* name);
+	
+	// TODO loadLevel
+	MeshHandle addMesh(Mesh&& ref);
+	MeshHandle addMesh(const Mesh& ref);
 	
 	/**
 	 * @brief Loads a level from a file.

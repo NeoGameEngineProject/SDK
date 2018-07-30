@@ -100,6 +100,20 @@ SoundHandle Level::loadSound(const char* name)
 	return SoundHandle(&m_sounds, m_sounds.size() - 1);
 }
 
+MeshHandle Level::addMesh(Mesh&& ref)
+{
+	auto handle = MeshHandle(&m_meshes, m_meshes.size());
+	m_meshes.push_back(std::move(ref));
+	return handle;
+}
+
+MeshHandle Level::addMesh(const Mesh& ref)
+{
+	auto handle = MeshHandle(&m_meshes, m_meshes.size());
+	m_meshes.push_back(ref);
+	return handle;
+}
+
 bool Level::castRay(const Vector3& origin, const Vector3& direction, float distance, Vector3* hitPoint, ObjectHandle* hitObject)
 {
 	Vector3 dest = origin + direction * distance; // TODO: As argument?
@@ -115,8 +129,8 @@ bool Level::castRay(const Vector3& origin, const Vector3& direction, float dista
 
 		for(auto& submesh : mesh->getMeshes())
 		{
-			auto& indices = submesh.getIndices();
-			auto& vertices = submesh.getVertices();
+			auto& indices = submesh->getIndices();
+			auto& vertices = submesh->getVertices();
 			
 			for(size_t i = 0; i < indices.size();)
 			{

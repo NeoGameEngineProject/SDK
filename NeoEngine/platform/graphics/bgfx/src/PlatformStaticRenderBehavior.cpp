@@ -20,20 +20,20 @@ void PlatformStaticRenderBehavior::begin(Neo::Platform& p, Neo::Renderer& render
 	{
 		auto& k = subMeshes[i];
 		
-		const auto vertexRef = bgfx::makeRef(k.getVertices().data(), k.getVertices().size() * sizeof(MeshVertex));
-		const auto indexRef = bgfx::makeRef(k.getIndices().data(), k.getIndices().size() * sizeof(unsigned int));
+		const auto vertexRef = bgfx::makeRef(k->getVertices().data(), k->getVertices().size() * sizeof(MeshVertex));
+		const auto indexRef = bgfx::makeRef(k->getIndices().data(), k->getIndices().size() * sizeof(unsigned int));
 		
 		m_vertexBuffers[i] = bgfx::createVertexBuffer(vertexRef, bgfxRender->getVertexStruct());
 		m_indexBuffers[i] = bgfx::createIndexBuffer(indexRef, BGFX_BUFFER_INDEX32);
 		
-		m_texcoordBuffers[i].alloc(k.getTextureChannels().size());
-		for(size_t j = 0; j < k.getTextureChannels().size(); j++)
+		m_texcoordBuffers[i].alloc(k->getTextureChannels().size());
+		for(size_t j = 0; j < k->getTextureChannels().size(); j++)
 		{
-			auto& channel = k.getTextureChannels()[j];
+			auto& channel = k->getTextureChannels()[j];
 			const auto texRef = bgfx::makeRef(channel.data, channel.count * sizeof(Vector2));
 			m_texcoordBuffers[i][j] = bgfx::createVertexBuffer(texRef, bgfxRender->getTexCoordStruct());
 			
-			auto& material = k.getMaterial();
+			auto& material = k->getMaterial();
 			auto texture = material.textures[j];
 			assert(texture);
 			
@@ -63,7 +63,7 @@ void PlatformStaticRenderBehavior::draw(Neo::Renderer& render)
 	bgfx::setTransform(getParent()->getTransform().entries);
 	for(size_t i = 0; i < m_vertexBuffers.count; i++)
 	{
-		auto& material = subMeshes[i].getMaterial();
+		auto& material = subMeshes[i]->getMaterial();
 		
 		Vector4 tmp;
 		tmp = Vector4(material.diffuse);
@@ -76,14 +76,14 @@ void PlatformStaticRenderBehavior::draw(Neo::Renderer& render)
 		tmp = Vector4(material.emit);
 		bgfx::setUniform(m_uMaterialEmit, &tmp);
 		
-		tmp.x = subMeshes[i].getTextureChannels().size();
+		tmp.x = subMeshes[i]->getTextureChannels().size();
 		tmp.y = material.shininess;
 		tmp.z = material.opacity;
 
 		bgfx::setUniform(m_uTextureConfig, &tmp);
 		bgfx::setVertexBuffer(0, m_vertexBuffers[i]);
 		
-		if(subMeshes[i].getTextureChannels().size())
+		if(subMeshes[i]->getTextureChannels().size())
 		{
 			auto texture = material.textures[0];
 			assert(texture);
