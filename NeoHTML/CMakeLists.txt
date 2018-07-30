@@ -1,7 +1,10 @@
 file(GLOB_RECURSE HEADERS include/*.h)
 file(GLOB_RECURSE SOURCES src/*.c*)
 
-add_definitions(-DLITEHTML_UTF8)
+if(WIN32)
+	add_definitions(-DLITEHTML_UTF8)
+endif()
+
 add_subdirectory(litehtml-external)
 
 if(CMAKE_COMPILER_IS_GNUCC)
