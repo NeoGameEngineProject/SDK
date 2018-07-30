@@ -62,6 +62,7 @@ struct Material
 struct AABB
 {
 	Vector3 min, max;
+	float diameter;
 };
 
 struct MeshVertex

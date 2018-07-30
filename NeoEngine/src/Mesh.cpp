@@ -44,5 +44,6 @@ AABB Mesh::calculateBoundingBox()
 				  MAX(vertex.position.z, box.max.z));
 	}
 	
+	box.diameter = (box.max - box.min).getLength();
 	return box;
 }

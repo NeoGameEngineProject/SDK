@@ -21,6 +21,8 @@ void MeshBehavior::updateBoundingBox()
 						MAX(box.max.y, m_boundingBox.max.y),
 						MAX(box.max.z, m_boundingBox.max.z));
 	}
+	
+	m_boundingBox.diameter = (m_boundingBox.max - m_boundingBox.min).getLength();
 }
 
 MeshBehavior& MeshBehavior::operator= (const MeshBehavior& b)
