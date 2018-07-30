@@ -11,7 +11,7 @@ find_package(Threads REQUIRED)
 add_library(NeoCore ${SOURCES} ${HEADERS})
 
 if(NOT NO_TESTS)
-  add_executable(NeoCoreTest tests/main.cpp tests/ThreadPoolTest.cpp)
+  add_executable(NeoCoreTest tests/main.cpp tests/ThreadPoolTest.cpp tests/LogTest.cpp)
 
   ## Travis does not like TARGET_include_directories
   include_directories(${GTEST_INCLUDE_DIR})
@@ -27,7 +27,7 @@ if(EMSCRIPTEN OR NEO_SINGLE_THREAD)
 endif()
 
 target_compile_definitions(NeoCore PRIVATE -DNEO_CORE_DLL)
-	target_include_directories(NeoCore PUBLIC include)
+target_include_directories(NeoCore PUBLIC include)
 
 if(WIN32)
 	target_include_directories(NeoCore PRIVATE dirent)
