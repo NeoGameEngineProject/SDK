@@ -36,8 +36,9 @@ public:
 	 * @param h The window height.
 	 * @param ndt A platform specific window pointer.
 	 * @param nwh A platform specific window pointer.
+	 * @param ctx A platform specific graphics context (e.g. OpenGL context)
 	 */
-	virtual void initialize(unsigned int w, unsigned int h, void* ndt, void* nwh) = 0;
+	virtual void initialize(unsigned int w, unsigned int h, void* ndt, void* nwh, void* ctx) = 0;
 	
 	/**
 	 * @param Ends the frame and swaps the buffers.

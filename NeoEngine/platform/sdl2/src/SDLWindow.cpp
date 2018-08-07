@@ -95,7 +95,7 @@ void SDLWindow::setRenderer(std::unique_ptr<Renderer>&& renderer)
 //		nwh          = wmi.info.vivante.window;
 #endif
 #endif // __EMSCRIPTEN__
-	Window::setRenderer(std::move(renderer), ndt, nwh);
+	Window::setRenderer(std::move(renderer), ndt, nwh, m_context);
 }
 
 float SDLWindow::getDPI()

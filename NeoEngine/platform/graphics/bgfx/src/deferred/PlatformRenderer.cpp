@@ -29,7 +29,7 @@ void PlatformRenderer::clear(float r, float g, float b, bool depth)
 			0);
 }
 
-void PlatformRenderer::initialize(unsigned int w, unsigned int h, void* ndt, void* nwh)
+void PlatformRenderer::initialize(unsigned int w, unsigned int h, void* ndt, void* nwh, void* ctx)
 {
 	m_screenWidth = w;
 	m_screenHeight = h;
@@ -50,7 +50,7 @@ void PlatformRenderer::initialize(unsigned int w, unsigned int h, void* ndt, voi
 
 	pd.ndt = ndt;
 	pd.nwh = nwh;
-	pd.context = NULL;
+	pd.context = ctx;
 	pd.backBuffer = NULL;
 	pd.backBufferDS = NULL;
 	bgfx::setPlatformData(pd);

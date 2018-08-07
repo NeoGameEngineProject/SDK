@@ -38,7 +38,7 @@ public:
 	void beginFrame(Neo::CameraBehavior & camera) override;
 	void clear(float r, float g, float b, bool depth) override;
 	void endFrame() override;
-	void initialize(unsigned int w, unsigned int h, void * ndt, void * nwh) override;
+	void initialize(unsigned int w, unsigned int h, void* ndt, void* nwh, void* ctx) override;
 	void swapBuffers() override;
 	
 	void updateLights(MeshBehavior* mesh);

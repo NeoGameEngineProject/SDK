@@ -133,7 +133,7 @@ void PlatformRenderer::endFrame()
 	m_currentCamera = nullptr;
 }
 
-void PlatformRenderer::initialize(unsigned int w, unsigned int h, void * ndt, void * nwh)
+void PlatformRenderer::initialize(unsigned int w, unsigned int h, void* ndt, void* nwh, void* ctx)
 {
 	m_width = w;
 	m_height = h;
@@ -154,7 +154,7 @@ void PlatformRenderer::initialize(unsigned int w, unsigned int h, void * ndt, vo
 
 	pd.ndt = ndt;
 	pd.nwh = nwh;
-	pd.context = nullptr;
+	pd.context = ctx;
 	pd.backBuffer = nullptr;
 	pd.backBufferDS = nullptr;
 	bgfx::setPlatformData(pd);

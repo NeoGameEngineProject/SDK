@@ -33,7 +33,7 @@ class PlatformRenderer : public BGFX::Common
 	
 public:
 	void clear(float r, float g, float b, bool depth) override;
-	void initialize(unsigned int w, unsigned int h, void* ndt, void* nwh) override;
+	void initialize(unsigned int w, unsigned int h, void* ndt, void* nwh, void* ctx) override;
 	void swapBuffers() override;
 	void beginFrame(Level& level, CameraBehavior& cam) override;
 	void beginFrame(CameraBehavior& cam) override;
