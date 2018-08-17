@@ -20,7 +20,11 @@ else()
 	# endif()
 
 	add_subdirectory(sdl2)
-	add_subdirectory(graphics/bgfx)
+
+	if(ENABLE_OPENGL_RENDERER)
+		add_subdirectory(graphics/opengl)
+	endif()
+
 	add_subdirectory(assets/assimp)
 	add_subdirectory(assets/png)
 	add_subdirectory(assets/sound)

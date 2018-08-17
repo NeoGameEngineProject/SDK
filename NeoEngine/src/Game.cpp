@@ -75,7 +75,9 @@ void Game::update()
 
 void Game::draw()
 {
+	m_window->activateRendering();
 	m_currentGame->draw(*m_window->getRenderer());
+	m_window->swapBuffers();
 }
 
 #ifndef __EMSCRIPTEN__

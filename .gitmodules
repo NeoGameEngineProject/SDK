@@ -28,3 +28,9 @@
 [submodule "NeoAI/recast-external"]
 	path = NeoAI/recast-external
 	url = https://github.com/recastnavigation/recastnavigation.git
+[submodule "NeoEngine/platform/graphics/opengl/nanovg-external"]
+	path = NeoEngine/platform/graphics/opengl/nanovg-external
+	url = https://github.com/memononen/nanovg.git
+[submodule "NeoEngine/platform/3rdparty/freetype2-external"]
+	path = NeoEngine/platform/3rdparty/freetype2-external
+	url = https://git.savannah.gnu.org/git/freetype/freetype2.git

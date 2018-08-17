@@ -1,0 +1,42 @@
+
+macro(preprocess_file input output)
+
+	get_filename_component(_CWD ${input} DIRECTORY)
+	get_filename_component(_NAME ${input} NAME)
+	if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"
+			OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+
+		add_custom_command(OUTPUT ${output}
+							COMMAND cpp -nostdinc -P -E ${input} | sed "s/\\$/\#/g" > ${output}
+							WORKING_DIRECTORY ${_CWD}
+							DEPENDS ${input}
+							COMMENT "Preprocessing shader ${_NAME}" VERBATIM)
+
+		set_source_files_properties(${output} PROPERTIES GENERATED TRUE)
+
+	elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+		add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${output}
+				COMMAND ${CMAKE_CXX_COMPILER} /X /EP ${input} > ${CMAKE_CURRENT_BINARY_DIR}/${output}
+				WORKING_DIRECTORY ${_CWD}
+				DEPENDS ${input}
+				COMMENT "Preprocessing shader ${_NAME}")
+	else()
+		message(FATAL_ERROR "Unknown compiler, don't know to to invoke preprocessor!")
+	endif()
+
+endmacro()
+
+function(preprocess_files)
+	cmake_parse_arguments(ARG "" "" "SOURCES;INCLUDE_DIRECTORIES" ${ARGN})
+	set(_PROCESSED_SHADERS "")
+
+	foreach(FILE ${ARG_SOURCES})
+		message(${FILE})
+		get_filename_component(NAME ${FILE} NAME_WE)
+		set(OUTFILE ${CMAKE_BINARY_DIR}/bin/assets/glsl/${NAME}.glsl)
+		preprocess_file(${FILE} ${OUTFILE})
+		set(_PROCESSED_SHADERS ${_PROCESSED_SHADERS} ${OUTFILE})
+	endforeach()
+
+	set(PROCESSED_SHADERS ${_PROCESSED_SHADERS} PARENT_SCOPE)
+endfunction()

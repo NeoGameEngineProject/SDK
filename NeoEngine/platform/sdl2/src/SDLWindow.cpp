@@ -2,6 +2,7 @@
 #include <iostream>
 
 #include <SDL_syswm.h>
+#include <Log.h>
 
 using namespace Neo;
 
@@ -15,19 +16,25 @@ SDLWindow::SDLWindow(unsigned int w, unsigned int h) : Window(w, h)
 	
 	if(m_win == nullptr)
 	{
-		std::cerr << "Could not create window! " << SDL_GetError() << std::endl;
+		LOG_ERROR("Could not create window: " << SDL_GetError());
 	}
 	
 #ifndef __EMSCRIPTEN__
 	// TODO Configuration
-	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 8);
+	//SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+	//SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 8);
 	
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 5);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-	
+
+	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+
 	m_context = SDL_GL_CreateContext(m_win);
+
+	if(!m_context)
+		LOG_ERROR("Could not create OpenGL context!");
+
 #else
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
@@ -55,6 +62,7 @@ void SDLWindow::setTitle(const char * title)
 
 void SDLWindow::swapBuffers()
 {
+	getRenderer()->swapBuffers();
 	SDL_GL_SwapWindow(m_win);
 }
 
@@ -95,6 +103,8 @@ void SDLWindow::setRenderer(std::unique_ptr<Renderer>&& renderer)
 //		nwh          = wmi.info.vivante.window;
 #endif
 #endif // __EMSCRIPTEN__
+
+	activateRendering();
 	Window::setRenderer(std::move(renderer), ndt, nwh, m_context);
 }
 

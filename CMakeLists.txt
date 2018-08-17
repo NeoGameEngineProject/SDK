@@ -28,6 +28,7 @@ if(EMSCRIPTEN)
 endif()
 
 include(AddGame)
+include(PreProcessor)
 
 if(NOT NO_TESTS)
 	find_package(GTest)
