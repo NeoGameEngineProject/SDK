@@ -11,10 +11,10 @@
 #include <cmath>
 
 #ifdef NEO_OPENGL
-#define NANOVG_GL3_IMPLEMENTATION
-#include <GL/glew.h>
-#include <GL/gl.h>
+#include <nanovg.h>
 #include <nanovg_gl.h>
+extern "C" NVGcontext* nvgCreateGL3(int);
+extern "C" void nvgDeleteGL3(NVGcontext*);
 #endif
 
 // FIXME: Ugly?

@@ -14,6 +14,11 @@
 #include "../shaders/ShaderLight.h"
 #undef vec4
 
+// Provide NanoVG
+#define NANOVG_GL3_IMPLEMENTATION
+#include <nanovg.h>
+#include <nanovg_gl.h>
+
 using namespace Neo;
 
 void PlatformRenderer::beginFrame(Neo::CameraBehavior& camera)

@@ -6,6 +6,13 @@
 #include <Window.h>
 #include <Game.h>
 
+#ifdef NEO_OPENGL
+#include <nanovg.h>
+#include <nanovg_gl.h>
+extern "C" NVGcontext* nvgCreateGL3(int);
+extern "C" void nvgDeleteGL3(NVGcontext*);
+#endif
+
 using namespace Neo;
 using namespace States;
 
@@ -86,13 +93,21 @@ void SplashScreen::end()
 	for(auto k : m_slideshowTextures)
 		nvgDeleteImage(m_nv, k);
 	
+#ifdef NEO_OPENGL
+	nvgDeleteGL3(m_nv);
+#else // BGFX
 	nvgDelete(m_nv);
+#endif
 }
 
 void SplashScreen::begin(Neo::Platform& p, Neo::Window& w)
 {
+#ifdef NEO_OPENGL
+	m_nv = nvgCreateGL3(NVG_ANTIALIAS | NVG_STENCIL_STROKES);
+#else // BGFX
 	m_nv = nvgCreate(0, 2);
-	
+#endif
+
 	nvgSave(m_nv);
 	for(auto& k : m_slideshow)
 	{
