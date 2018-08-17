@@ -19,6 +19,13 @@ using namespace Neo;
 void PlatformRenderer::beginFrame(Neo::CameraBehavior& camera)
 {
 	camera.enable(m_width, m_height);
+
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LEQUAL);
+	glDisable(GL_BLEND);
+
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
 }
 
 void PlatformRenderer::beginFrame(Level& level, CameraBehavior& cam)
@@ -103,9 +110,6 @@ void PlatformRenderer::initialize(unsigned int w, unsigned int h, void* ndt, voi
 
 	auto shader = loadShader("assets/glsl/phong");
 	glViewport(0, 0, w, h);
-
-	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LEQUAL);
 
 	m_uModelView = glGetUniformLocation(shader, "ModelViewMatrix");
 	m_uModelViewProj = glGetUniformLocation(shader, "ModelViewProjectionMatrix");

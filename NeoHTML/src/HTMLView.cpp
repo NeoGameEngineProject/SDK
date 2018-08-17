@@ -10,6 +10,13 @@
 #include <iostream>
 #include <cmath>
 
+#ifdef NEO_OPENGL
+#define NANOVG_GL3_IMPLEMENTATION
+#include <GL/glew.h>
+#include <GL/gl.h>
+#include <nanovg_gl.h>
+#endif
+
 // FIXME: Ugly?
 #include "../litehtml-external/src/el_text.h"
 
@@ -55,8 +62,13 @@ void HTMLElement::setStyle(const char* name, const char* value)
 void HTMLView::begin(unsigned int w, unsigned int h, float dpi)
 {
 	assert(!m_nv && "Already initialized!");
+
+#ifdef NEO_OPENGL
+	m_nv = nvgCreateGL3(NVG_ANTIALIAS | NVG_STENCIL_STROKES);
+#else // BGFX
 	m_nv = nvgCreate(1, 2);
-	
+#endif
+
 	m_context.load_master_stylesheet(s_masterCSS);
 	m_width = w;
 	m_height = h;
@@ -66,7 +78,12 @@ void HTMLView::begin(unsigned int w, unsigned int h, float dpi)
 void HTMLView::end()
 {
 	assert(m_nv && "Not initialized!");
+
+#ifdef NEO_OPENGL
+	nvgDeleteGL3(m_nv);
+#else // BGFX
 	nvgDelete(m_nv);
+#endif
 	m_nv = nullptr;
 }
 
@@ -168,7 +185,7 @@ litehtml::uint_ptr HTMLView::create_font(const litehtml::tchar_t* faceName, int 
 	nvgFontFaceId(m_nv, value);
 	
 	float ascent, descent, height;
-	nvgTextMetrics(m_nv, &ascent, &descent, &height);	
+	nvgTextMetrics(m_nv, &ascent, &descent, &height);
 	nvgRestore(m_nv);
 	
 	Font* font = new Font;
@@ -368,16 +385,53 @@ void HTMLView::draw_borders(litehtml::uint_ptr hdc, const litehtml::borders& bor
 				nvgRGBA(borders.bottom.color.red, borders.bottom.color.green, borders.bottom.color.blue, 0));
 				
 		nvgSave(m_nv);
+
+		// Top
 		nvgBeginPath(m_nv);
-		
 		nvgFillColor(m_nv, nvgRGBA(0, 0, 0, 255));
+		nvgScissor(m_nv, draw_pos.left() - borders.top.width + xoff, draw_pos.top() - borders.top.width * 2,
+				   draw_pos.width + borders.top.width * 2, borders.top.width * 2);
+
 		nvgRect(m_nv, draw_pos.left() - borders.top.width + xoff, draw_pos.top() - borders.top.width + yoff,
 			draw_pos.width + borders.top.width * 2 + xoff, draw_pos.height + borders.top.width * 2 + yoff);
-		
-		nvgGlobalCompositeOperation(m_nv, NVG_DESTINATION_OUT);
-		
+
 		nvgFillPaint(m_nv, paint);
 		nvgFill(m_nv);
+
+		// Bottom
+		nvgBeginPath(m_nv);
+		nvgFillColor(m_nv, nvgRGBA(0, 0, 0, 255));
+		nvgScissor(m_nv, draw_pos.left() - borders.top.width + xoff,
+				   draw_pos.bottom(), draw_pos.width + borders.top.width * 2, borders.top.width * 2);
+		nvgRect(m_nv, draw_pos.left() - borders.top.width + xoff, draw_pos.top() - borders.top.width + yoff,
+				draw_pos.width + borders.top.width * 2 + xoff, draw_pos.height + borders.top.width * 2 + yoff);
+
+		nvgFillPaint(m_nv, paint);
+		nvgFill(m_nv);
+
+		// Left
+		nvgBeginPath(m_nv);
+		nvgFillColor(m_nv, nvgRGBA(0, 0, 0, 255));
+		nvgScissor(m_nv, draw_pos.left() - borders.top.width * 2,
+				   draw_pos.top() - borders.top.width + yoff, borders.top.width * 2, draw_pos.height + borders.top.width * 2);
+		nvgRect(m_nv, draw_pos.left() - borders.top.width + xoff, draw_pos.top() - borders.top.width + yoff,
+				draw_pos.width + borders.top.width * 2 + xoff, draw_pos.height + borders.top.width * 2 + yoff);
+
+		nvgFillPaint(m_nv, paint);
+		nvgFill(m_nv);
+
+		// Right
+		nvgBeginPath(m_nv);
+		nvgFillColor(m_nv, nvgRGBA(0, 0, 0, 255));
+		nvgScissor(m_nv, draw_pos.right(),
+				   draw_pos.top() - borders.top.width + yoff, borders.top.width * 2, draw_pos.height + borders.top.width * 2);
+		nvgRect(m_nv, draw_pos.left() - borders.top.width + xoff, draw_pos.top() - borders.top.width + yoff,
+				draw_pos.width + borders.top.width * 2 + xoff, draw_pos.height + borders.top.width * 2 + yoff);
+
+		nvgFillPaint(m_nv, paint);
+		nvgFill(m_nv);
+		//nvgGlobalCompositeOperation(m_nv, NVG_DESTINATION_OVER);
+
 		nvgRestore(m_nv);
 		return;
 	}

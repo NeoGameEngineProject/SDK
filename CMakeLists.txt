@@ -41,6 +41,10 @@ if(ENABLE_SANITIZERS)
 	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fsanitize=address -fsanitize=undefined")
 endif()
 
+if(ENABLE_OPENGL_RENDERER)
+	add_definitions(-DNEO_OPENGL=1)
+endif()
+
 add_subdirectory(NeoCore)
 add_subdirectory(NeoEngine)
 add_subdirectory(NeoHTML)
