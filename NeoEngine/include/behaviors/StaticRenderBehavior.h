@@ -11,7 +11,7 @@ class StaticRenderBehavior : public PlatformStaticRenderBehavior
 {
 public:
 	const char* getName() const override { return "StaticRender"; }
-	Behavior* getNew() const override { return new StaticRenderBehavior; }
+	Behavior* getNew() const override;
 };
 
 }

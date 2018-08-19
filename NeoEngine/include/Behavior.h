@@ -7,16 +7,65 @@
 
 namespace Neo
 {
-class Object;
 
+
+#if defined(_WIN32)
+#if defined(_WIN64)
+#define FORCE_UNDEFINED_SYMBOL(x) __pragma(comment (linker, "/export:" #x))
+#else
+#define FORCE_UNDEFINED_SYMBOL(x) __pragma(comment (linker, "/export:_" #x))
+#endif
+#else
+#define FORCE_UNDEFINED_SYMBOL(x) extern "C" void x(void); void (*__ ## x ## _fp)(void)=&x;
+#endif
+	
+#if defined(WIN32) && (defined(NEO_ENGINE_DLL) || defined(_USRDLL))
+#include <windows.h>
+
+#define REGISTER_BEHAVIOR(classname) \
+	BOOLEAN WINAPI DllMain(IN HINSTANCE handle, IN DWORD signal, IN LPVOID) { \
+	 switch(signal) \
+	 { \
+		case DLL_PROCESS_ATTACH: \
+			Neo::Behavior::registerBehavior(std::unique_ptr<classname>(new classname()));\
+		break; \
+		case DLL_PROCESS_DETACH:  \
+		break; \
+	 } \
+	 \
+	return TRUE; \
+}
+
+#elif (defined(__GNUC__) || defined(__clang__))
+#include <dlfcn.h>
+#define REGISTER_BEHAVIOR(classname) \
+	extern "C" __attribute__((externally_visible)) __attribute__((weak)) __attribute__((constructor)) void classname##DllMainConstructor() { \
+		Neo::Behavior::registerBehavior(std::unique_ptr<classname>(new classname())); \
+	} \
+		\
+	extern "C"  __attribute__((externally_visible))  __attribute__((destructor)) void classname##DllMainDestructor() { \
+		\
+	} \
+	FORCE_UNDEFINED_SYMBOL(classname##DllMainConstructor); \
+	FORCE_UNDEFINED_SYMBOL(classname##DllMainDestructor);
+
+#else
+#warning "Using default implementation of runtime registration"
+#define REGISTER_BEHAVIOR(classname) namespace { classname g_obj; }
+#endif
+
+class Object;
 class IProperty 
 {
 	std::string m_name;
+	size_t m_size = 0;
 public:
-	IProperty(const char* name):
-		m_name(name) {}
+	IProperty(const char* name, size_t size = 0):
+		m_name(name), m_size(size) {}
 		
 	const std::string& getName() const { return m_name; }
+	size_t getSize() const { return m_size; }
+	virtual void* data() = 0;
 };
 
 template<typename T>
@@ -26,10 +75,14 @@ class Property : public IProperty
 
 public:
 	Property(const char* name, T& data):
-		IProperty(name), m_data(&data) {}
+		IProperty(name, sizeof(T)), m_data(&data)
+	{
+		static_assert(std::is_trivially_copyable<T>::value, "A property must be serializable!");
+	}
 
 	T* get() { return m_data; }
 	T& operator*() { return *m_data; }
+	void* data() override { return m_data; }
 };
 
 /**
@@ -40,6 +93,15 @@ public:
  */
 class NEO_ENGINE_EXPORT Behavior
 {
+	///< Static registry
+	static std::vector<std::unique_ptr<Behavior>> s_registry;
+	static Behavior* findBehaviorInRegistry(const char* name);
+
+public:
+	static std::unique_ptr<Behavior> create(const char* name);
+	static void registerBehavior(std::unique_ptr<Behavior>&& behavior);
+	
+private:
 	///< The parent object.
 	Object* m_parent = nullptr;
 	std::vector<IProperty*> m_properties;
@@ -130,6 +192,10 @@ public:
 	{
 		m_properties.push_back(new Property<T>(name, data));
 	}
+
+	std::vector<IProperty*>& getProperties() { return m_properties; }
+	virtual void serialize(std::ostream&) {}
+	virtual void deserialize(Level&, std::istream&) {}
 };
 
 typedef std::unique_ptr<Behavior> BehaviorRef;

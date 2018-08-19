@@ -30,6 +30,9 @@ public:
 	
 	void setFar(float far) { m_far = far; }
 	float getFar() const { return m_far; }
+	
+	void serialize(std::ostream& out) override;
+	void deserialize(Level&, std::istream& out) override;
 };
 
 }

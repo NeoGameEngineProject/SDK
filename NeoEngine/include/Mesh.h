@@ -7,6 +7,9 @@
 #include <Image.h>
 #include <Array.h>
 #include <Handle.h>
+#include <FixedString.h>
+
+#include <iosfwd>
 
 namespace Neo
 {
@@ -70,6 +73,7 @@ struct MeshVertex
 	Vector3 position, normal;
 };
 
+class Level;
 class Mesh
 {
 public:
@@ -78,7 +82,8 @@ public:
 		m_indices(std::move(b.m_indices)),
 		m_meshVertices(std::move(b.m_meshVertices)),
 		m_textureChannels(std::move(b.m_textureChannels)),
-		m_material(b.m_material) {}
+		m_material(b.m_material),
+		m_name(b.m_name){}
 	
 	Mesh(const Mesh& b)
 	{
@@ -91,6 +96,7 @@ public:
 		m_meshVertices = b.m_meshVertices;
 		m_textureChannels = b.m_textureChannels;
 		m_material = b.m_material;
+		m_name = b.m_name;
 		return *this;
 	}
 	
@@ -109,12 +115,19 @@ public:
 	
 	AABB calculateBoundingBox();
 	
+	void serialize(std::ostream& out);
+	void deserialize(Level& level, std::istream& in);
+	
+	const char* getName() const { return m_name.str(); }
+	void setName(const char* name) { m_name = name; }
+	
 private:
 	std::vector<unsigned int> m_indices;
 	std::vector<MeshVertex> m_meshVertices;
 	std::vector<Array<Vector2>> m_textureChannels;
 	
 	Material m_material;
+	FixedString<128> m_name;
 };
 
 typedef Handle<Mesh, std::vector<Mesh>> MeshHandle;

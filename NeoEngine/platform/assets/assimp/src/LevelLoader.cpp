@@ -350,6 +350,7 @@ bool LevelLoader::load(Level& level, const char* file, const char* rootNode)
 		}
 		
 		subMesh.setMaterial(materials[mesh->mMaterialIndex]);
+		subMesh.setName(scene->mMeshes[i]->mName.C_Str());
 		meshes.push_back(level.addMesh(std::move(subMesh)));
 	}
 	

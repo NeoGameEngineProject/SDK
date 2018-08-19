@@ -39,6 +39,8 @@ void user_read_data(png_structp png_ptr, png_bytep data, png_size_t length)
 
 bool TextureLoader::load(Texture& image, const char* filename)
 {
+	image.getPath() = filename;
+	
 	File* file = M_fopen(filename, "rb");
 	if (!file)
 	{

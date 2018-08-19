@@ -8,6 +8,8 @@
 #include <Vector3.h>
 #include <Quaternion.h>
 #include <Matrix4x4.h>
+#include <FixedString.h>
+
 #include <vector>
 #include <unordered_map>
 
@@ -19,11 +21,12 @@ typedef Handle<Object, Array<Object>> ObjectHandleArray;
 
 class NEO_ENGINE_EXPORT Object
 {
+private:
 	Vector3 m_position, m_scale = Vector3(1.0f, 1.0f, 1.0f);
 	Quaternion m_rotation;
 	
 	Matrix4x4 m_transform;
-	char m_name[64];
+	FixedString<64> m_name;
 	
 	// Contains behaviors for fast iteration
 	std::vector<BehaviorRef> m_behaviors;
@@ -89,7 +92,9 @@ public:
 	 * @return The behavior or \b nullptr
 	 */
 	Behavior* getBehavior(const std::string& name) const;
-	
+
+	std::vector<BehaviorRef>& getBehaviors() { return m_behaviors; }
+
 	Matrix4x4& getTransform() { return m_transform; }
 	Vector3 getPosition() const { return m_position; }
 	void setPosition(const Vector3& position) { m_position = position; m_needsUpdate = true; }
@@ -129,7 +134,7 @@ public:
 		m_needsUpdate = true;
 	}
 	
-	const char* getName() const { return m_name; }
+	const IString& getName() const { return m_name; }
 	void setName(const char* name);
 	
 	std::vector<ObjectHandle>& getChildren() { return m_children; }
@@ -221,7 +226,7 @@ public:
 			m_rotation = obj.m_rotation;
 			m_scale = obj.m_scale;
 			
-			setName(obj.m_name);
+			m_name = obj.m_name;
 			
 			m_active = obj.m_active;
 			m_visible = obj.m_visible;

@@ -1,7 +1,15 @@
 #include "behaviors/MeshBehavior.h"
+
+#include <Level.h>
+#include <Texture.h>
+
 #include <cassert>
+#include <ostream>
+#include <istream>
 
 using namespace Neo;
+
+REGISTER_BEHAVIOR(MeshBehavior)
 
 void MeshBehavior::updateBoundingBox()
 {
@@ -33,4 +41,30 @@ MeshBehavior& MeshBehavior::operator= (const MeshBehavior& b)
 	}
 	
 	return *this;
+}
+
+void MeshBehavior::serialize(std::ostream& out)
+{
+	uint16_t smallValue = m_submeshes.size();
+	out.write((char*) &smallValue, sizeof(uint16_t));
+
+	for(auto& submesh : m_submeshes)
+	{
+		FixedString<128> str = submesh->getName();
+		str.serialize(out);
+	}
+}
+
+void MeshBehavior::deserialize(Level& level, std::istream& in)
+{
+	uint16_t smallValue;
+	in.read((char*) &smallValue, sizeof(uint16_t));
+
+	m_submeshes.reserve(smallValue);
+	for(uint16_t i = 0; i < smallValue; i++)
+	{
+		FixedString<128> name;
+		name.deserialize(in);
+		m_submeshes.push_back(level.loadMesh(name.str()));
+	}
 }

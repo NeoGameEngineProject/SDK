@@ -1,6 +1,7 @@
 #include "PlatformSoundBehavior.h"
 #include <iostream>
 #include <Object.h>
+#include <Level.h>
 
 using namespace Neo;
 
@@ -206,4 +207,61 @@ float PlatformSoundBehavior::getCurrentTime()
 	float timePos = bOffset / static_cast<float>((bits/8.0f) * freq);
 	return timePos;
 }
+
+void PlatformSoundBehavior::serialize(std::ostream& out)
+{return;
+	float fvalue;
+	uint8_t bvalue;
+	
+	FixedString<128> path = m_sound->getName();
+	path.serialize(out);
+	
+	bvalue = isLooping();
+	out.write((char*) &bvalue, sizeof(bvalue));
+	
+	bvalue = isRelative();
+	out.write((char*) &bvalue, sizeof(bvalue));
+	
+	fvalue = getRadius();
+	out.write((char*) &fvalue, sizeof(fvalue));
+	
+	fvalue = getPitch();
+	out.write((char*) &fvalue, sizeof(fvalue));
+	
+	fvalue = getGain();
+	out.write((char*) &fvalue, sizeof(fvalue));
+	
+	fvalue = getRolloff();
+	out.write((char*) &fvalue, sizeof(fvalue));
+}
+
+void PlatformSoundBehavior::deserialize(Level& level, std::istream& in)
+{return;
+	float fvalue;
+	uint8_t bvalue;
+	
+	FixedString<128> path;
+	path.deserialize(in);
+	
+	m_sound = level.loadSound(path.str());
+	
+	in.read((char*) &bvalue, sizeof(bvalue));
+	setLooping(bvalue);
+	
+	in.read((char*) &bvalue, sizeof(bvalue));
+	setRelative(bvalue);
+	
+	in.read((char*) &fvalue, sizeof(fvalue));
+	setRadius(fvalue);
+	
+	in.read((char*) &fvalue, sizeof(fvalue));
+	setPitch(fvalue);
+	
+	in.read((char*) &fvalue, sizeof(fvalue));
+	setGain(fvalue);
+	
+	in.read((char*) &fvalue, sizeof(fvalue));
+	setRolloff(fvalue);
+}
+
 

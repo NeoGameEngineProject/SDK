@@ -6,7 +6,7 @@
 
 namespace Neo 
 {
-
+class Level;
 class MeshBehavior : public Neo::Behavior
 {
 	std::vector<MeshHandle> m_submeshes;
@@ -38,6 +38,9 @@ public:
 	
 	void updateBoundingBox();
 	AABB getBoundingBox() const { return m_boundingBox; }
+
+	void serialize(std::ostream& out) override;
+	void deserialize(Level& level, std::istream& out) override;
 };
 
 }

@@ -48,8 +48,7 @@ Behavior* Object::getBehavior(const std::string& name) const
 
 void Object::setName(const char* name)
 {
-	strncpy(m_name, name, sizeof(m_name));
-	m_name[sizeof(m_name)-1] = 0;
+	m_name = name;
 }
 
 ObjectHandle Object::addChild(ObjectHandle object)
@@ -61,12 +60,12 @@ ObjectHandle Object::addChild(ObjectHandle object)
 
 ObjectHandle Object::find(const char* name)
 {
-	if(!strcmp(name, getName()))
+	if(name == getName())
 		return m_self;
 	
 	for(auto k : m_children)
 	{
-		if(!strcmp(k->getName(), name))
+		if(k->getName() == name)
 			return k;
 	}
 	
@@ -91,7 +90,7 @@ Object& Object::operator= (const Object& obj)
 		m_rotation = obj.m_rotation;
 		m_scale = obj.m_scale;
 		
-		setName(obj.m_name);
+		m_name = obj.m_name;
 		
 		m_active = obj.m_active;
 		m_visible = obj.m_visible;

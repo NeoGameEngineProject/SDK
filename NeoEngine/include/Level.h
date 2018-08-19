@@ -122,6 +122,8 @@ public:
 	Texture* loadTexture(const char* name);
 	SoundHandle loadSound(const char* name);
 	
+	MeshHandle loadMesh(const char* name);
+	
 	// TODO loadLevel
 	MeshHandle addMesh(Mesh&& ref);
 	MeshHandle addMesh(const Mesh& ref);
@@ -211,6 +213,9 @@ public:
 	 * @return \b true if something was hit, \b false otherwise
 	 */
 	bool castRay(const Vector3& origin, const Vector3& direction, float distance = 1000.0f, Vector3* hitPoint = nullptr, ObjectHandle* hitObject = nullptr);
+
+	bool saveBinary(const char* file);
+	bool loadBinary(const char* file);
 };
 
 }

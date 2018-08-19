@@ -11,6 +11,8 @@
 
 #include <Maths.h>
 #include <behaviors/MeshBehavior.h>
+#include <fstream>
+#include <Log.h>
 
 using namespace Neo;
 
@@ -23,7 +25,7 @@ ObjectHandle Level::addObject(const char* name)
 ObjectHandle Level::find(const char* name)
 {
 	for(size_t i = 0; i < m_objects.size(); i++)
-		if(!strcmp(m_objects[i].getName(), name))
+		if(m_objects[i].getName() == name)
 			return m_objects[i].getSelf();
 		
 	return ObjectHandle();
@@ -49,6 +51,22 @@ Texture* Level::loadTexture(const char* name)
 	}
 	
 	return &texture->second;
+}
+
+MeshHandle Level::loadMesh(const char* name)
+{
+	for(size_t i = 0; i < m_meshes.size(); i++)
+	{
+		if(!strcmp(m_meshes[i].getName(), name))
+		{
+			return MeshHandle(&m_meshes, i);
+		}
+	}
+	
+	// TODO Load mesh from file!
+	LOG_ERROR("Loading meshes from file is not yet supported!");
+	exit(-1);
+	return MeshHandle();
 }
 
 bool Level::load(const char* path, const char* parentNode)
@@ -164,3 +182,227 @@ ObjectHandle Level::instantiate(const char* name, const Object& object)
 	*newObject = object;
 	return newObject;
 }
+
+#ifdef _MSC_VER
+#define PACK( __Declaration__ ) __pragma( pack(push, 1) ) __Declaration__ __pragma( pack(pop) )
+#else
+#define PACK( __Declaration__ ) __Declaration__ __attribute__((__packed__))
+#endif
+
+#define LEVEL_VERSION 1
+#define LEVEL_MAGIC 0xDEADBEEF
+
+typedef float float32_t;
+typedef double float64_t;
+
+PACK(struct Header
+{
+	uint8_t version = LEVEL_VERSION;
+	uint32_t magic = LEVEL_MAGIC;
+	uint32_t objectCount = 0;
+});
+
+PACK(struct BinObject
+{
+	float32_t transform[16];
+	uint8_t active;
+	uint16_t behaviorCount;
+	
+	// name FixedString
+	// parent FixedString
+});
+
+PACK(struct BinProperty
+{
+	 uint16_t size;
+});
+
+namespace
+{
+
+bool saveObject(std::ofstream& out, ObjectHandle object)
+{
+	if(object.empty())
+		return true;
+
+	object->getName().serialize(out);
+	
+	BinObject obj;
+	memcpy(obj.transform, object->getTransform().entries, sizeof(obj.transform));
+	obj.active = object->isActive();
+	obj.behaviorCount = object->getBehaviors().size();
+
+	out.write((char*) &obj, sizeof(BinObject));
+
+	for(auto& behavior : object->getBehaviors())
+	{
+		FixedString<64> bname = behavior->getName();
+		bname.serialize(out);
+
+		uint16_t value = behavior->getProperties().size();
+		out.write((char*) &value, sizeof(value));
+		
+		for(auto& property : behavior->getProperties())
+		{
+			BinProperty bp;
+			FixedString<64> name = property->getName();
+			name.serialize(out);
+
+			bp.size = property->getSize();
+
+			out.write((char*) &bp, sizeof(BinProperty));
+			out.write((char*) property->data(), property->getSize());
+		}
+
+		behavior->serialize(out);
+	}
+
+	uint16_t value = object->getChildren().size();
+	out.write((char*) &value, sizeof(value));
+	
+	bool retval = true;
+	for(auto& child : object->getChildren())
+	{
+		saveObject(out, child);
+	}
+
+	return retval;
+}
+
+
+bool loadObject(Level& level, std::ifstream& in, ObjectHandle parent)
+{
+	//auto object = level.addObject();
+	FixedString<128> name;
+	name.deserialize(in);
+	
+	auto object = level.addObject(name.str());
+	BinObject obj;
+	
+	in.read((char*) &obj, sizeof(obj));
+	
+	object->getTransform() = obj.transform;
+	object->setActive(obj.active);
+	object->getBehaviors().reserve(obj.behaviorCount);
+	
+	for(unsigned short i = 0; i < obj.behaviorCount; i++)
+	{
+		FixedString<64> bname;
+		bname.deserialize(in);
+		
+		auto behavior = Behavior::create(bname.str());
+		if(!behavior)
+		{
+			return false;
+		}
+		
+		
+		uint16_t numProperties;
+		in.read((char*) &numProperties, sizeof(numProperties));
+		
+		for(unsigned short j = 0; j < numProperties; j++)
+		{
+			FixedString<64> pname;
+			pname.deserialize(in);
+			
+			BinProperty bp;
+			in.read((char*) &bp, sizeof(bp));
+			
+			auto prop = behavior->getProperty(pname.str());
+			if(!prop || prop->getSize() != bp.size)
+			{
+				LOG_WARNING("Invalid property: " << pname << " of behavior " << bname);
+				in.ignore(bp.size);
+			}
+			else
+			{
+				in.read((char*) prop->data(), bp.size);
+			}
+		}
+		
+		behavior->deserialize(level, in);
+		object->addBehavior(std::move(behavior));
+	}
+	
+	uint16_t childCount = 0;
+	in.read((char*) &childCount, sizeof(childCount));
+	object->getChildren().reserve(childCount);
+	
+	object->updateFromMatrix();
+	object->setParent(parent);
+	parent->addChild(object);
+	
+	bool success = true;
+	for(uint16_t i = 0; i < childCount; i++)
+	{
+		success &= loadObject(level, in, object);
+	}
+	
+	return success;
+}
+}
+
+bool Level::saveBinary(const char* file)
+{
+	std::ofstream out;
+	out.open(file, std::ios::binary);
+	if(!out)
+	{
+		LOG_ERROR("Could not open level file for writing: " << file);
+		return false;
+	}
+
+	// Write header
+	Header header;
+	header.version = LEVEL_VERSION;
+	header.magic = LEVEL_MAGIC;
+	header.objectCount = m_objects.size();
+
+	out.write((const char*) &header, sizeof(header));
+
+	// Write meshes
+	uint32_t numMeshes = m_meshes.size();
+	out.write((char*) &numMeshes, sizeof(numMeshes));
+	for(auto& mesh : m_meshes)
+		mesh.serialize(out);
+	
+	return saveObject(out, getRoot());
+}
+
+bool Level::loadBinary(const char* file)
+{
+	std::ifstream in;
+	in.open(file, std::ios::binary);
+	if(!in)
+	{
+		LOG_ERROR("Could not open level file for reading: " << file);
+		return false;
+	}
+
+	// Write header
+	Header header;
+	in.read((char*) &header, sizeof(header));
+
+	if(header.magic != LEVEL_MAGIC)
+	{
+		LOG_ERROR("Level file is damaged: Magic is corrupted!");
+		return false;
+	}
+	
+	if(header.version > LEVEL_VERSION)
+	{
+		LOG_WARNING("Level file was written by a newer version of the engine!");
+	}
+	
+	
+	// Read meshes
+	uint32_t numMeshes;
+	in.read((char*) &numMeshes, sizeof(numMeshes));
+	m_meshes.resize(numMeshes);
+	for(auto& mesh : m_meshes)
+		mesh.deserialize(*this, in);
+	
+	m_objects.reserve(header.objectCount);
+	return loadObject(*this, in, getRoot());
+}
+

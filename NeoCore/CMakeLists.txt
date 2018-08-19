@@ -11,7 +11,7 @@ find_package(Threads REQUIRED)
 add_library(NeoCore ${SOURCES} ${HEADERS})
 
 if(NOT NO_TESTS)
-  add_executable(NeoCoreTest tests/main.cpp tests/ThreadPoolTest.cpp tests/LogTest.cpp)
+  add_executable(NeoCoreTest tests/main.cpp tests/ThreadPoolTest.cpp tests/LogTest.cpp tests/FixedStringTest.cpp)
 
   ## Travis does not like TARGET_include_directories
   include_directories(${GTEST_INCLUDE_DIR})

@@ -1,6 +1,7 @@
 #ifndef NEO_TEXTURE_H
 #define NEO_TEXTURE_H
 
+#include <FixedString.h>
 #include <Array.h>
 
 namespace Neo 
@@ -16,6 +17,7 @@ class Texture
 	unsigned int m_textureId = -1;
 	
 	Array<unsigned char> m_data;
+	FixedString<128> m_path;
 	
 public:
 	Texture() = default;
@@ -23,7 +25,8 @@ public:
 		unsigned int components,
 		unsigned int compSize,
 		unsigned int width,
-		unsigned int height);
+		unsigned int height,
+		const char* path = "");
 	
 	void setMipMap(bool v) { m_mipmap = v; }
 	bool hasMipMap() const { return m_mipmap; }
@@ -50,6 +53,8 @@ public:
 	}
 	
 	size_t getStorageSize() const { return m_width * m_height * m_componentSize * m_components; }
+	const IString& getPath() const { return m_path; }
+	IString& getPath() { return m_path; }
 };
 
 }

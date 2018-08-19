@@ -1,6 +1,10 @@
 #include <Mesh.h>
 #include <cassert>
 #include <Maths.h>
+#include <Level.h>
+
+#include <ostream>
+#include <istream>
 
 using namespace Neo;
 
@@ -47,3 +51,97 @@ AABB Mesh::calculateBoundingBox()
 	box.diameter = (box.max - box.min).getLength();
 	return box;
 }
+
+void Mesh::serialize(std::ostream& out)
+{
+	m_name.serialize(out);
+	
+	uint32_t value = 0;
+	value = getIndices().size();
+	out.write((char*) &value, sizeof(value));
+	out.write((char*) getIndices().data(), sizeof(unsigned int) * value);
+
+	value = getVertices().size();
+	out.write((char*) &value, sizeof(value));
+	out.write((char*) getVertices().data(), sizeof(MeshVertex) * value);
+
+	value = getTextureChannels().size();
+	out.write((char*) &value, sizeof(value));
+
+	for(auto& channel : getTextureChannels())
+	{
+		value = channel.count;
+		out.write((char*) &value, sizeof(value));
+		out.write((char*) channel.data, sizeof(Vector2) * value);
+	}
+
+	auto& material = getMaterial();
+	out.write((char*) &material.diffuse, sizeof(Vector3));
+	out.write((char*) &material.specular, sizeof(Vector3));
+	out.write((char*) &material.emit, sizeof(Vector3));
+	out.write((char*) &material.customColor, sizeof(Vector3));
+	out.write((char*) &material.shininess, sizeof(float));
+	out.write((char*) &material.opacity, sizeof(float));
+	out.write((char*) &material.customValue, sizeof(float));
+
+	// FIXME: NEED TO DEFINE BLEND MODE VALUES!
+	out.write((char*) &material.blendMode, sizeof(BLENDING_MODES));
+
+	FixedString<1> empty;
+	for(unsigned short i = 0; i < 4; i++)
+	{
+		if(material.textures[i] == nullptr)
+			empty.serialize(out);
+		else
+			material.textures[i]->getPath().serialize(out);
+	}
+}
+
+void Mesh::deserialize(Level& level, std::istream& in)
+{
+	m_name.deserialize(in);
+	
+	uint32_t value = 0;
+	in.read((char*) &value, sizeof(value));
+	getIndices().resize(value);
+	in.read((char*) getIndices().data(), sizeof(unsigned int) * value);
+
+	in.read((char*) &value, sizeof(value));
+	getVertices().resize(value);
+	in.read((char*) getVertices().data(), sizeof(MeshVertex) * value);
+
+	in.read((char*) &value, sizeof(value));
+	getTextureChannels().resize(value);
+	
+	for(auto& channel : getTextureChannels())
+	{
+		in.read((char*) &value, sizeof(value));
+		channel.alloc(value);
+		
+		in.read((char*) channel.data, sizeof(Vector2) * value);
+	}
+
+	Material material;
+	in.read((char*) &material.diffuse, sizeof(Vector3));
+	in.read((char*) &material.specular, sizeof(Vector3));
+	in.read((char*) &material.emit, sizeof(Vector3));
+	in.read((char*) &material.customColor, sizeof(Vector3));
+	in.read((char*) &material.shininess, sizeof(float));
+	in.read((char*) &material.opacity, sizeof(float));
+	in.read((char*) &material.customValue, sizeof(float));
+
+	// FIXME: NEED TO DEFINE BLEND MODE VALUES!
+	in.read((char*) &material.blendMode, sizeof(BLENDING_MODES));
+
+	for(unsigned short i = 0; i < 4; i++)
+	{
+		FixedString<128> path;
+		path.deserialize(in);
+		
+		if(path.getLength())
+			material.textures[i] = level.loadTexture(path.str());
+	}
+	
+	setMaterial(material);
+}
+

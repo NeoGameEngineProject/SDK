@@ -3,3 +3,4 @@
 
 using namespace Neo;
 
+REGISTER_BEHAVIOR(SoundListenerBehavior)

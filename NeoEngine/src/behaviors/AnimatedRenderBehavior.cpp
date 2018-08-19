@@ -2,3 +2,4 @@
 
 using namespace Neo;
 
+// REGISTER_BEHAVIOR(AnimatedRenderBehavior)

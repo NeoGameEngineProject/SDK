@@ -30,3 +30,14 @@ TEST(LoadLevel, Load)
 	ASSERT_NE(ObjectHandle(), root);
 	EXPECT_NE(ObjectHandle(), root->find("Cube"));
 }
+
+TEST(LoadLevel, SaveLoad)
+{
+	Level level;
+	ASSERT_TRUE(LevelLoader::load(level, "assets/test.dae"));
+
+	ASSERT_TRUE(level.saveBinary("test.nlv"));
+
+	Level level2;
+	ASSERT_TRUE(level2.loadBinary("test.nlv"));
+}

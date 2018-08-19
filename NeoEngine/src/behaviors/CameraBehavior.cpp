@@ -4,6 +4,8 @@
 
 using namespace Neo;
 
+REGISTER_BEHAVIOR(CameraBehavior)
+
 void CameraBehavior::setPerspectiveView(float fov, float ratio, float zNear, float zFar)
 {
 	float ymax, xmax;
@@ -69,3 +71,16 @@ void CameraBehavior::enable(float width, float height)
 	setPerspectiveView(m_fov, ratio, m_near, m_far);
 }
 
+void CameraBehavior::serialize(std::ostream& out)
+{
+	out.write((char*) &m_fov, sizeof(m_fov));
+	out.write((char*) &m_near, sizeof(m_near));
+	out.write((char*) &m_far, sizeof(m_far));
+}
+
+void CameraBehavior::deserialize(Level&, std::istream& in)
+{
+	in.read((char*) &m_fov, sizeof(m_fov));
+	in.read((char*) &m_near, sizeof(m_near));
+	in.read((char*) &m_far, sizeof(m_far));
+}

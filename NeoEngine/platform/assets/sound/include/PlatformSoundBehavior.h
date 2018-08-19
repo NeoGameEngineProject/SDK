@@ -55,6 +55,9 @@ public:
 	
 	float getCurrentTime();
 	float getDuration();
+	
+	void serialize(std::ostream& out) override;
+	void deserialize(Level& level, std::istream& out) override;
 };
 
 }
