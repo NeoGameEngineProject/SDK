@@ -32,6 +32,10 @@ add_platform_module(
 	SOURCES ${SOURCES} ${INCLUDES}
 			${CMAKE_CURRENT_SOURCE_DIR}/../opengl-common/Common.cpp
 			${CMAKE_CURRENT_SOURCE_DIR}/../opengl-common/Common.h
-	INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/../../include ${INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/../opengl-common
+	INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/include 
+			${CMAKE_CURRENT_SOURCE_DIR}/../../include 
+			${INCLUDE_DIR} 
+			${CMAKE_CURRENT_SOURCE_DIR}/../opengl-common 
+			${CMAKE_CURRENT_SOURCE_DIR}/glew-external/include
 	LIBRARIES nanovg glew_s)
 	

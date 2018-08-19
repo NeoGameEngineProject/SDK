@@ -9,7 +9,7 @@ namespace Neo
 {
 
 
-#if defined(_WIN32)
+#if defined(_WIN32) && defined(MSVC)
 #if defined(_WIN64)
 #define FORCE_UNDEFINED_SYMBOL(x) __pragma(comment (linker, "/export:" #x))
 #else
@@ -19,7 +19,7 @@ namespace Neo
 #define FORCE_UNDEFINED_SYMBOL(x) extern "C" void x(void); void (*__ ## x ## _fp)(void)=&x;
 #endif
 	
-#if defined(WIN32) && (defined(NEO_ENGINE_DLL) || defined(_USRDLL))
+#if defined(WIN32) && defined(_USRDLL)
 #include <windows.h>
 
 #define REGISTER_BEHAVIOR(classname) \
@@ -37,7 +37,6 @@ namespace Neo
 }
 
 #elif (defined(__GNUC__) || defined(__clang__))
-#include <dlfcn.h>
 #define REGISTER_BEHAVIOR(classname) \
 	extern "C" __attribute__((externally_visible)) __attribute__((weak)) __attribute__((constructor)) void classname##DllMainConstructor() { \
 		Neo::Behavior::registerBehavior(std::unique_ptr<classname>(new classname())); \

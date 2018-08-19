@@ -25,10 +25,10 @@ public:
 	void setFov(float fov) { m_fov = fov; }
 	float getFov() const { return m_fov; }
 	
-	void setNear(float near) { m_near = near; }
+	void setNear(float value) { m_near = value; }
 	float getNear() const { return m_near; }
 	
-	void setFar(float far) { m_far = far; }
+	void setFar(float value) { m_far = value; }
 	float getFar() const { return m_far; }
 	
 	void serialize(std::ostream& out) override;
