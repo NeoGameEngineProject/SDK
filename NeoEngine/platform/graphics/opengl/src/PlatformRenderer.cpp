@@ -161,9 +161,9 @@ void PlatformRenderer::setTransform(const Matrix4x4& transform)
 void PlatformRenderer::setMaterial(MeshHandle mesh)
 {
 	auto& material = mesh->getMaterial();
-	glUniform3fv(m_uMaterialDiffuse, 1, reinterpret_cast<const float*>(&material.diffuse));
-	glUniform3fv(m_uMaterialSpecular, 1, reinterpret_cast<const float*>(&material.specular));
-	glUniform3fv(m_uMaterialEmit, 1, reinterpret_cast<const float*>(&material.emit));
+	glUniform3fv(m_uMaterialDiffuse, 1, reinterpret_cast<const float*>(&material.diffuseColor));
+	glUniform3fv(m_uMaterialSpecular, 1, reinterpret_cast<const float*>(&material.specularColor));
+	glUniform3fv(m_uMaterialEmit, 1, reinterpret_cast<const float*>(&material.emitColor));
 
 	glUniform1f(m_uMaterialOpacity, material.opacity);
 	glUniform1f(m_uMaterialShininess, material.shininess);

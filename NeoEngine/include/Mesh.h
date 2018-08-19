@@ -54,9 +54,9 @@ struct Material
 	float opacity = 1;
 	float shininess = 32;
 	float customValue;
-	Vector3 diffuse = Vector3(1, 1, 1);
-	Vector3 specular = Vector3(1, 1, 1);
-	Vector3 emit;
+	Vector3 diffuseColor = Vector3(1, 1, 1);
+	Vector3 specularColor = Vector3(1, 1, 1);
+	Vector3 emitColor;
 	Vector3 customColor;
 	Texture* textures[4] {nullptr, nullptr, nullptr, nullptr};
 	BLENDING_MODES blendMode = BLENDING_ALPHA;

@@ -76,9 +76,9 @@ void Mesh::serialize(std::ostream& out)
 	}
 
 	auto& material = getMaterial();
-	out.write((char*) &material.diffuse, sizeof(Vector3));
-	out.write((char*) &material.specular, sizeof(Vector3));
-	out.write((char*) &material.emit, sizeof(Vector3));
+	out.write((char*) &material.diffuseColor, sizeof(Vector3));
+	out.write((char*) &material.specularColor, sizeof(Vector3));
+	out.write((char*) &material.emitColor, sizeof(Vector3));
 	out.write((char*) &material.customColor, sizeof(Vector3));
 	out.write((char*) &material.shininess, sizeof(float));
 	out.write((char*) &material.opacity, sizeof(float));
@@ -122,9 +122,9 @@ void Mesh::deserialize(Level& level, std::istream& in)
 	}
 
 	Material material;
-	in.read((char*) &material.diffuse, sizeof(Vector3));
-	in.read((char*) &material.specular, sizeof(Vector3));
-	in.read((char*) &material.emit, sizeof(Vector3));
+	in.read((char*) &material.diffuseColor, sizeof(Vector3));
+	in.read((char*) &material.specularColor, sizeof(Vector3));
+	in.read((char*) &material.emitColor, sizeof(Vector3));
 	in.read((char*) &material.customColor, sizeof(Vector3));
 	in.read((char*) &material.shininess, sizeof(float));
 	in.read((char*) &material.opacity, sizeof(float));
