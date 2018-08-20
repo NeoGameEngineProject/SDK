@@ -15,7 +15,7 @@ macro(preprocess_file input output)
 		else()
 			add_custom_command(OUTPUT ${output}
 				                COMMAND cpp -nostdinc -P -E ${input} > ${output}.tmp
-								COMMAND PowerShell -Command "get-content ${input} | %{$_ -replace \"\\$\",\"\#\"} | out-file \"${output}\" -encoding ascii"
+								COMMAND PowerShell -Command "get-content ${output}.tmp | %{$_ -replace \"\\$\",\"\#\"} | out-file \"${output}\" -encoding ascii"
 								WORKING_DIRECTORY ${_CWD}
 								DEPENDS ${input}
 								COMMENT "Preprocessing shader ${_NAME}" VERBATIM)
