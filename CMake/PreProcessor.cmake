@@ -6,11 +6,20 @@ macro(preprocess_file input output)
 	if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"
 			OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 
-		add_custom_command(OUTPUT ${output}
-							COMMAND cpp -nostdinc -P -E ${input} | sed "s/\\$/\#/g" > ${output}
-							WORKING_DIRECTORY ${_CWD}
-							DEPENDS ${input}
-							COMMENT "Preprocessing shader ${_NAME}" VERBATIM)
+		if(NOT WIN32)
+			add_custom_command(OUTPUT ${output}
+				                COMMAND cpp -nostdinc -P -E ${input} | sed "s/\\$/\#/g" > ${output}
+								WORKING_DIRECTORY ${_CWD}
+								DEPENDS ${input}
+								COMMENT "Preprocessing shader ${_NAME}" VERBATIM)
+		else()
+			add_custom_command(OUTPUT ${output}
+				                COMMAND cpp -nostdinc -P -E ${input} > ${output}.tmp
+								COMMAND PowerShell -Command "get-content ${input} | %{$_ -replace \"\\$\",\"\#\"} | out-file \"${output}\" -encoding ascii"
+								WORKING_DIRECTORY ${_CWD}
+								DEPENDS ${input}
+								COMMENT "Preprocessing shader ${_NAME}" VERBATIM)
+		endif()
 
 		set_source_files_properties(${output} PROPERTIES GENERATED TRUE)
 
