@@ -47,4 +47,3 @@ void Platform::sleep(long int millis)
 	if(millis > 0)
 		SDL_Delay(millis);
 }
-
