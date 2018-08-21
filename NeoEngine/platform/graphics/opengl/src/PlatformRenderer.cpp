@@ -40,6 +40,14 @@ void PlatformRenderer::beginFrame(Level& level, CameraBehavior& cam)
 	level.updateVisibility(cam, m_visibleLights);
 }
 
+void PlatformRenderer::setViewport(unsigned int x, unsigned int y, unsigned int w, unsigned int h)
+{
+	m_width = w;
+	m_height = h;
+	
+	glViewport(x, y, w, h);
+}
+
 void PlatformRenderer::updateLights(MeshBehavior* mesh)
 {
 	unsigned short lightCount = 0;

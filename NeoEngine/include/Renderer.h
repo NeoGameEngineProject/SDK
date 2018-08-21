@@ -26,6 +26,15 @@ public:
 	 */
 	virtual void clear(float r, float g, float b, bool depth) = 0;
 	
+	/**
+	 * @brief Sets the current graphics viewport.
+	 * @param x The x origin.
+	 * @param y The y origin.
+	 * @param w The width.
+	 * @param h The height.
+	 */
+	virtual void setViewport(unsigned int x, unsigned int y, unsigned int w, unsigned int h) = 0;
+	
 	// ndt and nwh are platform specific window pointers. See SDL_SysWMinfo and bgfx::PlatformData
 	/**
 	 * @brief Initializes the renderer.

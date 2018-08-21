@@ -42,7 +42,8 @@ public:
 	void endFrame() override;
 	void initialize(unsigned int w, unsigned int h, void* ndt, void* nwh, void* ctx) override;
 	void swapBuffers() override;
-	
+	void setViewport(unsigned int x, unsigned int y, unsigned int w, unsigned int h) override;
+
 	void updateLights(MeshBehavior* mesh);
 	void gatherLights(Array<LightBehavior*>& lights, MeshBehavior* mesh, unsigned short* buffer, unsigned short max, unsigned short& count);
 
