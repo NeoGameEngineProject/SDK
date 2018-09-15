@@ -179,7 +179,7 @@ public:
 
 	virtual void flush()
 	{
-		for(int i = 0; i < m_keys.size(); i++)
+		for(size_t i = 0; i < m_keys.size(); i++)
 			if(m_keys[i] > KEY_DOWN)
 				m_keys[i] -= 2; // Shift it up two places.
 	}
@@ -322,6 +322,7 @@ public:
 class NEO_ENGINE_EXPORT InputContextDummy : public InputContext
 {
 public:
+	InputContextDummy(): InputContext() {}
 	virtual void handleInput() {}
 };
 
