@@ -60,6 +60,9 @@ void CameraBehavior::setOrthoView(float left, float right, float bottom, float t
 
 void CameraBehavior::enable(float width, float height) 
 { 
+	m_width = width;
+	m_height = height;
+	
 	Object* parent = getParent();
 	float ratio = width/height;
 
@@ -69,6 +72,40 @@ void CameraBehavior::enable(float width, float height)
 	
 	m_viewMatrix = (parent->getTransform() * inverseScale).getInverse();
 	setPerspectiveView(m_fov, ratio, m_near, m_far);
+}
+
+Vector3 CameraBehavior::getProjectedPoint(const Vector3 & point) const
+{
+	Vector4 v = m_viewMatrix * Vector4(point);
+	v = m_projectionMatrix * v;
+	v.x = v.x / v.w;
+	v.y = v.y / v.w;
+	v.z = v.z / v.w;
+	
+	v.x = m_screenX + (m_width * ((v.x + 1) / 2.0f));
+	v.y = m_screenY + (m_height * ((v.y + 1) / 2.0f));
+	v.z = (v.z + 1) / 2.0f;
+
+	return Vector3(v.x, v.y, v.z);
+}
+
+Vector3 CameraBehavior::getUnProjectedPoint(const Vector3 & point) const
+{
+	Vector4 nPoint;
+
+	nPoint.x = (2 * ((point.x - m_screenX) / m_width)) - 1;
+	nPoint.y = (2 * ((point.y - m_screenY) / m_height)) - 1;
+	nPoint.z = (2.0f * point.z) - 1.0f;
+	nPoint.w = 1.0f;
+
+	Matrix4x4 matrix = (m_projectionMatrix * m_viewMatrix).getInverse();
+	Vector4 v = matrix * nPoint;
+
+	if(v.w == 0.0f)
+		return getParent()->getPosition();
+	
+	float iw = 1.0f / v.w;
+	return Vector3(v.x, v.y, v.z)*iw;
 }
 
 void CameraBehavior::serialize(std::ostream& out)

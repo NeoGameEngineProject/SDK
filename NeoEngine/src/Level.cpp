@@ -142,7 +142,15 @@ bool Level::castRay(const Vector3& origin, const Vector3& direction, float dista
 	for(auto& object : m_objects)
 	{
 		auto mesh = object.getBehavior<MeshBehavior>();
-		if(!object.isActive() || !mesh || !isEdgeToBoxCollision(origin, dest, mesh->getBoundingBox().min, mesh->getBoundingBox().max))
+		Matrix4x4 iMatrix = object.getTransform().getInverse();
+		Vector3 localDest = iMatrix * dest;
+		Vector3 localOrigin = iMatrix * origin;
+		
+		if(!object.isActive() 
+			|| !mesh 
+			|| !isEdgeToBoxCollision(localOrigin, localDest,
+						 mesh->getBoundingBox().min,
+						 mesh->getBoundingBox().max))
 			continue;
 
 		for(auto& submesh : mesh->getMeshes())
@@ -152,14 +160,15 @@ bool Level::castRay(const Vector3& origin, const Vector3& direction, float dista
 			
 			for(size_t i = 0; i < indices.size();)
 			{
-				const Vector3& a = object.getTransform() * vertices[indices[i++]].position;
-				const Vector3& b = object.getTransform() * vertices[indices[i++]].position;
-				const Vector3& c = object.getTransform() * vertices[indices[i++]].position;
-				const Vector3 normal = getTriangleNormal(c, b, a);
+				const Vector3& a = vertices[indices[i++]].position;
+				const Vector3& b = vertices[indices[i++]].position;
+				const Vector3& c = vertices[indices[i++]].position;
+				const Vector3 normal = getTriangleNormal(a, b, c);
 
-				if(!isEdgeTriangleIntersection(origin, dest, c, b, a, normal, &point))
+				if(!isEdgeTriangleIntersection(localOrigin, localDest, a, b, c, normal, &point))
 					continue;
 				
+				point = object.getTransform() * point;
 				float distance = (point - origin).getLength();
 				if(distance < hitDistance)
 				{
@@ -168,6 +177,7 @@ bool Level::castRay(const Vector3& origin, const Vector3& direction, float dista
 					if(hitObject) *hitObject = object.getSelf();
 					
 					hitFound = true;
+					continue;
 				}
 			}
 		}
