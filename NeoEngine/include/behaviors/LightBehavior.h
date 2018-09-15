@@ -13,11 +13,39 @@ public:
 	const char* getName() const override{ return "Light"; }
 	Behavior* getNew() const override { return new LightBehavior; }
 	
+	LightBehavior()
+	{
+		REGISTER_PROPERTY(angle);
+		REGISTER_PROPERTY(brightness);
+		REGISTER_PROPERTY(exponent);
+		REGISTER_PROPERTY_TYPE(diffuse, COLOR);
+		REGISTER_PROPERTY_TYPE(specular, COLOR);
+		REGISTER_PROPERTY(attenuation);
+	}
+	
+	LightBehavior(const LightBehavior& l):
+		LightBehavior()
+	{
+		*this = l;
+	}
+	
+	LightBehavior& operator=(const LightBehavior& l)
+	{
+		angle = l.angle;
+		brightness = l.brightness;
+		exponent = l.exponent;
+		diffuse = l.diffuse;
+		specular = l.specular;
+		attenuation = l.attenuation;
+		
+		return *this;
+	}
+	
 	float angle = 0.0f;
 	float brightness = 1.0f;
 	float exponent = 0.0f;
-	Vector3 diffuse = Vector3(0.8f, 0.8f, 0.8f);
-	Vector3 specular = Vector3(1, 1, 1);
+	Vector4 diffuse = Vector4(0.8f, 0.8f, 0.8f, 1.0f);
+	Vector4 specular = Vector4(1, 1, 1, 1);
 	float attenuation = 0.01;
 	
 	void serialize(std::ostream& out) override;
