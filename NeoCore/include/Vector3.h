@@ -42,7 +42,7 @@ public:
 
 public:
 
-	Vector3(void):	
+	Vector3(void):
 		x(0.0f), 
 		y(0.0f), 
 		z(0.0f)
@@ -60,17 +60,14 @@ public:
 		z(value)
 	{}
 
-	Vector3(const float * values):	
+	Vector3(const float * values):
 		x(*(values)), 
 		y(*(values+1)), 
 		z(*(values+2))
 	{}
 
-	Vector3(const Vector3 & vec):
-		x(vec.x), 
-		y(vec.y), 
-		z(vec.z)
-	{}
+	// For trivial copy
+	Vector3(const Vector3 & vec) = default;
 
 	Vector3(const Vector4 & vec);
 	Vector3(const Vector2 & vec);
@@ -186,9 +183,9 @@ public:
 
 	inline void operator = (const float value)
 	{	
-		x = value;	
-		y = value;	
-		z = value;	
+		x = value;
+		y = value;
+		z = value;
 	}
 	
 	inline void operator /= (const float value)
@@ -199,7 +196,7 @@ public:
 		float i = 1.0f / value;
 		x *= i; 
 		y *= i; 
-		z *= i;	
+		z *= i;
 	}
 
 	inline Vector3 operator - (void) const

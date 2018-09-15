@@ -71,12 +71,7 @@ public:
 		w(*(values + 3))
 	{}
 
-	Vector4(const Vector4 & vec):
-		x(vec.x),
-		y(vec.y),
-		z(vec.z),
-		w(vec.w)
-	{}
+	Vector4(const Vector4 & vec) = default;
 
 	Vector4(const Vector3 & vec);
 	Vector4(const Color & color);

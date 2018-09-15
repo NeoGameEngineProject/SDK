@@ -62,11 +62,7 @@ public:
 		y((*values)+1)
 	{}
 
-	Vector2(const Vector2 & vec):
-		x(vec.x), 
-		y(vec.y)
-	{}
-
+	Vector2(const Vector2 & vec) = default;
 	Vector2(const Vector3 & vec);
 
 public:
