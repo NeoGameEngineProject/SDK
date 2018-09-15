@@ -8,8 +8,7 @@
 
 using namespace Neo;
 
-Platform::Platform(const char* soundDevice, const std::shared_ptr<InputContext>& input):
-	m_inputContext(input)
+Platform::Platform(const char* soundDevice)
 {
 	m_soundContext.initialize(soundDevice);
 }

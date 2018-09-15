@@ -14,15 +14,15 @@ namespace Neo
 
 class Platform
 {
-	std::shared_ptr<InputContext> m_inputContext;
+	InputContextDummy m_input;
 	OpenALContext m_soundContext;
 	
 public:
-	Platform(const char* soundDevice = nullptr, const std::shared_ptr<InputContext>& input = nullptr);
+	Platform(const char* soundDevice = nullptr);
 	~Platform();
 	
 	std::unique_ptr<Window> createWindow(unsigned int w, unsigned int h, const char* title);
-	InputContext& getInputContext() { return *m_inputContext; }
+	InputContext& getInputContext() { return m_input; }
 	
 	void showCursor(bool value);
 	unsigned long getTime();
