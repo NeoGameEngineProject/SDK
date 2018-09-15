@@ -53,18 +53,73 @@ namespace Neo
 #define REGISTER_BEHAVIOR(classname) namespace { classname g_obj; }
 #endif
 
+enum PROPERTY_TYPES
+{
+	UNKNOWN = 0,
+	INTEGER,
+	FLOAT,
+	VECTOR2,
+	VECTOR3,
+	VECTOR4,
+	COLOR
+};
+
+template<typename T>
+PROPERTY_TYPES typeOf()
+{
+	if(std::is_same<T, int>::value)
+		return INTEGER;
+	else if(std::is_same<T, float>::value)
+		return FLOAT;
+	else if(std::is_same<T, Vector2>::value)
+		return VECTOR2;
+	else if(std::is_same<T, Vector3>::value)
+		return VECTOR3;
+	else if(std::is_same<T, Vector4>::value)
+		return VECTOR4;
+	else if(std::is_same<T, Color>::value)
+		return COLOR;
+	
+	return UNKNOWN;
+}
+
 class Object;
 class IProperty 
 {
 	std::string m_name;
 	size_t m_size = 0;
+	PROPERTY_TYPES m_type = UNKNOWN;
 public:
-	IProperty(const char* name, size_t size = 0):
-		m_name(name), m_size(size) {}
+	IProperty(const char* name, PROPERTY_TYPES type = UNKNOWN, size_t size = 0):
+		m_name(name), m_size(size), m_type(type) {}
 		
 	const std::string& getName() const { return m_name; }
 	size_t getSize() const { return m_size; }
+	PROPERTY_TYPES getType() const { return m_type; }
+	
 	virtual void* data() = 0;
+	virtual void* data() const { return data(); }
+	
+	template<typename T>
+	T& get()
+	{
+		return *reinterpret_cast<T*>(data());
+	}
+	
+	template<typename T>
+	const T& get() const
+	{
+		return *reinterpret_cast<const T*>(data());
+	}
+	
+	template<typename T>
+	void set(const T& value)
+	{
+		assert((typeOf<T>() == m_type || typeOf<T>() == VECTOR4 && m_type == COLOR) && "Types don't match!");
+		assert(sizeof(T) == m_size && "Assigned type is wrong!");
+		
+		get<T>() = value;
+	}
 };
 
 template<typename T>
@@ -74,7 +129,13 @@ class Property : public IProperty
 
 public:
 	Property(const char* name, T& data):
-		IProperty(name, sizeof(T)), m_data(&data)
+		IProperty(name, typeOf<T>(), sizeof(T)), m_data(&data)
+	{
+		static_assert(std::is_trivially_copyable<T>::value, "A property must be serializable!");
+	}
+	
+	Property(const char* name, T& data, PROPERTY_TYPES type):
+		IProperty(name, type, sizeof(T)), m_data(&data)
 	{
 		static_assert(std::is_trivially_copyable<T>::value, "A property must be serializable!");
 	}
@@ -155,6 +216,7 @@ public:
 	 */
 	virtual void end() {}
 	
+	const Object* getParent() const { return m_parent; }
 	Object* getParent() { return m_parent; }
 	void setParent(Object* parent) { m_parent = parent; }
 	
@@ -191,6 +253,12 @@ public:
 	{
 		m_properties.push_back(new Property<T>(name, data));
 	}
+	
+	template<typename T>
+	void registerProperty(const char* name, T& data, PROPERTY_TYPES type)
+	{
+		m_properties.push_back(new Property<T>(name, data, type));
+	}
 
 	std::vector<IProperty*>& getProperties() { return m_properties; }
 	virtual void serialize(std::ostream&) {}
@@ -199,6 +267,9 @@ public:
 
 typedef std::unique_ptr<Behavior> BehaviorRef;
 typedef std::shared_ptr<Behavior> BehaviorSharedRef;
+
+#define REGISTER_PROPERTY(field) registerProperty(#field, field)
+#define REGISTER_PROPERTY_TYPE(field, type) registerProperty(#field, field, type)
 
 }
 
