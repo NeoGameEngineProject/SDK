@@ -31,6 +31,7 @@ bool Neo::operator!=(const std::string& str1, const IString& str2)
 std::ostream& Neo::operator<<(std::ostream& out, const IString& str)
 {
 	out << str.str();
+	return out;
 }
 
 unsigned int IString::getLength() const
