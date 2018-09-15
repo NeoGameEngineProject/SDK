@@ -32,6 +32,7 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
+#include <cstring>
 
 #include <Vector2.h>
 #include <Vector3.h>
