@@ -71,7 +71,7 @@ void CameraBehavior::enable(float width, float height)
 	inverseScale.setScale(Vector3(1.0f/scale.x, 1.0f/scale.y, 1.0f/scale.z));
 	
 	m_viewMatrix = (parent->getTransform() * inverseScale).getInverse();
-	setPerspectiveView(m_fov, ratio, m_near, m_far);
+	setPerspectiveView(fov, ratio, near, far);
 }
 
 Vector3 CameraBehavior::getProjectedPoint(const Vector3 & point) const
@@ -110,14 +110,8 @@ Vector3 CameraBehavior::getUnProjectedPoint(const Vector3 & point) const
 
 void CameraBehavior::serialize(std::ostream& out)
 {
-	out.write((char*) &m_fov, sizeof(m_fov));
-	out.write((char*) &m_near, sizeof(m_near));
-	out.write((char*) &m_far, sizeof(m_far));
 }
 
 void CameraBehavior::deserialize(Level&, std::istream& in)
 {
-	in.read((char*) &m_fov, sizeof(m_fov));
-	in.read((char*) &m_near, sizeof(m_near));
-	in.read((char*) &m_far, sizeof(m_far));
 }
