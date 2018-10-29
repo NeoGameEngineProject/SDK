@@ -3,6 +3,11 @@ macro(preprocess_file input output)
 
 	get_filename_component(_CWD ${input} DIRECTORY)
 	get_filename_component(_NAME ${input} NAME)
+
+	get_filename_component(_OUTDIR ${output} DIRECTORY)
+
+	file(MAKE_DIRECTORY ${_OUTDIR})
+
 	if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"
 			OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 
