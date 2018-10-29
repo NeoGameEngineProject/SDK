@@ -61,7 +61,9 @@ enum PROPERTY_TYPES
 	VECTOR2,
 	VECTOR3,
 	VECTOR4,
-	COLOR
+	COLOR,
+	STRING,
+	PATH
 };
 
 template<typename T>
@@ -79,6 +81,8 @@ PROPERTY_TYPES typeOf()
 		return VECTOR4;
 	else if(std::is_same<T, Color>::value)
 		return COLOR;
+	else if(std::is_same<T, std::string>::value)
+		return STRING;
 	
 	return UNKNOWN;
 }
@@ -115,7 +119,9 @@ public:
 	template<typename T>
 	void set(const T& value)
 	{
-		assert((typeOf<T>() == m_type || typeOf<T>() == VECTOR4 && m_type == COLOR) && "Types don't match!");
+		assert((typeOf<T>() == m_type 
+			|| typeOf<T>() == VECTOR4 && m_type == COLOR
+			|| typeOf<T>() == STRING && m_type == PATH) && "Types don't match!");
 		assert(sizeof(T) == m_size && "Assigned type is wrong!");
 		
 		get<T>() = value;
@@ -160,6 +166,7 @@ class NEO_ENGINE_EXPORT Behavior
 public:
 	static std::unique_ptr<Behavior> create(const char* name);
 	static void registerBehavior(std::unique_ptr<Behavior>&& behavior);
+	static const std::vector<std::unique_ptr<Behavior>>& registeredBehaviors();
 	
 private:
 	///< The parent object.
@@ -194,7 +201,7 @@ public:
 	 * @param p The platform context.
 	 * @param render The rendering context.
 	 */
-	virtual void begin(Platform& p, Renderer& render) {}
+	virtual void begin(Platform& p, Renderer& render, Level& level) {}
 	
 	/**
 	 * @brief Updates the behavior.

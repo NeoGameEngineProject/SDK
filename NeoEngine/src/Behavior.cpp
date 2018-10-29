@@ -42,6 +42,11 @@ void Behavior::registerBehavior(std::unique_ptr<Behavior>&& behavior)
 	s_registry.push_back(std::move(behavior));
 }
 
+const std::vector<std::unique_ptr<Behavior>>& Behavior::registeredBehaviors()
+{
+	return s_registry;
+}
+
 std::unique_ptr<Behavior> Behavior::clone() const
 {
 	Behavior* newBehavior = getNew();
