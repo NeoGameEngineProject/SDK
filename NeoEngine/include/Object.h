@@ -139,6 +139,7 @@ public:
 	
 	std::vector<ObjectHandle>& getChildren() { return m_children; }
 	ObjectHandle addChild(ObjectHandle object);
+	void removeChild(ObjectHandle child);
 	ObjectHandle find(const char* name);
 	
 	ObjectHandle getParent() const { return m_parent; }
@@ -238,10 +239,10 @@ public:
 	
 	Object& operator= (const Object& obj);
 	
-	void begin(Platform& p, Renderer& r) 
+	void begin(Platform& p, Renderer& r, Level& level) 
 	{ 
 		for(auto& k : m_behaviors)
-			k->begin(p, r);
+			k->begin(p, r, level);
 	}
 	
 	void end() 

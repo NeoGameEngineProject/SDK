@@ -58,6 +58,20 @@ ObjectHandle Object::addChild(ObjectHandle object)
 	return object;
 }
 
+void Object::removeChild(ObjectHandle child)
+{
+	for(size_t i = 0; i < m_children.size(); i++)
+	{
+		auto& c = m_children[i];
+		if(c == child)
+		{
+			child->setParent(ObjectHandle());
+			m_children.erase(m_children.begin() + i);
+			return;
+		}
+	}
+}
+
 ObjectHandle Object::find(const char* name)
 {
 	if(name == getName())
