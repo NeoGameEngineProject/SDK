@@ -7,7 +7,7 @@
 
 using namespace Neo;
 
-void PlatformStaticRenderBehavior::begin(Neo::Platform& p, Neo::Renderer& render)
+void PlatformStaticRenderBehavior::begin(Neo::Platform& p, Neo::Renderer& render, Level&)
 {
 	PlatformRenderer* prender = reinterpret_cast<PlatformRenderer*>(&render);
 	m_mesh = getParent()->getBehavior<MeshBehavior>();

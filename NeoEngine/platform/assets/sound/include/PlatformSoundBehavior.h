@@ -16,7 +16,7 @@ public:
 	PlatformSoundBehavior(const SoundHandle& sh): m_sound(sh) {}
 	~PlatformSoundBehavior();
 	
-	void begin(Platform& p, Renderer& render) override;
+	void begin(Platform& p, Renderer& render, Level& level) override;
 	void end() override;
 	
 	void update(Neo::Platform & p, float dt) override;

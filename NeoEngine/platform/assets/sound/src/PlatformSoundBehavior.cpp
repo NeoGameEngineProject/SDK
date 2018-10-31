@@ -24,7 +24,7 @@ PlatformSoundBehavior::~PlatformSoundBehavior()
 	}
 }
 
-void PlatformSoundBehavior::begin(Platform& p, Renderer& render)
+void PlatformSoundBehavior::begin(Platform& p, Renderer& render, Level& level)
 {
 	initialize(p);
 }

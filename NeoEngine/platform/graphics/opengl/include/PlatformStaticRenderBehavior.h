@@ -18,7 +18,7 @@ class PlatformStaticRenderBehavior : public Neo::Behavior
 
 public:
 	const char* getName() const override { return "PlatformStaticRender"; }
-	void begin(Neo::Platform & p, Neo::Renderer & render) override;
+	void begin(Neo::Platform& p, Neo::Renderer& render, Level& level) override;
 	void end() override;
 	
 	void draw(Neo::Renderer& render) override;
