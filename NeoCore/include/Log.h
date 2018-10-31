@@ -96,12 +96,11 @@ inline std::ostream & operator<<(std::ostream & o, const Neo::Vector4& v)
 // common helpers
 #define LOG_ERROR(USERMESSAGE) LOG(3, USERMESSAGE)
 #define LOG_WARNING(USERMESSAGE) LOG(4, USERMESSAGE)
+#define LOG_INFO(USERMESSAGE) LOG(6, USERMESSAGE)
 
 #ifndef NDEBUG
-#define LOG_INFO(USERMESSAGE) LOG(6, USERMESSAGE)
 #define LOG_DEBUG(USERMESSAGE) LOG(7, USERMESSAGE)
 #else
-#define LOG_INFO(USERMESSAGE)
 #define LOG_DEBUG(USERMESSAGE)
 #endif
 
