@@ -16,9 +16,43 @@
 
 using namespace Neo;
 
+
+void Level::makeNameUnique(std::string& name)
+{
+	if(find(name.c_str()).empty())
+		return;
+	
+	auto numpos = std::find_if(name.rbegin(), name.rend(), [](char c) {
+		return std::isdigit(c);
+	});
+	
+	auto numIdx = std::distance(name.rbegin(), numpos);
+	unsigned int id = 1;
+	if(numpos != name.rend())
+	{
+		id = std::stoll(name.substr(numIdx)) + 1;
+	}
+	
+	// Count up until we hit a slot!
+	do
+	{
+		name.erase(numIdx);
+		name += std::to_string(id++);
+	} while(!find(name.c_str()).empty());
+}
+
+std::string Level::getUniqueName(const std::string& name)
+{
+	std::string retval(name);
+	makeNameUnique(retval);
+	return retval;
+}
+
 ObjectHandle Level::addObject(const char* name)
 {
-	m_objects.push_back(std::move(Object(name, ObjectHandle(&m_objects, m_objects.size()))));
+	m_objects.push_back(Object(name, ObjectHandle(&m_objects, m_objects.size())));
+	m_objects.back().setActive(true);
+	
 	return m_objects.back().getSelf();
 }
 
@@ -26,6 +60,15 @@ ObjectHandle Level::find(const char* name)
 {
 	for(size_t i = 0; i < m_objects.size(); i++)
 		if(m_objects[i].getName() == name)
+			return m_objects[i].getSelf();
+		
+	return ObjectHandle();
+}
+
+ObjectHandle Level::findInactive(size_t idx)
+{
+	for(size_t i = idx; i < m_objects.size(); i++)
+		if(!m_objects[i].isActive())
 			return m_objects[i].getSelf();
 		
 	return ObjectHandle();
@@ -232,7 +275,7 @@ namespace
 
 bool saveObject(std::ofstream& out, ObjectHandle object)
 {
-	if(object.empty())
+	if(object.empty() || !object->isActive())
 		return true;
 
 	object->getName().serialize(out);

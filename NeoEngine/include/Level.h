@@ -54,6 +54,19 @@ public:
 	void setCurrentCamera(CameraBehavior* cam) { m_currentCamera = cam; }
 	
 	/**
+	 * @brief Makes the given name unique in this level.
+	 * @param name [inout] The name to make unique.
+	 */
+	void makeNameUnique(std::string& name);
+	
+	/**
+	 * @brief Creates a unique name based on the given string.
+	 * @param name The base for the name.
+	 * @return A new unique name.
+	 */
+	std::string getUniqueName(const std::string& name);
+	
+	/**
 	 * @brief Returns the scratchpad and casts it to the right type.
 	 * @tparam T The type required.
 	 * @return The scratchpad pointer.
@@ -105,6 +118,8 @@ public:
 	 * @return The object or nullptr.
 	 */
 	ObjectHandle find(const char* name);
+	ObjectHandle findInactive(size_t idx = 0);
+	
 	ObjectHandle getRoot() { return ObjectHandle(&m_objects, 0); }
 	
 	// Assets
@@ -163,7 +178,7 @@ public:
 	void begin(Platform& p, Renderer& r) 
 	{ 
 		for(size_t i = 0; i < m_objects.size(); i++)
-			m_objects[i].begin(p, r);
+			m_objects[i].begin(p, r, *this);
 	}
 	
 	/**
