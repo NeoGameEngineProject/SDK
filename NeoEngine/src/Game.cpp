@@ -1,5 +1,9 @@
 #include "Game.h"
 
+#ifndef NEO_SINGLE_THREAD
+#include <ThreadPool.h>
+#endif
+
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
 #include <emscripten/html5.h>
@@ -33,6 +37,17 @@ void Game::begin()
 {
 	m_window = m_platform.createWindow(m_initialWidth, m_initialHeight, m_title.c_str());
 	m_running = true;
+	
+#if !defined(NEO_SINGLE_THREAD) && !defined(__EMSCRIPTEN__)
+	if(!ThreadPool::threadCount())
+		ThreadPool::start();
+#endif
+}
+
+void Game::stop()
+{ 
+	// We don't need to stop threads since they auto cleanup on application exit
+	m_running = false;
 }
 
 void Game::changeState(GameStateRef&& game, bool now)

@@ -13,6 +13,10 @@
 #include <behaviors/LightBehavior.h>
 #include <behaviors/SoundBehavior.h>
 
+#ifndef NEO_SINGLE_THREAD
+#include <ThreadPool.h>
+#endif
+
 namespace Neo 
 {
 
@@ -202,8 +206,16 @@ public:
 	 */
 	void update(Platform& p, float dt)
 	{
+#ifdef NEO_SINGLE_THREAD
 		for(size_t i = 0; i < m_objects.size(); i++)
 			m_objects[i].update(p, dt);
+#else
+		ThreadPool::foreach(m_objects.begin(), m_objects.end(), [&p, dt](Object& o){
+			o.update(p, dt);
+		});
+		
+		ThreadPool::synchronize();
+#endif
 	}
 	
 	/**

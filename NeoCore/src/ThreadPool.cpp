@@ -1,9 +1,8 @@
 #include <ThreadPool.h>
 
+#include <Log.h>
 #include <thread>
 #include <vector>
-
-#include <iostream>
 
 using namespace Neo;
 
@@ -18,12 +17,18 @@ std::atomic<bool> running(false);
 std::atomic<size_t> numJobs(0);
 
 std::condition_variable conditional;
+
+// Auto cleanup on application exit!
+struct Destroyer { ~Destroyer() { ThreadPool::stop(); }} s_destroyer;
 #endif
 }
 
 void ThreadPool::start(unsigned int numThreads)
 {
 #ifndef NEO_SINGLE_THREAD
+	if(!numThreads)
+		numThreads = std::thread::hardware_concurrency() - 1; // -1 for the main thread
+	
 	assert(threads.size() == 0 && numThreads > 0 && !running);
 	
 	running = true;
@@ -32,12 +37,18 @@ void ThreadPool::start(unsigned int numThreads)
 		std::thread thread(ThreadPool::work);
 		threads.push_back(std::move(thread));
 	}
+	
+	LOG_INFO("Launched " << numThreads << " threads.");
+#else
+	LOG_WARNING("Trying to launch the thread pool but binary was compiled using NEO_SINGLE_THREAD!");
 #endif
 }
 
 void ThreadPool::stop()
 {
 #ifndef NEO_SINGLE_THREAD
+	LOG_INFO("Shutting threads down.");
+	
 	running = false;
 	conditional.notify_all();
 	
@@ -51,7 +62,7 @@ void ThreadPool::stop()
 #endif
 }
 
-unsigned int threadCount()
+unsigned int ThreadPool::threadCount()
 {
 #ifndef NEO_SINGLE_THREAD
 	return threads.size();

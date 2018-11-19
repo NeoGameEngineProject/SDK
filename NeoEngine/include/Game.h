@@ -48,7 +48,7 @@ public:
 	void update();
 	void draw();
 	
-	void stop() { m_running = false; }
+	void stop();
 	int run(int argc, char** argv);
 	
 	Platform& getPlatform() { return m_platform; }

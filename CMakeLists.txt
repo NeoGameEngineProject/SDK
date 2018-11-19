@@ -45,6 +45,10 @@ if(ENABLE_OPENGL_RENDERER)
 	add_definitions(-DNEO_OPENGL=1)
 endif()
 
+if(DISABLE_MULTITHREAD)
+	add_definitions(-DNEO_SINGLE_THREAD=1)
+endif()
+
 add_subdirectory(NeoCore)
 add_subdirectory(NeoEngine)
 add_subdirectory(NeoHTML)

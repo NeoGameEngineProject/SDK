@@ -15,7 +15,7 @@ class ThreadPool
 
 public:
 	static void work();
-	static void start(unsigned int numThreads = 4);
+	static void start(unsigned int numThreads = 0);
 	static void stop();
 	static void synchronize();
 	static unsigned int threadCount();
@@ -45,17 +45,17 @@ public:
 	
 #undef FunctionResult
 
-	template<typename Iterator>
-	void foreach(Iterator begin, Iterator end, std::function<void(Iterator)> fn)
+	template<typename Iterator, typename Functor>
+	static void foreach(Iterator begin, Iterator end, Functor fn)
 	{
 		assert(ThreadPool::threadCount());
 		size_t offset = std::distance(begin, end) / ThreadPool::threadCount();
 		
 		for(Iterator i = begin; std::distance(begin, i) < std::distance(i, end); i += offset)
 		{
-			ThreadPool::schedule([](Iterator rangeBegin, Iterator rangeEnd, Iterator end, std::function<void(Iterator)> fn) {
+			ThreadPool::schedule([](Iterator rangeBegin, Iterator rangeEnd, Iterator end, Functor fn) {
 				for(Iterator i = rangeBegin; i != rangeEnd && i != end; i++)
-					fn(i);
+					fn(*i);
 				
 				return true;
 			}, i, i + offset, end, fn);
