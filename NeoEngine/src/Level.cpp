@@ -77,7 +77,12 @@ ObjectHandle Level::findInactive(size_t idx)
 void Level::draw(Renderer& r) 
 {
 	assert(m_currentCamera);
-	r.beginFrame(*this, *m_currentCamera);
+	draw(r, *m_currentCamera);
+}
+
+void Level::draw(Renderer& r, CameraBehavior& camera)
+{
+	r.beginFrame(*this, camera);
 	for(size_t i = 0; i < m_objects.size(); i++)
 		m_objects[i].draw(r);
 	r.endFrame();

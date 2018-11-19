@@ -155,6 +155,13 @@ Vector3 Matrix4x4::getEulerAngles(void) const
 	return Vector3(0, 0, 0);
 }
 
+Quaternion Matrix4x4::getRotation() const
+{
+	Quaternion q;
+	q.setFromAngles(getEulerAngles());
+	return q;
+}
+
 Vector3 Matrix4x4::getScale(void) const
 {
 	float xSize = getRotatedVector3(Vector3(1, 0, 0)).getLength();

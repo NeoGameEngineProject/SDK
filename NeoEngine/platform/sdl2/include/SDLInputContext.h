@@ -13,18 +13,18 @@ class SDLInputContext : public Neo::InputContext
 	int addGameController(int sdlId);
 	int removeGameController(int index);
 
-	class SDLJoystick : public Neo::AxisInputDevice
+	class SDLJoystick : public Neo::DynamicAxisInputDevice
 	{
 	public:
 		SDLJoystick(unsigned int numberOfAxis, SDL_JoystickID id, SDL_Joystick* dev)
-			: AxisInputDevice(numberOfAxis),
+			: DynamicAxisInputDevice(numberOfAxis),
 			  id(id),
 			  device(dev)
 		{ }
 
 		SDLJoystick(unsigned int numberOfAxis, unsigned int numberOfKeys,
 					SDL_JoystickID id, SDL_Joystick* dev)
-			: AxisInputDevice(numberOfAxis, numberOfKeys),
+			: DynamicAxisInputDevice(numberOfAxis, numberOfKeys),
 			  id(id),
 			  device(dev)
 		{ }
@@ -33,18 +33,18 @@ class SDLInputContext : public Neo::InputContext
 		SDL_Joystick* device;
 	};
 
-	class SDLController : public Neo::AxisInputDevice
+	class SDLController : public Neo::DynamicAxisInputDevice
 	{
 	public:
 		SDLController(unsigned int numberOfAxis, SDL_JoystickID id, SDL_GameController* dev)
-			: AxisInputDevice(numberOfAxis),
+			: DynamicAxisInputDevice(numberOfAxis),
 			  id(id),
 			  device(dev)
 		{ }
 
 		SDLController(unsigned int numberOfAxis, unsigned int numberOfKeys,
 					SDL_JoystickID id, SDL_GameController* dev)
-			: AxisInputDevice(numberOfAxis, numberOfKeys),
+			: DynamicAxisInputDevice(numberOfAxis, numberOfKeys),
 			  id(id),
 			  device(dev)
 		{ }

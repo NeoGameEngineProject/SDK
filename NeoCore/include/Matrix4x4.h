@@ -32,6 +32,7 @@
 
 namespace Neo
 {
+class Quaternion;
 class NEO_CORE_EXPORT Matrix4x4
 {
 public:
@@ -173,6 +174,8 @@ public:
 	Matrix4x4 getAffineInverse(void) const;
 	Matrix4x4 getAffineInverseTranspose(void) const;
 
+	Quaternion getRotation() const;
+	
 	void rotateVector3(Vector3 & vec) const
 	{
 		vec = getRotatedVector3(vec);

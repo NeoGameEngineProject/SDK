@@ -27,6 +27,8 @@ else()
 
 	if(ENABLE_OPENGL_RENDERER)
 		add_subdirectory(graphics/opengl)
+	else()
+		add_subdirectory(graphics/bgfx)
 	endif()
 	
 	add_subdirectory(assets/assimp)

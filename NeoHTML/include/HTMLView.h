@@ -52,7 +52,7 @@ class HTMLView : public litehtml::document_container
 	};
 	
 	float m_dpi = 96;
-	unsigned int m_width = 0, m_height = 0;
+	unsigned int m_width = 0, m_height = 0, m_posX = 0, m_posY = 0;
 	bool m_needsRender = true;
 	
 	struct Image
@@ -69,7 +69,7 @@ class HTMLView : public litehtml::document_container
 	std::unordered_map<std::string, std::function<void(const char* url)>> m_callbacks;
 	
 public:
-	void begin(unsigned int w, unsigned int h, float dpi = 96.0f);
+	void begin(unsigned int posx, unsigned int posy, unsigned int w, unsigned int h, float dpi = 96.0f);
 	void end();
 	
 	void addCallback(const char* id, const std::function<void(const char* url)> cb) { m_callbacks[id] = cb; }

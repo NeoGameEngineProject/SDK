@@ -34,3 +34,6 @@
 [submodule "NeoEngine/platform/3rdparty/freetype2-external"]
 	path = NeoEngine/platform/3rdparty/freetype2-external
 	url = https://git.savannah.gnu.org/git/freetype/freetype2.git
+[submodule "NeoVR/openvr-external"]
+	path = NeoVR/openvr-external
+	url = https://github.com/ValveSoftware/openvr.git

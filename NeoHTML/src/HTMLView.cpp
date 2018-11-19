@@ -59,7 +59,7 @@ void HTMLElement::setStyle(const char* name, const char* value)
 	m_view->renderPage();
 }
 
-void HTMLView::begin(unsigned int w, unsigned int h, float dpi)
+void HTMLView::begin(unsigned int posx, unsigned int posy, unsigned int w, unsigned int h, float dpi)
 {
 	assert(!m_nv && "Already initialized!");
 
@@ -73,6 +73,8 @@ void HTMLView::begin(unsigned int w, unsigned int h, float dpi)
 	m_width = w;
 	m_height = h;
 	m_dpi = dpi;
+	m_posX = posx;
+	m_posY = posy;
 }
 
 void HTMLView::end()
@@ -131,7 +133,7 @@ void HTMLView::draw(Renderer& render)
 	nvgBeginFrame(m_nv, m_width, m_height, 1.0f);
 	nvgSave(m_nv);
 	
-	m_document->draw(0, 0, 0, nullptr);
+	m_document->draw(0, m_posX, m_posY, nullptr);
 		
 	nvgRestore(m_nv);
 	nvgEndFrame(m_nv);

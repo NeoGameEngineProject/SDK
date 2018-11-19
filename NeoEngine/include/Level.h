@@ -214,6 +214,7 @@ public:
 	 * @param r The rendering context.
 	 */
 	void draw(Renderer& r);
+	void draw(Renderer& r, CameraBehavior& camera);
 	
 	/**
 	 * @brief Casts a ray into the level.

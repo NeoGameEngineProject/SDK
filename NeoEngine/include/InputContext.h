@@ -30,6 +30,7 @@
 
 #include <memory>
 #include <vector>
+#include <cstring>
 
 namespace Neo
 {
@@ -187,6 +188,16 @@ public:
 
 class NEO_ENGINE_EXPORT AxisInputDevice : public InputDevice
 {
+public:
+	AxisInputDevice() = default;
+	AxisInputDevice(size_t keys): InputDevice(keys) {}
+	virtual float getAxis(unsigned int id) = 0;
+	virtual void setAxis(unsigned int id, float val) = 0;
+	virtual unsigned int getAxisCount() const = 0;
+};
+
+class NEO_ENGINE_EXPORT DynamicAxisInputDevice : public AxisInputDevice
+{
 	std::vector<float> m_axis;
 	
 	void initAxis(unsigned int num)
@@ -196,19 +207,42 @@ class NEO_ENGINE_EXPORT AxisInputDevice : public InputDevice
 			m_axis.push_back(0.0f);
 	}
 public:
-	AxisInputDevice(unsigned int numberOfAxis)
+	DynamicAxisInputDevice(unsigned int numberOfAxis)
 	{
 		initAxis(numberOfAxis);
 	}
 
-	AxisInputDevice(unsigned int numberOfAxis, unsigned int numberOfKeys)
-		: InputDevice(numberOfKeys)
+	DynamicAxisInputDevice(unsigned int numberOfAxis, unsigned int numberOfKeys)
+		: AxisInputDevice(numberOfKeys)
 	{
 		initAxis(numberOfAxis);
 	}
 
-	float getAxis(unsigned int id) { return m_axis[id]; }
-	void setAxis(unsigned int id, float val) { m_axis[id] = val; }
+	float getAxis(unsigned int id) override { return m_axis[id]; }
+	void setAxis(unsigned int id, float val) override { m_axis[id] = val; }
+	unsigned int getAxisCount() const override { return m_axis.size(); }
+};
+
+template<unsigned int AXNUM>
+class NEO_ENGINE_EXPORT FixedAxisInputDevice : public AxisInputDevice
+{
+	std::array<float, AXNUM> m_axis;
+	
+public:
+	FixedAxisInputDevice()
+	{
+		memset(m_axis.data(), AXNUM * sizeof(float), 0);
+	}
+
+	FixedAxisInputDevice(unsigned int numberOfKeys)
+		: AxisInputDevice(numberOfKeys)
+	{
+		memset(m_axis.data(), AXNUM * sizeof(float), 0);
+	}
+
+	float getAxis(unsigned int id) override { return m_axis[id]; }
+	void setAxis(unsigned int id, float val) override { m_axis[id] = val; }
+	unsigned int getAxisCount() const override { return AXNUM; }
 };
 
 /**
@@ -225,7 +259,7 @@ public:
 	void setCharacter(unsigned int c) { m_character = c; }
 };
 
-class NEO_ENGINE_EXPORT Mouse : public AxisInputDevice
+class NEO_ENGINE_EXPORT Mouse : public FixedAxisInputDevice<3>
 {
 private:
 	Vector2 m_position;
@@ -234,8 +268,8 @@ private:
 	float m_scrollValue;
 
 public:
-	Mouse() :
-		AxisInputDevice(2, 3),
+	Mouse(): 
+		FixedAxisInputDevice(3),
 		m_position(0, 0),
 		m_oldPosition(0, 0),
 		m_direction(0, 0),
@@ -302,7 +336,9 @@ public:
 	Mouse& getMouse() { return m_mouse; }
 
 	const std::shared_ptr<Neo::AxisInputDevice>& getController(size_t id) const { return m_controllers[id]; }
-
+	void registerController(const std::shared_ptr<Neo::AxisInputDevice>& dev) { m_controllers.push_back(dev); }
+	void registerController(std::shared_ptr<Neo::AxisInputDevice>&& dev) { m_controllers.push_back(std::move(dev)); }
+	
 	virtual void setMouseRelative(bool value) { m_mouseRelative = value; }
 	bool isMouseRelative() { return m_mouseRelative; }
 	

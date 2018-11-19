@@ -7,7 +7,7 @@ endif()
 
 macro(add_game name sources assetdir)
 	add_executable(${name} WIN32 ${sources})
-	target_link_libraries(${name} PUBLIC NeoEngine NeoCore NeoHTML NeoStates)
+	target_link_libraries(${name} PUBLIC NeoEngine NeoCore NeoHTML NeoVR NeoStates)
 	
 	if(NOT EMSCRIPTEN)
 		add_custom_target(build-package-${name} 
@@ -15,19 +15,21 @@ macro(add_game name sources assetdir)
 			WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 			COMMENT "Building package")
 		
-		add_custom_target(copy-shaders
-			COMMAND ${CMAKE_COMMAND} -E remove_directory ${assetdir}/glsl ## TODO Find real shader output!
-			COMMAND ${CMAKE_COMMAND} -E remove_directory ${assetdir}/asm.js ## TODO Find real shader output!
+		if(NOT ENABLE_OPENGL_RENDERER)
+			add_custom_target(copy-shaders
+				COMMAND ${CMAKE_COMMAND} -E remove_directory ${assetdir}/glsl ## TODO Find real shader output!
+				COMMAND ${CMAKE_COMMAND} -E remove_directory ${assetdir}/asm.js ## TODO Find real shader output!
 
-			COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/assets/glsl ${assetdir}/glsl ## TODO Find real shader output!
-			COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/assets/asm.js ${assetdir}/asm.js ## TODO Find real shader output!
+				COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/assets/glsl ${assetdir}/glsl ## TODO Find real shader output!
+				COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/assets/asm.js ${assetdir}/asm.js ## TODO Find real shader output!
 
-			WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-			COMMENT "Copying shaders"
-			DEPENDS build-shaders
-		)
-		add_dependencies(${name} copy-shaders)
-		add_dependencies(build-package-${name} copy-shaders)
+				WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+				COMMENT "Copying shaders"
+				DEPENDS build-shaders
+			)
+			add_dependencies(${name} copy-shaders)
+			add_dependencies(build-package-${name} copy-shaders)
+		endif()
 	else()
 		add_custom_target(build-package-${name} 
 			COMMAND ${CMAKE_COMMAND} -E tar "cf" "${CMAKE_BINARY_DIR}/bin/data.neo" --format=zip ${assetdir}

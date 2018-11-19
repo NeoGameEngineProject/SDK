@@ -9,11 +9,13 @@
 
 #include <InputContext.h>
 
+#include <VRContext.h>
 #include <HTMLView.h>
 #include <Game.h>
 #include <SplashScreen.h>
 
 #include <WinMain.hpp>
+#include <Log.h>
 
 class TestGame : public Neo::GameState
 {
@@ -23,10 +25,13 @@ class TestGame : public Neo::GameState
 	Neo::ObjectHandle light, camera, testCube;
 	Neo::CameraBehavior* cameraBehavior;
 	Neo::SoundBehavior sound;
+	Neo::VRContext vr;
 	
 public:
 	void begin(Neo::Platform & p, Neo::Window& w) override
 	{
+		vr.initialize();
+
 		if(!level.load("assets/test.dae"))
 		{
 			std::cerr << "Could not load level!" << std::endl;
@@ -41,8 +46,9 @@ public:
 	
 		level.setCurrentCamera(cameraBehavior);
 		level.begin(p, *w.getRenderer());
-		
-		htmlView.begin(w.getWidth(), w.getHeight(), w.getDPI());
+	
+		htmlView.begin(0, 0, w.getWidth(), w.getHeight(), w.getDPI());
+	
 		if(!htmlView.loadDocument("assets/test.html"))
 			exit(1);
 		
@@ -75,10 +81,26 @@ public:
 	
 	void draw(Neo::Renderer& r) override
 	{
-		r.clear(57.0f/255.0f, 57.0f/255.0f, 57.0f/255.0f, true);
-		level.draw(r);
-		htmlView.draw(r);
-		r.swapBuffers();
+		if(vr.hasVR())
+		{
+			vr.update();
+			vr.enableEye(*level.getCurrentCamera(), Neo::VRContext::LEFT_EYE);
+			level.draw(r);
+			htmlView.draw(r);
+			
+			vr.enableEye(*level.getCurrentCamera(), Neo::VRContext::RIGHT_EYE);	
+			level.draw(r);
+			htmlView.draw(r);
+			
+			vr.endDraw(*level.getCurrentCamera());
+		}
+		else
+		{
+			r.clear(57.0f/255.0f, 57.0f/255.0f, 57.0f/255.0f, true);
+			level.draw(r);
+			htmlView.draw(r);
+			r.swapBuffers();
+		}
 	}
 	
 	void update(Neo::Platform & p, float dt) override
@@ -111,6 +133,10 @@ public:
 			rotation.x -= input.getMouse().getDirection().y * 0.1;
 			camera->setRotation(Neo::Quaternion(rotation.x, rotation.y, rotation.z));
 		}
+		
+		// VR updates!
+		auto& right = vr.getInputDevice(4);
+		camera->translate(10*dt*Neo::Vector3(right.getAxis(Neo::VRContext::AXIS0_X), right.getAxis(Neo::VRContext::AXIS0_Y), 0));
 		
 		testCube->rotate(Neo::Vector3(0, 0, 1), 20*dt);
 		

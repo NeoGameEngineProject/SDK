@@ -59,7 +59,10 @@ void CameraBehavior::setOrthoView(float left, float right, float bottom, float t
 }
 
 void CameraBehavior::enable(float width, float height) 
-{ 
+{
+	if(m_lockPerspective)
+		return;
+	
 	m_width = width;
 	m_height = height;
 	

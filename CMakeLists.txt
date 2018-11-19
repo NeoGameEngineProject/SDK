@@ -49,6 +49,7 @@ add_subdirectory(NeoCore)
 add_subdirectory(NeoEngine)
 add_subdirectory(NeoHTML)
 add_subdirectory(NeoStates)
+add_subdirectory(NeoVR)
 # add_subdirectory(NeoAI)
 # add_subdirectory(Neo2D)
 
