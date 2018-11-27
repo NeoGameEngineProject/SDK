@@ -37,3 +37,6 @@
 [submodule "NeoVR/openvr-external"]
 	path = NeoVR/openvr-external
 	url = https://github.com/ValveSoftware/openvr.git
+[submodule "NeoEngine/platform/bullet/bullet3-external"]
+	path = NeoEngine/platform/bullet/bullet3-external
+	url = https://github.com/bulletphysics/bullet3.git
