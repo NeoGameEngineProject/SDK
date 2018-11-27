@@ -151,6 +151,7 @@ int Common::loadShader(const char* path)
 
 	if(!checkProgramStatus(program))
 	{
+		LOG_ERROR("Could not link shader!");
 		glDeleteProgram(program);
 		program = -1;
 		goto done;
