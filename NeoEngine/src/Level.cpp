@@ -16,7 +16,6 @@
 
 using namespace Neo;
 
-
 void Level::makeNameUnique(std::string& name)
 {
 	if(find(name.c_str()).empty())
@@ -83,8 +82,10 @@ void Level::draw(Renderer& r)
 void Level::draw(Renderer& r, CameraBehavior& camera)
 {
 	r.beginFrame(*this, camera);
-	for(size_t i = 0; i < m_objects.size(); i++)
-		m_objects[i].draw(r);
+	for(auto& o : m_objects)
+	{
+		o.draw(r);
+	}
 	r.endFrame();
 }
 

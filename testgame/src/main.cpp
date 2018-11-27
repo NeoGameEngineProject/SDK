@@ -6,6 +6,7 @@
 #include <Level.h>
 #include <behaviors/CameraBehavior.h>
 #include <behaviors/SoundBehavior.h>
+#include <behaviors/RigidbodyPhysicsBehavior.h>
 
 #include <InputContext.h>
 
@@ -43,6 +44,19 @@ public:
 		cameraBehavior = camera->getBehavior<Neo::CameraBehavior>();
 		
 		testCube = level.find("Test");
+		
+		level.find("Plane")->addBehavior<Neo::RigidbodyPhysicsBehavior>()->setMass(0);
+		for(int i = 1; i <= 13; i++)
+		{
+			auto obj = level.find(("Cube" + std::to_string(i)).c_str());
+			if(obj.empty())
+			{
+				LOG_WARNING("Could not find cube: Cube" << i);
+				continue;
+			}
+			
+			obj->addBehavior<Neo::RigidbodyPhysicsBehavior>();
+		}
 	
 		level.setCurrentCamera(cameraBehavior);
 		level.begin(p, *w.getRenderer());

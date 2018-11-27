@@ -94,7 +94,7 @@ Object& Object::operator= (const Object& obj)
 		{
 			m_behaviors.push_back(std::move(behavior->clone()));
 		}
-		
+
 		for(auto& behavior : obj.m_behaviorMap)
 		{
 			m_behaviorMap[behavior.first] = behavior.second;

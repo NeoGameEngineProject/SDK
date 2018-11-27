@@ -2,4 +2,9 @@
 
 using namespace Neo;
 
-// REGISTER_BEHAVIOR(RigidbodyPhysicsBehavior)
+REGISTER_BEHAVIOR(RigidbodyPhysicsBehavior)
+
+Behavior* RigidbodyPhysicsBehavior::getNew() const
+{
+	return new RigidbodyPhysicsBehavior();
+}

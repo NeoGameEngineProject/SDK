@@ -2,14 +2,16 @@
 #define NEO_RIGIDBODYPHYSICSBEHAVIOR_H
 
 #include <Behavior.h>
+#include <PlatformRigidbodyPhysicsBehavior.h>
 
 namespace Neo 
 {
 
-class RigidbodyPhysicsBehavior : public Neo::Behavior
+class RigidbodyPhysicsBehavior : public Neo::PlatformRigidbodyPhysicsBehavior
 {
 public:
 	const char* getName() const override { return "RigidbodyPhysics"; }
+	Behavior* getNew() const override;
 };
 
 }
