@@ -96,7 +96,9 @@ class IProperty
 public:
 	IProperty(const char* name, PROPERTY_TYPES type = UNKNOWN, size_t size = 0):
 		m_name(name), m_size(size), m_type(type) {}
-		
+	
+	virtual ~IProperty() = default;
+	
 	const std::string& getName() const { return m_name; }
 	size_t getSize() const { return m_size; }
 	PROPERTY_TYPES getType() const { return m_type; }

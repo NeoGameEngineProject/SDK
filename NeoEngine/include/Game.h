@@ -52,6 +52,7 @@ public:
 	int run(int argc, char** argv);
 	
 	Platform& getPlatform() { return m_platform; }
+	Window* getWindow() { return m_window.get(); }
 };
 
 }

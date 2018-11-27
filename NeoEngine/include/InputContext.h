@@ -231,13 +231,13 @@ class NEO_ENGINE_EXPORT FixedAxisInputDevice : public AxisInputDevice
 public:
 	FixedAxisInputDevice()
 	{
-		memset(m_axis.data(), AXNUM * sizeof(float), 0);
+		memset(m_axis.data(), 0, AXNUM * sizeof(float));
 	}
 
 	FixedAxisInputDevice(unsigned int numberOfKeys)
 		: AxisInputDevice(numberOfKeys)
 	{
-		memset(m_axis.data(), AXNUM * sizeof(float), 0);
+		memset(m_axis.data(), 0, AXNUM * sizeof(float));
 	}
 
 	float getAxis(unsigned int id) override { return m_axis[id]; }
