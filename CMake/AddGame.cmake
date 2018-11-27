@@ -29,6 +29,17 @@ macro(add_game name sources assetdir)
 			)
 			add_dependencies(${name} copy-shaders)
 			add_dependencies(build-package-${name} copy-shaders)
+		else()
+			add_custom_target(copy-shaders
+				COMMAND ${CMAKE_COMMAND} -E remove_directory ${assetdir}/glsl ## TODO Find real shader output!
+				COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/assets/glsl ${assetdir}/glsl ## TODO Find real shader output!
+
+				WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+				COMMENT "Copying shaders"
+				DEPENDS build-shaders
+			)
+			add_dependencies(${name} copy-shaders)
+			add_dependencies(build-package-${name} copy-shaders)
 		endif()
 	else()
 		add_custom_target(build-package-${name} 
@@ -40,37 +51,71 @@ macro(add_game name sources assetdir)
 	endif()
 	
 	if("${CMAKE_BUILD_TYPE}" STREQUAL "Release" AND NOT EMSCRIPTEN)
-		target_compile_definitions(${name} PRIVATE -DASSET_MODE=1)
-		if(${USE_CAT})
-			add_custom_command(TARGET ${name} POST_BUILD
-				## Zip assets
-				COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/assets/glsl ${assetdir}/glsl ## TODO Find real shader output!
-				COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/assets/asm.js ${assetdir}/asm.js
-				
-				COMMAND ${CMAKE_COMMAND} -E tar "cf" "${CMAKE_CURRENT_BINARY_DIR}/data.neo" --format=zip ${assetdir}
-				COMMAND ${CMAKE_COMMAND} -E remove_directory  ${assetdir}/glsl
+		target_compile_definitions(${name} PUBLIC -DASSET_MODE=1)
+		target_compile_definitions(NeoEngine PUBLIC -DASSET_MODE=1)
 
-				## Cat files
-				COMMAND ${CAT_EXEC} $<TARGET_FILE:${name}> "${CMAKE_CURRENT_BINARY_DIR}/data.neo" > ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${name}-full
-				
-				## Somebody with cat also has chmod! (not really... :()
-				COMMAND chmod +x ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${name}-full
-				WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-				COMMENT "Building fat binary"
-			)
+		if(${USE_CAT})
+			if(NOT ENABLE_OPENGL_RENDERER)
+				add_custom_command(TARGET ${name} POST_BUILD
+					## Zip assets
+					COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/assets/glsl ${assetdir}/glsl ## TODO Find real shader output!
+					COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/assets/asm.js ${assetdir}/asm.js
+					
+					COMMAND ${CMAKE_COMMAND} -E tar "cf" "${CMAKE_CURRENT_BINARY_DIR}/data.neo" --format=zip ${assetdir}
+					COMMAND ${CMAKE_COMMAND} -E remove_directory  ${assetdir}/glsl
+
+					## Cat files
+					COMMAND ${CAT_EXEC} $<TARGET_FILE:${name}> "${CMAKE_CURRENT_BINARY_DIR}/data.neo" > ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${name}-full
+					
+					## Somebody with cat also has chmod! (not really... :()
+					COMMAND chmod +x ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${name}-full
+					WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+					COMMENT "Building fat binary"
+				)
+			else()
+				add_custom_command(TARGET ${name} POST_BUILD
+					## Zip assets
+					COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/assets/glsl ${assetdir}/glsl ## TODO Find real shader output!
+					
+					COMMAND ${CMAKE_COMMAND} -E tar "cf" "${CMAKE_CURRENT_BINARY_DIR}/data.neo" --format=zip ${assetdir}
+					COMMAND ${CMAKE_COMMAND} -E remove_directory  ${assetdir}/glsl
+
+					## Cat files
+					COMMAND ${CAT_EXEC} $<TARGET_FILE:${name}> "${CMAKE_CURRENT_BINARY_DIR}/data.neo" > ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${name}-full
+					
+					## Somebody with cat also has chmod! (not really... :()
+					COMMAND chmod +x ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${name}-full
+					WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+					COMMENT "Building fat binary"
+				)
+			endif()
 		else()
-			add_custom_command(TARGET ${name} POST_BUILD
-				## Zip assets
-				COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/assets/glsl ${assetdir}/glsl ## TODO Find real shader output!
-				COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/assets/asm.js ${assetdir}/asm.js
-				COMMAND ${CMAKE_COMMAND} -E tar "cf" "${CMAKE_CURRENT_BINARY_DIR}/data.neo" --format=zip ${assetdir}
-				COMMAND ${CMAKE_COMMAND} -E remove_directory  ${assetdir}/glsl
-				
-				## Cat files
-				COMMAND copy /b $<TARGET_FILE:${name}>+"${CMAKE_CURRENT_BINARY_DIR}/data.neo" ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${name}-full.exe
-				WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-				COMMENT "Building fat binary"
-			)
+			if(NOT ENABLE_OPENGL_RENDERER)
+				add_custom_command(TARGET ${name} POST_BUILD
+					## Zip assets
+					COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/assets/glsl ${assetdir}/glsl ## TODO Find real shader output!
+					COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/assets/asm.js ${assetdir}/asm.js
+					COMMAND ${CMAKE_COMMAND} -E tar "cf" "${CMAKE_CURRENT_BINARY_DIR}/data.neo" --format=zip ${assetdir}
+					COMMAND ${CMAKE_COMMAND} -E remove_directory  ${assetdir}/glsl
+					
+					## Cat files
+					COMMAND copy /b $<TARGET_FILE:${name}>+"${CMAKE_CURRENT_BINARY_DIR}/data.neo" ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${name}-full.exe
+					WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+					COMMENT "Building fat binary"
+				)
+			else()
+				add_custom_command(TARGET ${name} POST_BUILD
+					## Zip assets
+					COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/assets/glsl ${assetdir}/glsl ## TODO Find real shader output!
+					COMMAND ${CMAKE_COMMAND} -E tar "cf" "${CMAKE_CURRENT_BINARY_DIR}/data.neo" --format=zip ${assetdir}
+					COMMAND ${CMAKE_COMMAND} -E remove_directory  ${assetdir}/glsl
+					
+					## Cat files
+					COMMAND copy /b $<TARGET_FILE:${name}>+"${CMAKE_CURRENT_BINARY_DIR}/data.neo" ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${name}-full.exe
+					WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+					COMMENT "Building fat binary"
+				)
+			endif()
 		endif()
 	else() ## For debug builds we just copy the built shaders to the assets directory so the game can be run there
 		target_compile_definitions(${name} PRIVATE -DASSET_MODE=0)
