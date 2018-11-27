@@ -8,11 +8,13 @@ using namespace Neo;
 
 SDLWindow::SDLWindow(unsigned int w, unsigned int h) : Window(w, h)
 {
+	SDL_SetHint(SDL_HINT_VIDEO_HIGHDPI_DISABLED, "0"); 
+
 	m_win = SDL_CreateWindow("Neo Game Engine", 
 				 SDL_WINDOWPOS_CENTERED, 
 				 SDL_WINDOWPOS_CENTERED, 
 				 w, h, 
-				SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
+				SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI);
 	
 	if(m_win == nullptr)
 	{
@@ -21,8 +23,15 @@ SDLWindow::SDLWindow(unsigned int w, unsigned int h) : Window(w, h)
 	
 #ifndef __EMSCRIPTEN__
 	// TODO Configuration
-	//SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-	//SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 8);
+	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 8);
+	
+	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
+	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
+	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
+	SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE, 24);
+
+	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 	
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 5);
@@ -31,10 +40,16 @@ SDLWindow::SDLWindow(unsigned int w, unsigned int h) : Window(w, h)
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
 	m_context = SDL_GL_CreateContext(m_win);
-
 	if(!m_context)
+	{
 		LOG_ERROR("Could not create OpenGL context!");
-
+		return;
+	}
+	
+	SDL_GL_GetDrawableSize(m_win, (int*) &w, (int*) &h);
+	setDrawableSize(w, h);
+	LOG_INFO("Creating window with drawing area of " << w << "x" << h);
+	
 #else
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);

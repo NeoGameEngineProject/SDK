@@ -11,6 +11,10 @@ class Window
 {
 	std::unique_ptr<Renderer> m_renderer;
 	unsigned int m_width, m_height;
+	
+protected:
+	void setDrawableSize(unsigned int w, unsigned int h) { m_width = w; m_height = h; }
+	
 public:
 	Window(unsigned int w, unsigned int h) : m_width(w), m_height(h) {}
 	virtual ~Window() {}

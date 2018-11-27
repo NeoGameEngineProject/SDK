@@ -2,7 +2,7 @@
 #include <behaviors/MeshBehavior.h>
 #include <Object.h>
 #include <Texture.h>
-
+#include <Log.h>
 #include <GL/glew.h>
 
 using namespace Neo;
@@ -87,7 +87,6 @@ void PlatformStaticRenderBehavior::end()
 void PlatformStaticRenderBehavior::draw(Neo::Renderer& render)
 {
 	PlatformRenderer* prender = reinterpret_cast<PlatformRenderer*>(&render);
-	auto& subMeshes = m_mesh->getMeshes();
 
 	prender->updateLights(m_mesh);
 	prender->useShader(0);

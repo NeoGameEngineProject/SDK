@@ -107,7 +107,11 @@ void PlatformRenderer::initialize(unsigned int w, unsigned int h, void* ndt, voi
 
 	glewExperimental = true;
 	auto err = glewInit();
-	if(err != GLEW_OK)
+	if(err == GLEW_ERROR_NO_GLX_DISPLAY)
+	{
+		LOG_INFO("No GLX display found: Using Wayland backend.");
+	}
+	else if(err != GLEW_OK)
 	{
 		LOG_ERROR("Could not initialize GLEW: " << glewGetErrorString(err));
 		return;

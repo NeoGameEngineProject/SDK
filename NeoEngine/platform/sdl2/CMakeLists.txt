@@ -1,23 +1,25 @@
 file(GLOB SOURCES src/*.c*)
 file(GLOB INCLUDES include/*.h)
 
-find_package(SDL2)
+if(NOT ENABLE_SDL2_BUILD)
+	find_package(SDL2)
+endif()
 
 if(NOT SDL2_FOUND)
-
 	set(RENDER_D3D OFF CACHE BOOL "" FORCE)
 	set(RENDER_VULKAN OFF CACHE BOOL "" FORCE)
 	set(RENDER_KMSDRM OFF CACHE BOOL "" FORCE)
 	set(DIRECTX OFF CACHE BOOL "" FORCE)
 	set(WASAPI OFF CACHE BOOL "" FORCE)
+	set(VIDEO_X11 ON CACHE BOOL "" FORCE)
+	set(VIDEO_WAYLAND ON CACHE BOOL "" FORCE)
 
 	add_subdirectory(sdl2-external EXCLUDE_FROM_ALL)
 	set(SDL2_LIBRARY SDL2-static)
-	set(SDL2_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/sdl2-external/include)
+	set(SDL2_INCLUDE_DIR
+		${CMAKE_CURRENT_BINARY_DIR}/sdl2-external/include
+		${CMAKE_CURRENT_SOURCE_DIR}/sdl2-external/include)
 endif()
-
-set(PNG_SHARED CACHE OFF "" FORCE)
-set(PNG_TESTS CACHE OFF "" FORCE)
 
 add_platform_module(
 	SOURCES ${SOURCES} ${INCLUDES}
