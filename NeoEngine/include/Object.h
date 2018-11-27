@@ -94,6 +94,7 @@ public:
 	Behavior* getBehavior(const std::string& name) const;
 
 	std::vector<BehaviorRef>& getBehaviors() { return m_behaviors; }
+	const std::vector<BehaviorRef>& getBehaviors() const { return m_behaviors; }
 
 	Matrix4x4& getTransform() { return m_transform; }
 	Vector3 getPosition() const { return m_position; }
@@ -264,7 +265,7 @@ public:
 	}
 	
 	void draw(Renderer& r) 
-	{ 
+	{
 		if(!m_visible || !m_active)
 			return;
 		

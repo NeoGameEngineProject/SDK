@@ -9,6 +9,8 @@
 #include <Sound.h>
 #include <Mesh.h>
 
+#include <PhysicsContext.h>
+
 #include <behaviors/CameraBehavior.h>
 #include <behaviors/LightBehavior.h>
 #include <behaviors/SoundBehavior.h>
@@ -36,6 +38,9 @@ class NEO_ENGINE_EXPORT Level
 	std::unordered_map<std::string, Texture> m_textures;
 	std::vector<Sound> m_sounds;
 	std::vector<Mesh> m_meshes;
+
+	PhysicsContext m_physics;
+	
 public:
 	/**
 	 * @brief Constructs a new level.
@@ -125,6 +130,8 @@ public:
 	ObjectHandle findInactive(size_t idx = 0);
 	
 	ObjectHandle getRoot() { return ObjectHandle(&m_objects, 0); }
+
+	PhysicsContext& getPhysicsContext() { return m_physics; }
 	
 	// Assets
 	
@@ -180,7 +187,8 @@ public:
 	 * @param r The rendering context.
 	 */
 	void begin(Platform& p, Renderer& r) 
-	{ 
+	{
+		m_physics.begin();
 		for(size_t i = 0; i < m_objects.size(); i++)
 			m_objects[i].begin(p, r, *this);
 	}
@@ -191,9 +199,11 @@ public:
 	 * Clears all objects and behaviors.
 	 */
 	void end() 
-	{ 
+	{
 		for(size_t i = 0; i < m_objects.size(); i++)
 			m_objects[i].end();
+
+		m_physics.end();
 	}
 	
 	/**
@@ -206,6 +216,10 @@ public:
 	 */
 	void update(Platform& p, float dt)
 	{
+		// First: Update physics
+		m_physics.update(dt);
+
+		// Second: Update objects and behaviors!
 #ifdef NEO_SINGLE_THREAD
 		for(size_t i = 0; i < m_objects.size(); i++)
 			m_objects[i].update(p, dt);

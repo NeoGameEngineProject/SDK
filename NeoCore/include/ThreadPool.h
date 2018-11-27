@@ -51,7 +51,7 @@ public:
 		assert(ThreadPool::threadCount());
 		size_t offset = std::distance(begin, end) / ThreadPool::threadCount();
 		
-		for(Iterator i = begin; std::distance(begin, i) < std::distance(i, end); i += offset)
+		for(Iterator i = begin; std::distance(begin, i) < std::distance(begin, end); i += offset)
 		{
 			ThreadPool::schedule([](Iterator rangeBegin, Iterator rangeEnd, Iterator end, Functor fn) {
 				for(Iterator i = rangeBegin; i != rangeEnd && i != end; i++)
