@@ -1,6 +1,7 @@
 #include "VFSFile.h"
 #include <iostream>
 #include <cassert>
+#include <Log.h>
 
 using namespace Neo;
 
@@ -12,6 +13,7 @@ VFSOpenHook::~VFSOpenHook()
 
 FileOpenHook* VFSOpenHook::mount(const char* pkg, const char* arg0)
 {
+	LOG_INFO("Mounting package: " << pkg);
 	PHYSFS_init(arg0);
 	if(!PHYSFS_mount(pkg, "/", 1))
 	{
