@@ -3,6 +3,7 @@
 #include <Log.h>
 #include <thread>
 #include <vector>
+#include <unistd.h>
 
 using namespace Neo;
 
@@ -27,7 +28,7 @@ void ThreadPool::start(unsigned int numThreads)
 {
 #ifndef NEO_SINGLE_THREAD
 	if(!numThreads)
-		numThreads = std::thread::hardware_concurrency();
+		numThreads = std::thread::hardware_concurrency() - 1;
 	
 	assert(threads.size() == 0 && numThreads > 0 && !running);
 	
@@ -125,5 +126,7 @@ void ThreadPool::synchronize()
 		job();
 		numJobs--;
 	}
+	
+	while(numJobs != 0) usleep(1);
 #endif
 }
