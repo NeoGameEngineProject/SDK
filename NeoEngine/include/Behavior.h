@@ -166,9 +166,11 @@ class NEO_ENGINE_EXPORT Behavior
 	static Behavior* findBehaviorInRegistry(const char* name);
 
 public:
+#ifndef SWIG
 	static std::unique_ptr<Behavior> create(const char* name);
 	static void registerBehavior(std::unique_ptr<Behavior>&& behavior);
 	static const std::vector<std::unique_ptr<Behavior>>& registeredBehaviors();
+#endif
 	
 private:
 	///< The parent object.
@@ -182,10 +184,12 @@ public:
 			delete k;
 	}
 	
+#ifndef SWIG
 	/**
 	 * @brief Clones the behavior into a new object.
 	 */
 	virtual std::unique_ptr<Behavior> clone() const;
+#endif
 	
 	virtual Behavior* getNew() const = 0;
 	
@@ -274,8 +278,10 @@ public:
 	virtual void deserialize(Level&, std::istream&) {}
 };
 
+#ifndef SWIG
 typedef std::unique_ptr<Behavior> BehaviorRef;
 typedef std::shared_ptr<Behavior> BehaviorSharedRef;
+#endif
 
 #define REGISTER_PROPERTY(field) registerProperty(#field, field)
 #define REGISTER_PROPERTY_TYPE(field, type) registerProperty(#field, field, type)

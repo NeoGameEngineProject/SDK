@@ -20,14 +20,17 @@ public:
 	Platform(const char* soundDevice = nullptr);
 	~Platform();
 	
+#ifndef SWIG
 	std::unique_ptr<Window> createWindow(unsigned int w, unsigned int h, const char* title);
+	std::unique_ptr<Renderer> createRenderer() { return std::make_unique<PlatformRenderer>(); }
+#endif
+	
 	InputContext& getInputContext() { return m_inputContext; }
 	
 	void showCursor(bool value);
 	unsigned long getTime();
 	void sleep(long int millis);
 	
-	std::unique_ptr<Renderer> createRenderer() { return std::make_unique<PlatformRenderer>(); }
 	SoundContext& getSoundContext() { return m_soundContext; }
 };
 
