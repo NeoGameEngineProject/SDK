@@ -9,6 +9,7 @@
 #include <emscripten/html5.h>
 #endif
 
+#include <Log.h>
 #include <VFSFile.h>
 #include <iostream>
 
@@ -103,8 +104,7 @@ int Game::run(int argc, char** argv)
 	const char* pkg = (ASSET_MODE == 1 ? argv[0] : "data.neo");
 	if(!Neo::VFSOpenHook::mount(pkg, argv[0]))
 	{
-		std::cerr << "Could not open assets file!" << std::endl;
-		return 1;
+		LOG_WARNING("Could not open assets file!");
 	}
 #endif
 	

@@ -17,7 +17,7 @@ FileOpenHook* VFSOpenHook::mount(const char* pkg, const char* arg0)
 	PHYSFS_init(arg0);
 	if(!PHYSFS_mount(pkg, "/", 1))
 	{
-		std::cerr << "Could not mount package: " << pkg << " " << PHYSFS_getErrorByCode(PHYSFS_getLastErrorCode()) << std::endl;
+		LOG_ERROR("Could not mount package: " << pkg << " " << PHYSFS_getErrorByCode(PHYSFS_getLastErrorCode()));
 		return nullptr;
 	}
 	
