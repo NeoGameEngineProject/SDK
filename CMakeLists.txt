@@ -6,8 +6,11 @@ set(CMAKE_MODULE_PATH
 	${CMAKE_MODULE_PATH}
 )
 
+include(ExternalProject)
+
 set(CMAKE_CXX_STANDARD 14)
 option(BUILD_SHARED_LIBS OFF)
+set(SANITIZER "address" CACHE STRING "The sanitizer to use")
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
@@ -38,7 +41,7 @@ if(NOT NO_TESTS)
 endif()
 
 if(ENABLE_SANITIZERS)
-	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fsanitize=address -fsanitize=undefined")
+	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fsanitize=${SANITIZER} -fsanitize=undefined")
 endif()
 
 if(ENABLE_OPENGL_RENDERER)
@@ -54,12 +57,14 @@ add_subdirectory(NeoEngine)
 add_subdirectory(NeoHTML)
 add_subdirectory(NeoStates)
 add_subdirectory(NeoVR)
+add_subdirectory(NeoScript)
+
 # add_subdirectory(NeoAI)
 # add_subdirectory(Neo2D)
 
 if(ENABLE_SANITIZERS)
-	target_compile_options(NeoEngine PUBLIC -fsanitize=address -fsanitize=undefined -fno-omit-frame-pointer)
-	target_compile_options(NeoCore PUBLIC -fsanitize=address -fsanitize=undefined -fno-omit-frame-pointer)
+	target_compile_options(NeoEngine PUBLIC -fsanitize=${SANITIZER} -fsanitize=undefined -fno-omit-frame-pointer)
+	target_compile_options(NeoCore PUBLIC -fsanitize=${SANITIZER} -fsanitize=undefined -fno-omit-frame-pointer)
 endif()
 
 if(NOT NO_TESTGAME)
