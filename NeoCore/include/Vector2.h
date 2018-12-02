@@ -243,7 +243,7 @@ public:
 	Vector2 getRotated(const float angle) const;	
 
 	// return angle that vec needs to rotate
-	inline float getAngleBetween(const Vector2 & vec);
+	float getAngleBetween(const Vector2 & vec);
 
 	inline float getLength() const
 	{	
