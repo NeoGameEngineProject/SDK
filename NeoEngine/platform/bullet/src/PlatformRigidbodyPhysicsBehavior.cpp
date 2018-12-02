@@ -31,6 +31,18 @@ static Quaternion convert(const btQuaternion& q)
 				q.w());
 }
 
+void PlatformRigidbodyPhysicsBehavior::propertyChanged(IProperty*)
+{
+	setMass(Mass);
+	setShape(Shape);
+	setLinearFactor(LinearFactor);
+	setAngularFactor(AngularFactor);
+	setFriction(Friction);
+	setLinearDamping(LinearDamping);
+	setAngularDamping(AngularDamping);
+	setKinematic(Kinematic);
+}
+
 void PlatformRigidbodyPhysicsBehavior::begin(Level& level)
 {
 	Object* parent = getParent();
@@ -46,19 +58,17 @@ void PlatformRigidbodyPhysicsBehavior::begin(Level& level)
 	btVector3 position = convert(parentPosition);
     	btDefaultMotionState* motionState = new btDefaultMotionState(btTransform(rotation, position));
 	
-	m_btbody = new btRigidBody(m_mass, motionState, nullptr);
-	
-	setShape(m_shape);
-	setLinearFactor(m_linearFactor);
-	setAngularFactor(m_angularFactor);
-	setMass(m_mass);
-	setFriction(m_friction);
-	setLinearDamping(m_linearDamping);
-	setAngularDamping(m_angularDamping);
+	// mass != 0 to force a dynamic object!
+	m_btbody = new btRigidBody(Mass, motionState, nullptr);
+	m_btbody->setSleepingThresholds(0.2f, 0.2f);
+
+	// Sets all properties without looking at the argument
+	propertyChanged(nullptr);
 	
 	m_btbody->setUserPointer(this);
 	
-	btDiscreteDynamicsWorld* world = level.getPhysicsContext().getWorld();
+	m_physics = &level.getPhysicsContext();
+	btDiscreteDynamicsWorld* world = m_physics->getWorld();
 	world->addRigidBody(m_btbody);
 }
 
@@ -70,8 +80,11 @@ void PlatformRigidbodyPhysicsBehavior::end()
 
 void Neo::PlatformRigidbodyPhysicsBehavior::update(Platform& p, float dt)
 {
+	if(!m_physics->isEnabled())
+		return;
+	
 	Object* parent = getParent();
-	if(m_kinematic)
+	if(Kinematic)
 	{
 		const Vector3 position = parent->getPosition();
 		const Quaternion rotation = parent->getRotation();
@@ -82,7 +95,7 @@ void Neo::PlatformRigidbodyPhysicsBehavior::update(Platform& p, float dt)
 		
 		return;
 	}
-	
+		
 	const btTransform transform = m_btbody->getWorldTransform();
 	const btVector3 position = transform.getOrigin();
 	const btQuaternion rotation = transform.getRotation();
@@ -94,7 +107,7 @@ void Neo::PlatformRigidbodyPhysicsBehavior::update(Platform& p, float dt)
 
 void PlatformRigidbodyPhysicsBehavior::setShape(COLLISION_SHAPE shape)
 {
-	m_shape = shape;
+	Shape = shape;
 	
 	if(!m_btbody)
 		return;
@@ -136,19 +149,25 @@ void PlatformRigidbodyPhysicsBehavior::setShape(COLLISION_SHAPE shape)
 
 void PlatformRigidbodyPhysicsBehavior::setMass(float mass)
 {
-	m_mass = mass;
+	Mass = mass;
 	
 	if(!m_btshape || !m_btbody)
 		return;
-	
+
 	btVector3 inertia;
 	m_btshape->calculateLocalInertia(mass, inertia);
 	m_btbody->setMassProps(mass, inertia);
+	
+	LOG_INFO(m_btbody->isActive());
+	m_btbody->activate(true);
+	
+	if(mass)
+		m_btbody->setCollisionFlags(m_btbody->getCollisionFlags() & ~btCollisionObject::CF_STATIC_OBJECT);
 }
 
 void PlatformRigidbodyPhysicsBehavior::setKinematic(bool value)
 {
-	m_kinematic = value;
+	Kinematic = value;
 	
 	if(m_btbody)
 	{
@@ -161,7 +180,7 @@ void PlatformRigidbodyPhysicsBehavior::setKinematic(bool value)
 
 void PlatformRigidbodyPhysicsBehavior::setLinearFactor(const Vector3& factor)
 {
-	m_linearFactor = factor;
+	LinearFactor = factor;
 	if(m_btbody)
 	{
 		m_btbody->setLinearFactor(convert(factor));
@@ -170,7 +189,7 @@ void PlatformRigidbodyPhysicsBehavior::setLinearFactor(const Vector3& factor)
 
 void PlatformRigidbodyPhysicsBehavior::setAngularFactor(const Vector3& factor)
 {
-	m_angularFactor = factor;
+	AngularFactor = factor;
 	if(m_btbody)
 	{
 		m_btbody->setAngularFactor(convert(factor));
@@ -179,7 +198,7 @@ void PlatformRigidbodyPhysicsBehavior::setAngularFactor(const Vector3& factor)
 
 void PlatformRigidbodyPhysicsBehavior::setFriction(float value)
 {
-	m_friction = value;
+	Friction = value;
 	if(m_btbody)
 	{
 		m_btbody->setFriction(value);
@@ -188,19 +207,19 @@ void PlatformRigidbodyPhysicsBehavior::setFriction(float value)
 
 void PlatformRigidbodyPhysicsBehavior::setLinearDamping(float value)
 {
-	m_linearDamping = value;
+	LinearDamping = value;
 	if(m_btbody)
 	{
-		m_btbody->setDamping(m_linearDamping, m_angularDamping);
+		m_btbody->setDamping(LinearDamping, AngularDamping);
 	}
 }
 
 void PlatformRigidbodyPhysicsBehavior::setAngularDamping(float value)
 {
-	m_angularDamping = value;
+	AngularDamping = value;
 	if(m_btbody)
 	{
-		m_btbody->setDamping(m_linearDamping, m_angularDamping);
+		m_btbody->setDamping(LinearDamping, AngularDamping);
 	}
 }
 

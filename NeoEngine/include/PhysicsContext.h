@@ -9,13 +9,18 @@ namespace Neo
 class PhysicsContext : public PlatformPhysicsContext
 {
 	float m_timeMultiplier = 1.0f;
+	bool m_enabled = true;
 public:
 	float getTimeMultiplier() const { return m_timeMultiplier; }
 	void setTimeMultiplier(float time) { m_timeMultiplier = time; }
 	
+	void setEnabled(bool v) { m_enabled = v; }
+	bool isEnabled() const { return m_enabled; }
+	
 	void update(float dt) override
 	{
-		PlatformPhysicsContext::update(dt * m_timeMultiplier);
+		if(m_enabled)
+			PlatformPhysicsContext::update(dt * m_timeMultiplier);
 	}
 };
 
