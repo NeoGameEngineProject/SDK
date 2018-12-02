@@ -8,6 +8,7 @@ using namespace Neo;
 
 Behavior* Object::addBehavior(BehaviorRef&& behavior)
 {
+	assert(behavior != nullptr && "Tried to register nullptr!");
 	assert(getBehavior(behavior->getName()) == nullptr && "A behavior with that name was already registered!");
 	
 	auto behaviorPtr = behavior.get();
