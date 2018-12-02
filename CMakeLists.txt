@@ -48,16 +48,16 @@ if(ENABLE_OPENGL_RENDERER)
 	add_definitions(-DNEO_OPENGL=1)
 endif()
 
-if(DISABLE_MULTITHREAD)
-	add_definitions(-DNEO_SINGLE_THREAD=1)
-endif()
-
 add_subdirectory(NeoCore)
 add_subdirectory(NeoEngine)
 add_subdirectory(NeoHTML)
 add_subdirectory(NeoStates)
 add_subdirectory(NeoVR)
 add_subdirectory(NeoScript)
+
+if(DISABLE_MULTITHREAD)
+	target_compile_definitions(NeoEngine PUBLIC -DNEO_SINGLE_THREAD=1)
+endif()
 
 # add_subdirectory(NeoAI)
 # add_subdirectory(Neo2D)
