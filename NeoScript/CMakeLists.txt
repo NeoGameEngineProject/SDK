@@ -7,6 +7,7 @@ ExternalProject_Add(luajit-build
 	INSTALL_COMMAND ""
 	BUILD_COMMAND ${MAKE_EXE}
 	BUILD_IN_SOURCE ON
+	GIT_REPOSITORY http://luajit.org/git/luajit-2.0.git
 )
 
 add_library(luajit STATIC IMPORTED)

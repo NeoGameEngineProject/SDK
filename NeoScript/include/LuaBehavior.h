@@ -19,6 +19,7 @@ class LuaBehavior : public Neo::Behavior
 	
 public:
 	LuaBehavior(const char* file);
+	LuaBehavior() = default;
 	~LuaBehavior() = default;
 	
 	const char* getName() const override;

@@ -4,6 +4,8 @@
 
 using namespace Neo;
 
+REGISTER_BEHAVIOR(LuaBehavior)
+
 LuaBehavior::LuaBehavior(const char* file)
 {
 	fileName = file;
@@ -21,7 +23,7 @@ LuaBehavior::LuaBehavior(const char* file)
 
 const char* LuaBehavior::getName() const
 {
-	return name.str();
+	return (name.getLength() ? name.str() : "LuaBehavior");
 }
 
 Neo::Behavior* LuaBehavior::getNew() const
