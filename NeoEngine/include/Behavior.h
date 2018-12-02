@@ -8,7 +8,6 @@
 namespace Neo
 {
 
-
 #if defined(_WIN32) && defined(MSVC)
 #if defined(_WIN64)
 #define FORCE_UNDEFINED_SYMBOL(x) __pragma(comment (linker, "/export:" #x))
@@ -93,6 +92,7 @@ class IProperty
 	std::string m_name;
 	size_t m_size = 0;
 	PROPERTY_TYPES m_type = UNKNOWN;
+	
 public:
 	IProperty(const char* name, PROPERTY_TYPES type = UNKNOWN, size_t size = 0):
 		m_name(name), m_size(size), m_type(type) {}
@@ -228,6 +228,17 @@ public:
 	 * This frees up all resources aquired in begin.
 	 */
 	virtual void end() {}
+	
+	/**
+	 * @brief Signifies a property changed its value.
+	 * 
+	 * This is called in the editor everytime a property changes its value
+	 * to allow interfacing with external library like Bullet or Lua to
+	 * actually update the value.
+	 * 
+	 * @param prop The property that was changed.
+	 */
+	virtual void propertyChanged(IProperty* prop) {}
 	
 	const Object* getParent() const { return m_parent; }
 	Object* getParent() { return m_parent; }
