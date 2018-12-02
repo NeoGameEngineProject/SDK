@@ -48,8 +48,6 @@ void ThreadPool::start(unsigned int numThreads)
 void ThreadPool::stop()
 {
 #ifndef NEO_SINGLE_THREAD
-	LOG_INFO("Shutting threads down.");
-	
 	running = false;
 	conditional.notify_all();
 	
