@@ -13,9 +13,15 @@ if(NOT SDL2_FOUND)
 	set(WASAPI OFF CACHE BOOL "" FORCE)
 	set(VIDEO_X11 ON CACHE BOOL "" FORCE)
 	set(VIDEO_WAYLAND ON CACHE BOOL "" FORCE)
+	set(SDL_SHARED OFF CACHE BOOL "" FORCE)
 
-	add_subdirectory(sdl2-external EXCLUDE_FROM_ALL)
+	add_subdirectory(sdl2-external)
 	set(SDL2_LIBRARY SDL2-static)
+	
+	if(NEO_BUILD_SHARED_LIBS)
+		set_target_properties(SDL2-static PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
+	endif()
+	
 	set(SDL2_INCLUDE_DIR
 		${CMAKE_CURRENT_BINARY_DIR}/sdl2-external/include
 		${CMAKE_CURRENT_SOURCE_DIR}/sdl2-external/include)
