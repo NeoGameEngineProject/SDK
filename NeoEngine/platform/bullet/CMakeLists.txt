@@ -10,7 +10,7 @@ set(BUILD_CPU_DEMOS OFF CACHE BOOL "" FORCE)
 set(USE_GLUT OFF CACHE BOOL "" FORCE)
 set(BUILD_UNIT_TESTS OFF CACHE BOOL "" FORCE)
 
-add_subdirectory(bullet3-external EXCLUDE_FROM_ALL)
+add_subdirectory(bullet3-external)
 
 add_platform_module(
 	SOURCES ${SOURCES} ${INCLUDES}

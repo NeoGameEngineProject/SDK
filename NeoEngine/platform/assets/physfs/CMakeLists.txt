@@ -21,9 +21,9 @@ if(OFF AND EMSCRIPTEN)
 	# add_definitions(-DPHYSFS_POSIX=1)
 endif()
 
-add_subdirectory(physfs-external EXCLUDE_FROM_ALL)
+add_subdirectory(physfs-external)
 
 add_platform_module(
 	SOURCES ${SOURCES} ${INCLUDES}
-	INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/../../include ${CMAKE_CURRENT_SOURCE_DIR}/physfs-external/src
+	INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/physfs-external/src
 	LIBRARIES physfs-static)

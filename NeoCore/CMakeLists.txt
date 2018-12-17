@@ -8,7 +8,11 @@ set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
 set(THREADS_PREFER_PTHREAD_FLAG TRUE)
 find_package(Threads REQUIRED)
 
-add_library(NeoCore ${SOURCES} ${HEADERS})
+if(NEO_BUILD_SHARED_LIBS)
+	add_library(NeoCore SHARED ${SOURCES} ${HEADERS})
+else()
+	add_library(NeoCore STATIC ${SOURCES} ${HEADERS})
+endif()
 
 if(NOT NO_TESTS)
   add_executable(NeoCoreTest tests/main.cpp tests/ThreadPoolTest.cpp tests/LogTest.cpp tests/FixedStringTest.cpp)
@@ -27,10 +31,18 @@ if(EMSCRIPTEN OR NEO_SINGLE_THREAD)
 endif()
 
 target_compile_definitions(NeoCore PRIVATE -DNEO_CORE_DLL)
-target_include_directories(NeoCore PUBLIC include)
+target_include_directories(NeoCore PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>  $<INSTALL_INTERFACE:include>)
 
 if(WIN32)
 	target_include_directories(NeoCore PRIVATE dirent)
 endif()
 
 target_link_libraries(NeoCore PUBLIC ${CMAKE_THREAD_LIBS_INIT})
+
+install(TARGETS NeoCore
+		EXPORT NeoCore
+		RUNTIME DESTINATION bin
+		LIBRARY DESTINATION lib)
+	
+install(EXPORT NeoCore DESTINATION ${NEO_CMAKE_EXPORT})
+install(DIRECTORY include/ DESTINATION include/)

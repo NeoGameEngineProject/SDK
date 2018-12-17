@@ -8,20 +8,26 @@ find_package(OpenGL REQUIRED)
 
 ## NanoVG
 file(GLOB NANOVG_SOURCES nanovg-external/src/*.c*)
+file(GLOB NANOVG_HEADERS nanovg-external/src/*.h*)
 
 add_definitions(-DFONS_USE_FREETYPE)
 add_library(nanovg ${NANOVG_SOURCES})
 
 target_include_directories(nanovg PUBLIC
-		nanovg-external/src/
-		${FREETYPE_INCLUDE_DIRS})
+	${FREETYPE_INCLUDE_DIRS}
+	nanovg-external/src/)
 
 target_link_libraries(nanovg PUBLIC ${FREETYPE_LIBRARIES})
-target_include_directories(nanovg PUBLIC ${FREETYPE_INCLUDE_DIRS})
+
+fix_install_includes(nanovg)
+install(FILES ${NANOVG_HEADERS} DESTINATION include)
 
 ## GLEW
 set(BUILD_UTILS CACHE "" OFF FORCE)
-add_subdirectory(glew-external/build/cmake EXCLUDE_FROM_ALL)
+add_subdirectory(glew-external/build/cmake)
+
+set(GLEW_LIBRARIES glew_s)
+fix_install_includes(glew_s)
 
 preprocess_files(SOURCES ${SHADERS}
 					INCLUDE_DIRECTORIES "")
@@ -33,9 +39,7 @@ add_platform_module(
 			${CMAKE_CURRENT_SOURCE_DIR}/../opengl-common/Common.cpp
 			${CMAKE_CURRENT_SOURCE_DIR}/../opengl-common/Common.h
 	INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/include 
-			${CMAKE_CURRENT_SOURCE_DIR}/../../include 
 			${INCLUDE_DIR} 
 			${CMAKE_CURRENT_SOURCE_DIR}/../opengl-common 
 			${CMAKE_CURRENT_SOURCE_DIR}/glew-external/include
-	LIBRARIES nanovg glew_s)
-	
+	LIBRARIES nanovg ${GLEW_LIBRARIES})

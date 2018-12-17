@@ -10,11 +10,11 @@ set(ASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT ON CACHE BOOL "" FORCE)
 set(ASSIMP_ENABLE_BOOST_WORKAROUND ON CACHE BOOL "" FORCE)
 
 add_definitions(-DASSIMP_BUILD_BOOST_WORKAROUND)
-add_subdirectory(assimp-external EXCLUDE_FROM_ALL)
+add_subdirectory(assimp-external)
 
 add_platform_module(
 	SOURCES ${SOURCES} ${INCLUDES}
-	INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/../../include 
+	INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/include
 		${CMAKE_CURRENT_SOURCE_DIR}/assimp-external/include
 		${CMAKE_CURRENT_BINARY_DIR}/assimp-external/include
 	LIBRARIES assimp)
