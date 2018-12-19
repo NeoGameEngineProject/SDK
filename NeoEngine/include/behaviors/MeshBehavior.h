@@ -19,6 +19,7 @@ public:
 	MeshBehavior(MeshBehavior& b):
 		m_submeshes(b.m_submeshes) {}
 	
+	bool isEditorVisible() const override { return false; }
 	const char* getName() const override { return "Mesh"; }
 	Behavior* getNew() const override { return new MeshBehavior; }
 

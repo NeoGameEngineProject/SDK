@@ -126,6 +126,8 @@ void PlatformRenderer::initialize(unsigned int w, unsigned int h, void* ndt, voi
 	LOG_INFO("Vendor:\t" << vendor);
 
 	auto shader = loadShader("assets/glsl/phong");
+	assert(shader != -1 && "Could not load shader!");
+	
 	glViewport(0, 0, w, h);
 
 	m_uModelView = glGetUniformLocation(shader, "ModelViewMatrix");

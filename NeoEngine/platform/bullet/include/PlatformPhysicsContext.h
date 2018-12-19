@@ -21,6 +21,7 @@ protected:
 	btDiscreteDynamicsWorld* getWorld() { return m_world; }
 	
 public:
+	virtual ~PlatformPhysicsContext() { end(); }
 	void begin();
 	virtual void update(float dt);
 	void end();

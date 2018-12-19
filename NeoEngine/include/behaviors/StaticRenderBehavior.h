@@ -10,6 +10,7 @@ namespace Neo
 class StaticRenderBehavior : public PlatformStaticRenderBehavior
 {
 public:
+	bool isEditorVisible() const override { return false; }
 	const char* getName() const override { return "StaticRender"; }
 	Behavior* getNew() const override;
 };

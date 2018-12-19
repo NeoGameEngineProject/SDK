@@ -10,6 +10,8 @@ using namespace Neo;
 void PlatformStaticRenderBehavior::begin(Neo::Platform& p, Neo::Renderer& render, Level&)
 {
 	PlatformRenderer* prender = reinterpret_cast<PlatformRenderer*>(&render);
+	assert(prender && "No renderer given!");
+	
 	m_mesh = getParent()->getBehavior<MeshBehavior>();
 
 	auto& subMeshes = m_mesh->getMeshes();

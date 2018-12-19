@@ -22,6 +22,7 @@ public:
 	LuaBehavior() = default;
 	~LuaBehavior() = default;
 	
+	bool isEditorVisible() const override { return false; }
 	const char* getName() const override;
 	Neo::Behavior* getNew() const override;
 	
