@@ -279,7 +279,7 @@ PACK(struct BinProperty
 namespace
 {
 
-bool saveObject(std::ofstream& out, ObjectHandle object)
+bool saveObject(std::ostream& out, ObjectHandle object)
 {
 	if(object.empty() || !object->isActive())
 		return true;
@@ -329,7 +329,7 @@ bool saveObject(std::ofstream& out, ObjectHandle object)
 }
 
 
-bool loadObject(Level& level, std::ifstream& in, ObjectHandle parent)
+bool loadObject(Level& level, std::istream& in, ObjectHandle parent)
 {
 	//auto object = level.addObject();
 	FixedString<128> name;
@@ -411,6 +411,24 @@ bool Level::saveBinary(const char* file)
 		return false;
 	}
 
+	return serialize(out);
+}
+
+bool Level::loadBinary(const char* file)
+{
+	std::ifstream in;
+	in.open(file, std::ios::binary);
+	if(!in)
+	{
+		LOG_ERROR("Could not open level file for reading: " << file);
+		return false;
+	}
+
+	return deserialize(in);
+}
+
+bool Level::serialize(std::ostream& out)
+{
 	// Write header
 	Header header;
 	header.version = LEVEL_VERSION;
@@ -428,17 +446,9 @@ bool Level::saveBinary(const char* file)
 	return saveObject(out, getRoot());
 }
 
-bool Level::loadBinary(const char* file)
+bool Level::deserialize(std::istream& in)
 {
-	std::ifstream in;
-	in.open(file, std::ios::binary);
-	if(!in)
-	{
-		LOG_ERROR("Could not open level file for reading: " << file);
-		return false;
-	}
-
-	// Write header
+	// Read header
 	Header header;
 	in.read((char*) &header, sizeof(header));
 
@@ -452,7 +462,6 @@ bool Level::loadBinary(const char* file)
 	{
 		LOG_WARNING("Level file was written by a newer version of the engine!");
 	}
-	
 	
 	// Read meshes
 	uint32_t numMeshes;

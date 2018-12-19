@@ -15,6 +15,8 @@
 #include <behaviors/LightBehavior.h>
 #include <behaviors/SoundBehavior.h>
 
+#include <iosfwd>
+
 #ifndef NEO_SINGLE_THREAD
 #include <ThreadPool.h>
 #endif
@@ -258,6 +260,9 @@ public:
 
 	bool saveBinary(const char* file);
 	bool loadBinary(const char* file);
+	
+	bool serialize(std::ostream& out);
+	bool deserialize(std::istream& in);
 };
 
 }
