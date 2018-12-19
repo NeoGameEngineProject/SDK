@@ -40,10 +40,10 @@ endif()
 target_link_libraries(NeoCore PUBLIC ${CMAKE_THREAD_LIBS_INIT})
 
 install(TARGETS NeoCore
-		EXPORT NeoCore
+		EXPORT FindNeoCore
 		RUNTIME DESTINATION bin
 		LIBRARY DESTINATION lib
 		ARCHIVE DESTINATION lib)
 	
-install(EXPORT NeoCore DESTINATION ${NEO_CMAKE_EXPORT})
+install(EXPORT FindNeoCore DESTINATION ${NEO_CMAKE_EXPORT})
 install(DIRECTORY include/ DESTINATION include/)

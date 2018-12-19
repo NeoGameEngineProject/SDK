@@ -29,3 +29,6 @@ else()
 		INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/openal-soft-external/include
 		LIBRARIES "")
 endif()
+
+install(DIRECTORY include/ DESTINATION include)
+

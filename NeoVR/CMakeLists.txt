@@ -15,10 +15,12 @@ target_include_directories(NeoVR PUBLIC
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/openvr-external/src>
 	$<INSTALL_INTERFACE:include>)
 
-install(TARGETS NeoVR openvr_api NeoCore
-		EXPORT NeoVR
+fix_install_includes(openvr_api)
+
+install(TARGETS NeoVR openvr_api
+		EXPORT FindNeoVR
 		RUNTIME DESTINATION bin
 		LIBRARY DESTINATION lib
 		ARCHIVE DESTINATION lib)
 	
-install(EXPORT NeoVR DESTINATION ${NEO_CMAKE_EXPORT})
+install(EXPORT FindNeoVR DESTINATION ${NEO_CMAKE_EXPORT})

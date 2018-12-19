@@ -27,3 +27,5 @@ add_platform_module(
 	SOURCES ${SOURCES} ${INCLUDES}
 	INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/physfs-external/src
 	LIBRARIES physfs-static)
+
+install(DIRECTORY include/ DESTINATION include)

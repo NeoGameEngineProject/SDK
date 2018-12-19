@@ -43,3 +43,6 @@ add_platform_module(
 			${CMAKE_CURRENT_SOURCE_DIR}/../opengl-common 
 			${CMAKE_CURRENT_SOURCE_DIR}/glew-external/include
 	LIBRARIES nanovg ${GLEW_LIBRARIES})
+
+install(FILES ../opengl-common/Common.h DESTINATION include)
+install(DIRECTORY include/ DESTINATION include)

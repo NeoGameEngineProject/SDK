@@ -11,8 +11,14 @@ ExternalProject_Add(luajit-build
 	GIT_REPOSITORY http://luajit.org/git/luajit-2.0.git
 )
 
-add_library(luajit STATIC IMPORTED)
-set_target_properties(luajit PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/luajit-external/src/libluajit.a)
+if(CMAKE_POSITION_INDEPENDENT_CODE)
+	add_library(luajit SHARED IMPORTED GLOBAL)
+	set_target_properties(luajit PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/luajit-external/src/libluajit.so)
+else()
+	add_library(luajit STATIC IMPORTED GLOBAL)
+	set_target_properties(luajit PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/luajit-external/src/libluajit.a)
+endif()
+
 add_dependencies(luajit luajit-build)
 
 add_library(NeoScript ${SOURCES} ${HEADERS})
@@ -44,7 +50,8 @@ target_include_directories(NeoLua PUBLIC
 	$<INSTALL_INTERFACE:include>)
 
 target_include_directories(NeoScript PRIVATE ${CMAKE_SWIG_OUTDIR})
-target_link_libraries(NeoScript PUBLIC NeoLua NeoCore NeoEngine luajit)
+target_link_libraries(NeoScript PUBLIC NeoLua NeoEngine luajit)
+target_link_directories(NeoScript PUBLIC $<INSTALL_INTERFACE:lib>)
 
 add_executable(NeoLuaPlayer NeoLua/main.cpp)
 target_link_libraries(NeoLuaPlayer PUBLIC NeoScript)
@@ -55,10 +62,11 @@ if(NOT NO_TESTS)
 	target_link_libraries(NeoScriptTest ${GTEST_LIBRARIES} NeoScript NeoCore)
 endif()
 
-install(TARGETS NeoLuaPlayer NeoLua NeoScript NeoCore
-		EXPORT NeoScript
+install(FILES $<TARGET_FILE:luajit> DESTINATION lib)
+install(TARGETS NeoLuaPlayer NeoLua NeoScript
+		EXPORT FindNeoScript
 		RUNTIME DESTINATION bin
 		LIBRARY DESTINATION lib
 		ARCHIVE DESTINATION lib)
 	
-install(EXPORT NeoScript DESTINATION ${NEO_CMAKE_EXPORT})
+install(EXPORT FindNeoScript DESTINATION ${NEO_CMAKE_EXPORT})

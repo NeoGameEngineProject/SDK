@@ -32,3 +32,4 @@ add_platform_module(
 	INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/../../include ${SDL2_INCLUDE_DIR}
 	LIBRARIES "${SDL2_LIBRARY}")
 	
+install(DIRECTORY include/ DESTINATION include)

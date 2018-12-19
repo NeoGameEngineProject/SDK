@@ -6,3 +6,4 @@ add_platform_module(
 	INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/../../include
 	LIBRARIES)
 	
+install(DIRECTORY include/ DESTINATION include)

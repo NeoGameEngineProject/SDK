@@ -8,4 +8,5 @@ add_platform_module(
 	INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/include libzip-external/lib
 	LIBRARIES zip)
 	
+install(DIRECTORY include/ DESTINATION include)
 

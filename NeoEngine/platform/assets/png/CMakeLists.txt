@@ -11,3 +11,5 @@ add_platform_module(
 		${CMAKE_CURRENT_SOURCE_DIR}/libpng-external/
 		${CMAKE_CURRENT_BINARY_DIR}/libpng-external/
 	LIBRARIES png_static)
+
+install(DIRECTORY include/ DESTINATION include)

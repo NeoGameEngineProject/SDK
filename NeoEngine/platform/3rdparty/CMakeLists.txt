@@ -10,7 +10,6 @@ set(ZLIB_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/zlib-external/ ${CMAKE_CURRENT_
 	set(FREETYPE_FOUND TRUE PARENT_SCOPE)
 	set(FREETYPE_LIBRARIES freetype PARENT_SCOPE)
 	set(FREETYPE_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/freetype2-external/include PARENT_SCOPE)
-	set(SKIP_INSTALL_ALL ON)
 
 	add_subdirectory(freetype2-external)
 #endif()

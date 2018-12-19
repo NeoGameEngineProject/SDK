@@ -14,6 +14,12 @@ add_subdirectory(bullet3-external)
 
 add_platform_module(
 	SOURCES ${SOURCES} ${INCLUDES}
-	INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/../../include ${CMAKE_CURRENT_SOURCE_DIR}/bullet3-external/src
+	INCLUDES 
+		${CMAKE_CURRENT_SOURCE_DIR}/include 
+		${CMAKE_CURRENT_SOURCE_DIR}/../../include 
+		${CMAKE_CURRENT_SOURCE_DIR}/bullet3-external/src
+		$<INSTALL_INTERFACE:include/bullet/>
+		
 	LIBRARIES BulletDynamics BulletCollision LinearMath Bullet3Common)
 	
+install(DIRECTORY include/ DESTINATION include)

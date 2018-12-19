@@ -43,12 +43,12 @@ get_link_libraries(DEPS NeoEngine)
 fix_install_includes(NeoEngine)
 
 install(TARGETS NeoEngine ${DEPS}
-		EXPORT NeoEngine
+		EXPORT FindNeoEngine
 		RUNTIME DESTINATION bin
 		LIBRARY DESTINATION lib
 		ARCHIVE DESTINATION lib)
 	
-install(EXPORT NeoEngine DESTINATION ${NEO_CMAKE_EXPORT})
+install(EXPORT FindNeoEngine DESTINATION ${NEO_CMAKE_EXPORT})
 install(DIRECTORY include/ DESTINATION include/)
 
 get_target_property(INCS NeoEngine INCLUDE_DIRECTORIES)

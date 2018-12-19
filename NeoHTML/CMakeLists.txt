@@ -36,9 +36,9 @@ fix_install_includes(gumbo)
 
 get_target_property(INCS litehtml INCLUDE_DIRECTORIES)
 install(TARGETS NeoHTML litehtml gumbo
-		EXPORT NeoHTML
+		EXPORT FindNeoHTML
 		RUNTIME DESTINATION bin
 		LIBRARY DESTINATION lib
 		ARCHIVE DESTINATION lib)
 	
-install(EXPORT NeoHTML DESTINATION ${NEO_CMAKE_EXPORT})
+install(EXPORT FindNeoHTML DESTINATION ${NEO_CMAKE_EXPORT})
