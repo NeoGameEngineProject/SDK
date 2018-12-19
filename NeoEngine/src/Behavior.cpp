@@ -29,17 +29,40 @@ std::unique_ptr<Behavior> Behavior::create(const char* name)
 	return std::unique_ptr<Behavior>(target->getNew());
 }
 
-void Behavior::registerBehavior(std::unique_ptr<Behavior>&& behavior)
+unsigned int Behavior::registerBehavior(std::unique_ptr<Behavior>&& behavior)
 {
-	LOG_INFO("Registering behavior:\t" << behavior->getName());
 	Behavior* target = findBehaviorInRegistry(behavior->getName());
 	if(target)
 	{
 		LOG_WARNING("Behavior " << behavior->getName() << " is already registered!");
-		return;
+		return -1;
 	}
 	
+	LOG_INFO("Registering behavior:\t" << behavior->getName());
 	s_registry.push_back(std::move(behavior));
+	return s_registry.size() - 1;
+}
+
+void Behavior::unregisterBehavior(const char* name)
+{
+	for(auto& b : s_registry)
+	{
+		if(!strcmp(b->getName(), name))
+		{
+			LOG_INFO("Unregistering behavior:\t" << name);
+			s_registry.erase(s_registry.begin());
+		}
+	}
+}
+
+void Behavior::unregisterBehavior(unsigned int index)
+{
+	// Invalid entry, e.g. the register failed
+	if(index == -1)
+		return;
+	
+	assert(index < s_registry.size());
+	s_registry.erase(s_registry.begin() + index);
 }
 
 const std::vector<std::unique_ptr<Behavior>>& Behavior::registeredBehaviors()

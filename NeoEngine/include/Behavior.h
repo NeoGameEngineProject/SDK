@@ -62,7 +62,8 @@ enum PROPERTY_TYPES
 	VECTOR4,
 	COLOR,
 	STRING,
-	PATH
+	PATH,
+	BOOL
 };
 
 template<typename T>
@@ -82,6 +83,8 @@ PROPERTY_TYPES typeOf()
 		return COLOR;
 	else if(std::is_same<T, std::string>::value)
 		return STRING;
+	else if(std::is_same<T, bool>::value)
+		return BOOL;
 	
 	return UNKNOWN;
 }
@@ -168,7 +171,10 @@ class NEO_ENGINE_EXPORT Behavior
 public:
 #ifndef SWIG
 	static std::unique_ptr<Behavior> create(const char* name);
-	static void registerBehavior(std::unique_ptr<Behavior>&& behavior);
+	
+	static void unregisterBehavior(const char* name);
+	static void unregisterBehavior(unsigned int index);
+	static unsigned int registerBehavior(std::unique_ptr<Behavior>&& behavior);
 	static const std::vector<std::unique_ptr<Behavior>>& registeredBehaviors();
 #endif
 	
@@ -198,6 +204,12 @@ public:
 	 * @return A static string.
 	 */
 	virtual const char* getName() const = 0;
+	
+	/**
+	 * @brief Returns whether the behavior should be selectable in the editor.
+	 * @return A boolean value.
+	 */
+	virtual bool isEditorVisible() const { return true; }
 	
 	/**
 	 * @brief Called when the level starts.
