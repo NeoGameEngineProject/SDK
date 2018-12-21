@@ -45,6 +45,9 @@ private:
 	bool m_active = true;
 	
 	ObjectHandle m_self;
+	
+	///< The path of the file this object is referring to e.g. when merging scenes
+	std::unique_ptr<FixedString<256>> m_linkedFile;
 
 public:
 	Object(ObjectHandle self = ObjectHandle()) : Object("UNNAMED", self) {}
@@ -152,6 +155,9 @@ public:
 	void setVisible(bool v) { m_visible = v; }
 	bool isVisible() const { return m_visible; }
 	
+	FixedString<256>* getLinkedFile() { return m_linkedFile.get(); }
+	void setLinkedFile(std::unique_ptr<FixedString<256>>&& str) { m_linkedFile = std::move(str); }
+	
 	/**
 	 * @brief Updates the transformation matrix based on position, rotation and scale.
 	 */
@@ -233,6 +239,8 @@ public:
 			m_active = obj.m_active;
 			m_visible = obj.m_visible;
 			m_self = obj.m_self;
+			
+			m_linkedFile = std::move(obj.m_linkedFile);
 		}
 		
 		return *this;

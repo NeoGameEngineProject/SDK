@@ -293,6 +293,17 @@ bool saveObject(std::ostream& out, ObjectHandle object)
 
 	out.write((char*) &obj, sizeof(BinObject));
 
+	// Write file link or an empty string to signify if it's a link or an actual object
+	if(object->getLinkedFile())
+	{
+		object->getLinkedFile()->serialize(out);
+		return true;
+	}
+	else
+	{
+		FixedString<1>().serialize(out);
+	}
+	
 	for(auto& behavior : object->getBehaviors())
 	{
 		FixedString<64> bname = behavior->getName();
@@ -336,13 +347,28 @@ bool loadObject(Level& level, std::istream& in, ObjectHandle parent)
 	name.deserialize(in);
 	
 	auto object = level.addObject(name.str());
-	BinObject obj;
 	
+	BinObject obj;
 	in.read((char*) &obj, sizeof(obj));
 	
 	object->getTransform() = obj.transform;
 	object->setActive(obj.active);
 	object->getBehaviors().reserve(obj.behaviorCount);
+	
+	// Check if it's a link!
+	{
+		FixedString<256> link;
+		link.deserialize(in);
+		
+		if(link.getLength())
+		{
+			object->updateFromMatrix();
+			object->setParent(parent);
+			parent->addChild(object);
+	
+			return level.loadBinary(link.str(), object);
+		}
+	}
 	
 	for(unsigned short i = 0; i < obj.behaviorCount; i++)
 	{
@@ -401,7 +427,7 @@ bool loadObject(Level& level, std::istream& in, ObjectHandle parent)
 }
 }
 
-bool Level::saveBinary(const char* file)
+bool Level::saveBinary(const char* file, ObjectHandle root)
 {
 	std::ofstream out;
 	out.open(file, std::ios::binary);
@@ -410,11 +436,14 @@ bool Level::saveBinary(const char* file)
 		LOG_ERROR("Could not open level file for writing: " << file);
 		return false;
 	}
+	
+	if(root != getRoot())
+		root->setLinkedFile(std::make_unique<FixedString<256>>(file));
 
-	return serialize(out);
+	return serialize(out, root);
 }
 
-bool Level::loadBinary(const char* file)
+bool Level::loadBinary(const char* file, ObjectHandle insertionPoint)
 {
 	std::ifstream in;
 	in.open(file, std::ios::binary);
@@ -424,10 +453,10 @@ bool Level::loadBinary(const char* file)
 		return false;
 	}
 
-	return deserialize(in);
+	return deserialize(in, insertionPoint);
 }
 
-bool Level::serialize(std::ostream& out)
+bool Level::serialize(std::ostream& out, ObjectHandle root)
 {
 	// Write header
 	Header header;
@@ -443,10 +472,10 @@ bool Level::serialize(std::ostream& out)
 	for(auto& mesh : m_meshes)
 		mesh.serialize(out);
 	
-	return saveObject(out, getRoot());
+	return saveObject(out, root);
 }
 
-bool Level::deserialize(std::istream& in)
+bool Level::deserialize(std::istream& in, ObjectHandle insertionPoint)
 {
 	// Read header
 	Header header;
@@ -471,6 +500,6 @@ bool Level::deserialize(std::istream& in)
 		mesh.deserialize(*this, in);
 	
 	m_objects.reserve(header.objectCount);
-	return loadObject(*this, in, getRoot());
+	return loadObject(*this, in, (insertionPoint.empty() ? getRoot() : insertionPoint));
 }
 

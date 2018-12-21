@@ -109,6 +109,9 @@ Object& Object::operator= (const Object& obj)
 		
 		m_active = obj.m_active;
 		m_visible = obj.m_visible;
+		
+		if(obj.m_linkedFile != nullptr)
+			m_linkedFile = std::make_unique<FixedString<256>>(*obj.m_linkedFile);
 	}
 	
 	return *this;

@@ -258,11 +258,13 @@ public:
 	 */
 	bool castRay(const Vector3& origin, const Vector3& direction, float distance = 1000.0f, Vector3* hitPoint = nullptr, ObjectHandle* hitObject = nullptr);
 
-	bool saveBinary(const char* file);
-	bool loadBinary(const char* file);
+	bool saveBinary(const char* file, ObjectHandle root);
+	bool saveBinary(const char* file) { return saveBinary(file, getRoot()); }
+	bool loadBinary(const char* file, ObjectHandle insertionPoint = ObjectHandle());
 	
-	bool serialize(std::ostream& out);
-	bool deserialize(std::istream& in);
+	bool serialize(std::ostream& out, ObjectHandle root);
+	bool serialize(std::ostream& out) { return serialize(out, getRoot()); }
+	bool deserialize(std::istream& in, ObjectHandle insertionPoint = ObjectHandle());
 };
 
 }
