@@ -130,10 +130,11 @@ void PlatformRenderer::initialize(unsigned int w, unsigned int h, void* ndt, voi
 	
 	glViewport(0, 0, w, h);
 
+	glUseProgram(shader);
 	m_uModelView = glGetUniformLocation(shader, "ModelViewMatrix");
 	m_uModelViewProj = glGetUniformLocation(shader, "ModelViewProjectionMatrix");
 	m_uNormal = glGetUniformLocation(shader, "NormalMatrix");
-
+	
 	m_uMaterialDiffuse = glGetUniformLocation(shader, "Diffuse");
 	m_uMaterialSpecular = glGetUniformLocation(shader, "Specular");
 	m_uMaterialShininess = glGetUniformLocation(shader, "Shininess");
@@ -144,7 +145,17 @@ void PlatformRenderer::initialize(unsigned int w, unsigned int h, void* ndt, voi
 	m_uNumTextures = glGetUniformLocation(shader, "NumTextures");
 
 	glUniform1i(m_uDiffuseTexture, 0);
+	
+	glUniform1i(glGetUniformLocation(shader, "DiffuseTexture"), Material::DIFFUSE);
+	glUniform1i(glGetUniformLocation(shader, "NormalTexture"), Material::NORMAL);
+	glUniform1i(glGetUniformLocation(shader, "SpecularTexture"), Material::SPECULAR);
+	glUniform1i(glGetUniformLocation(shader, "HeightTexture"), Material::HEIGHT);
 
+	m_uTextureFlags[0] = glGetUniformLocation(shader, "HasDiffuse");
+	m_uTextureFlags[1] = glGetUniformLocation(shader, "HasNormal");
+	m_uTextureFlags[2] = glGetUniformLocation(shader, "HasSpecular");
+	m_uTextureFlags[3] = glGetUniformLocation(shader, "HasHeight");
+	
 	m_uNumLights = glGetUniformLocation(shader, "NumLights");
 	glGenBuffers(1, &m_uboLights);
 	glBindBuffer(GL_UNIFORM_BUFFER, m_uboLights);
@@ -175,6 +186,7 @@ void PlatformRenderer::setTransform(const Matrix4x4& transform)
 void PlatformRenderer::setMaterial(MeshHandle mesh)
 {
 	auto& material = mesh->getMaterial();
+	
 	glUniform3fv(m_uMaterialDiffuse, 1, reinterpret_cast<const float*>(&material.diffuseColor));
 	glUniform3fv(m_uMaterialSpecular, 1, reinterpret_cast<const float*>(&material.specularColor));
 	glUniform3fv(m_uMaterialEmit, 1, reinterpret_cast<const float*>(&material.emitColor));
@@ -187,10 +199,20 @@ void PlatformRenderer::setMaterial(MeshHandle mesh)
 
 	glUniform1i(m_uNumTextures, numTextures);
 
-	for(unsigned short i = 0; i < numTextures; i++)
+	for(unsigned short i = 0; i < Material::TEXTURE_MAX; i++)
 	{
-		glActiveTexture(GL_TEXTURE0 + i);
-		glBindTexture(GL_TEXTURE_2D, material.textures[i]->getID());
+		if(material.textures[i] != nullptr)
+		{
+			glActiveTexture(GL_TEXTURE0 + i);
+			glBindTexture(GL_TEXTURE_2D, material.textures[i]->getID());
+			glUniform1i(m_uTextureFlags[i], 1);
+		}
+		else
+		{
+			glActiveTexture(GL_TEXTURE0 + i);
+			glBindTexture(GL_TEXTURE_2D, 0);
+			glUniform1i(m_uTextureFlags[i], 0);
+		}
 	}
 
 	glActiveTexture(GL_TEXTURE0);

@@ -58,7 +58,18 @@ struct Material
 	Vector3 specularColor = Vector3(1, 1, 1);
 	Vector3 emitColor;
 	Vector3 customColor;
-	Texture* textures[4] {nullptr, nullptr, nullptr, nullptr};
+	
+	enum TEXTURE_TYPE
+	{
+		DIFFUSE = 0,
+		NORMAL = 1,
+		SPECULAR = 2,
+		HEIGHT = 3,
+		
+		TEXTURE_MAX = 4
+	};
+	
+	Texture* textures[8] {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 	BLENDING_MODES blendMode = BLENDING_ALPHA;
 };
 
@@ -73,6 +84,11 @@ struct MeshVertex
 	Vector3 position, normal;
 };
 
+struct Tangent
+{
+	Vector3 tangent, bitangent;
+};
+
 class Level;
 class Mesh
 {
@@ -81,6 +97,7 @@ public:
 	Mesh(Mesh&& b):
 		m_indices(std::move(b.m_indices)),
 		m_meshVertices(std::move(b.m_meshVertices)),
+		m_meshTangents(std::move(b.m_meshTangents)),
 		m_textureChannels(std::move(b.m_textureChannels)),
 		m_material(b.m_material),
 		m_name(b.m_name){}
@@ -96,17 +113,21 @@ public:
 		m_meshVertices = b.m_meshVertices;
 		m_textureChannels = b.m_textureChannels;
 		m_material = b.m_material;
+		m_meshTangents = b.m_meshTangents;
 		m_name = b.m_name;
 		return *this;
 	}
 	
 	std::vector<MeshVertex>& getVertices() { return m_meshVertices; }
+	std::vector<Tangent>& getTangents() { return m_meshTangents; }
 	std::vector<unsigned int>& getIndices() { return m_indices; }
 	std::vector<Array<Vector2>>& getTextureChannels() { return m_textureChannels; }
 	
 	void set(size_t numVertices,
 		Vector3* vertices,
 		Vector3* normals,
+		Vector3* tangents,
+		Vector3* bitangents,
 		size_t numIndices,
 		unsigned int* indices);
 	
@@ -124,6 +145,8 @@ public:
 private:
 	std::vector<unsigned int> m_indices;
 	std::vector<MeshVertex> m_meshVertices;
+	std::vector<Tangent> m_meshTangents;
+	
 	std::vector<Array<Vector2>> m_textureChannels;
 	
 	Material m_material;

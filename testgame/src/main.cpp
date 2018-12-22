@@ -17,6 +17,7 @@
 
 #include <WinMain.hpp>
 #include <Log.h>
+#include <behaviors/MeshBehavior.h>
 
 class TestGame : public Neo::GameState
 {
@@ -55,9 +56,30 @@ public:
 				continue;
 			}
 			
-			obj->addBehavior<Neo::RigidbodyPhysicsBehavior>();
+			obj->addBehavior<Neo::RigidbodyPhysicsBehavior>()->setMass(i);
 		}
 	
+		{
+			auto torus = level.find("Torus");
+			auto mesh = torus->getBehavior<Neo::MeshBehavior>();
+			auto material = mesh->getMeshes()[0]->getMaterial();
+			
+			material.textures[Neo::Material::HEIGHT] = level.loadTexture("assets/textures/pattern_102/height.png");
+						
+			mesh->getMeshes()[0]->setMaterial(material);
+		}
+
+		{
+			auto torus = level.find("ParallaxPlane");
+			auto mesh = torus->getBehavior<Neo::MeshBehavior>();
+			auto material = mesh->getMeshes()[0]->getMaterial();
+			
+			material.textures[Neo::Material::HEIGHT] = level.loadTexture("assets/textures/pattern_102/height.png");
+						
+			mesh->getMeshes()[0]->setMaterial(material);
+		}
+
+		
 		level.setCurrentCamera(cameraBehavior);
 		level.begin(p, *w.getRenderer());
 	
@@ -167,10 +189,10 @@ public:
 
 extern "C" int main(int argc, char** argv)
 {
-	Neo::Game game(1024, 768, "Neo Test Game");
+	Neo::Game game(2*1024, 2*768, "Neo Test Game");
 
 	auto testGame = std::make_unique<TestGame>();
-	auto splash = new Neo::States::SplashScreen(std::move(testGame), 2, 1, { "assets/Splash1.png", "assets/Splash2.png" });
-	game.changeState(std::unique_ptr<Neo::States::SplashScreen>(splash));
+	//auto splash = new Neo::States::SplashScreen(std::move(testGame), 2, 1, { "assets/Splash1.png", "assets/Splash2.png" });
+	game.changeState(std::move(testGame)); // std::unique_ptr<Neo::States::SplashScreen>(splash));
 	return game.run(argc, argv);
 }

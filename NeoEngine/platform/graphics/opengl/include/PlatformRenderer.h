@@ -32,8 +32,10 @@ class PlatformRenderer : public Common
 
 	unsigned int m_uMaterialDiffuse, m_uMaterialSpecular, m_uMaterialShininess, m_uMaterialOpacity, m_uMaterialEmit;
 	unsigned int m_uDiffuseTexture, m_uNumTextures;
-
+	unsigned int m_uTextureFlags[8];
+	
 	unsigned int m_uNumLights, m_uboLights;
+	
 
 public:
 	void beginFrame(Level& level, CameraBehavior& cam) override;

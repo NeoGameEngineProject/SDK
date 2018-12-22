@@ -18,12 +18,14 @@ void PlatformStaticRenderBehavior::begin(Neo::Platform& p, Neo::Renderer& render
 	size_t bufferCount = subMeshes.size();
 
 	m_vertexBuffers.alloc(bufferCount);
+	m_tangentBuffers.alloc(bufferCount);
 	m_indexBuffers.alloc(bufferCount);
 	m_texcoordBuffers.alloc(bufferCount);
 	m_vaos.alloc(bufferCount);
 
 	glGenVertexArrays(bufferCount, m_vaos.data);
 	glGenBuffers(bufferCount, m_vertexBuffers.data);
+	glGenBuffers(bufferCount, m_tangentBuffers.data);
 	glGenBuffers(bufferCount, m_indexBuffers.data);
 
 	for(size_t i = 0; i < subMeshes.size(); i++)
@@ -32,18 +34,40 @@ void PlatformStaticRenderBehavior::begin(Neo::Platform& p, Neo::Renderer& render
 		auto& submesh = subMeshes[i];
 
 		glBindVertexArray(m_vaos[i]);
-		glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffers[i]);
-		glBufferData(GL_ARRAY_BUFFER,
-					submesh->getVertices().size()*sizeof(MeshVertex),
-					submesh->getVertices().data(),
-					GL_STATIC_DRAW);
+		
+		{
+			glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffers[i]);
+			glBufferData(GL_ARRAY_BUFFER,
+						submesh->getVertices().size()*sizeof(MeshVertex),
+						submesh->getVertices().data(),
+						GL_STATIC_DRAW);
 
-		glEnableVertexAttribArray(currentAttrib);
-		glVertexAttribPointer(currentAttrib++, 3, GL_FLOAT, GL_FALSE, sizeof(MeshVertex), nullptr); // position
+			glEnableVertexAttribArray(currentAttrib);
+			glVertexAttribPointer(currentAttrib++, 3, GL_FLOAT, GL_FALSE, sizeof(MeshVertex), nullptr); // position
 
-		glEnableVertexAttribArray(currentAttrib);
-		glVertexAttribPointer(currentAttrib++, 3, GL_FLOAT, GL_FALSE, sizeof(MeshVertex), reinterpret_cast<void*>(3*sizeof(float))); // normal
+			glEnableVertexAttribArray(currentAttrib);
+			glVertexAttribPointer(currentAttrib++, 3, GL_FLOAT, GL_FALSE, sizeof(MeshVertex), reinterpret_cast<void*>(3*sizeof(float))); // normal
+		}
 
+		if(!submesh->getTangents().empty())
+		{
+			glBindBuffer(GL_ARRAY_BUFFER, m_tangentBuffers[i]);
+			glBufferData(GL_ARRAY_BUFFER,
+						submesh->getTangents().size()*sizeof(Tangent),
+						submesh->getTangents().data(),
+						GL_STATIC_DRAW);
+
+			glEnableVertexAttribArray(currentAttrib);
+			glVertexAttribPointer(currentAttrib++, 3, GL_FLOAT, GL_FALSE, sizeof(Tangent), nullptr); // tangent
+
+			glEnableVertexAttribArray(currentAttrib);
+			glVertexAttribPointer(currentAttrib++, 3, GL_FLOAT, GL_FALSE, sizeof(Tangent), reinterpret_cast<void*>(3*sizeof(float))); // bitangent
+		}
+		else
+		{
+			currentAttrib += 2;
+		}
+		
 		glBindBuffer(GL_ARRAY_BUFFER, m_indexBuffers[i]);
 		glBufferData(GL_ARRAY_BUFFER,
 					 submesh->getIndices().size()*sizeof(unsigned int),
@@ -66,15 +90,17 @@ void PlatformStaticRenderBehavior::begin(Neo::Platform& p, Neo::Renderer& render
 
 			glEnableVertexAttribArray(currentAttrib);
 			glVertexAttribPointer(currentAttrib++, 2, GL_FLOAT, GL_FALSE, 0, nullptr); // texcoord
-
-			auto& material = submesh->getMaterial();
-			auto texture = material.textures[j];
-			assert(texture);
-
-			if(texture->getID() == -1)
+		}
+		
+		auto& material = submesh->getMaterial();
+		
+		for(unsigned int i = 0; i < Material::TEXTURE_MAX; i++)
+		{
+			auto texture = material.textures[i];
+			if(texture && texture->getID() == -1)
 				texture->setID(prender->createTexture(texture));
 		}
-
+		
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 
@@ -90,8 +116,8 @@ void PlatformStaticRenderBehavior::draw(Neo::Renderer& render)
 {
 	PlatformRenderer* prender = reinterpret_cast<PlatformRenderer*>(&render);
 
-	prender->updateLights(m_mesh);
 	prender->useShader(0);
+	prender->updateLights(m_mesh);
 	prender->setTransform(getParent()->getTransform());
 
 	for(size_t i = 0; i < m_vaos.count; i++)

@@ -10,8 +10,10 @@ using namespace Neo;
 
 void Mesh::set(size_t numVertices, 
 			Vector3* vertices,
-			Vector3* normals, 
-			size_t numIndices, 
+			Vector3* normals,
+			Vector3* tangents,
+			Vector3* bitangents,
+			size_t numIndices,
 			unsigned int* indices)
 {
 	assert(!numVertices || numVertices && vertices);
@@ -19,10 +21,20 @@ void Mesh::set(size_t numVertices,
 	
 	if(numVertices)
 	{
+		if(tangents && bitangents)
+		{
+			m_meshTangents.resize(numVertices);
+		}
+		
 		m_meshVertices.resize(numVertices);
 		for(size_t i = 0; i < numVertices; i++)
 		{
 			m_meshVertices.data()[i] = { vertices[i], normals[i] };
+			
+			if(tangents)
+			{
+				m_meshTangents.data()[i] = { tangents[i], bitangents[i] };
+			}
 		}
 	}
 	
@@ -65,6 +77,10 @@ void Mesh::serialize(std::ostream& out)
 	out.write((char*) &value, sizeof(value));
 	out.write((char*) getVertices().data(), sizeof(MeshVertex) * value);
 
+	value = getTangents().size();
+	out.write((char*) &value, sizeof(value));
+	out.write((char*) getTangents().data(), sizeof(Tangent) * value);
+	
 	value = getTextureChannels().size();
 	out.write((char*) &value, sizeof(value));
 
@@ -109,6 +125,10 @@ void Mesh::deserialize(Level& level, std::istream& in)
 	in.read((char*) &value, sizeof(value));
 	getVertices().resize(value);
 	in.read((char*) getVertices().data(), sizeof(MeshVertex) * value);
+	
+	in.read((char*) &value, sizeof(value));
+	getTangents().resize(value);
+	in.read((char*) getTangents().data(), sizeof(MeshVertex) * value);
 
 	in.read((char*) &value, sizeof(value));
 	getTextureChannels().resize(value);

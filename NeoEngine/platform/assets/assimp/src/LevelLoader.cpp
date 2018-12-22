@@ -18,6 +18,8 @@
 #include <behaviors/StaticRenderBehavior.h>
 #include <Object.h>
 
+#include <Log.h>
+
 using namespace Neo;
 
 
@@ -172,7 +174,7 @@ bool LevelLoader::load(Level& level, const char* file, const char* rootNode)
 	
 	// Import scene from the given file!
 	const aiScene* scene = aiImportFileEx(file, 0, &iostruct);
-	if(!scene || !aiApplyPostProcessing(scene, aiProcess_Triangulate | aiProcess_FindInstances | aiProcess_ImproveCacheLocality | aiProcess_SplitLargeMeshes))
+	if(!scene || !aiApplyPostProcessing(scene, aiProcess_Triangulate | aiProcess_FindInstances | aiProcess_ImproveCacheLocality | aiProcess_SplitLargeMeshes | aiProcess_CalcTangentSpace))
 	{
 		std::cerr << "Could not load level: " << aiGetErrorString() << std::endl;
 		return false;
@@ -245,6 +247,63 @@ bool LevelLoader::load(Level& level, const char* file, const char* rootNode)
 
 			if(AI_SUCCESS == aiMat->GetTexture(aiTextureType_DIFFUSE, 0, &path, &mapping, &uvindex, &blend, &op, (aiTextureMapMode*) &mapmode))
 			{
+				LOG_DEBUG("Loading DIFFUSE texture: " << uvindex << " " << path.C_Str());
+				Texture* texture = level.loadTexture((basepath + path.C_Str()).c_str());
+				if(mapmode == aiTextureMapMode_Clamp)
+				{
+					//texture->setUWrapMode(WRAP_CLAMP);
+					//texture->setVWrapMode(WRAP_CLAMP);
+				}
+				
+				assert(uvindex < 8 && material.textures[Material::DIFFUSE] == nullptr);
+				material.textures[Material::DIFFUSE] = texture;
+				//material.addTexturePass(texture, TEX_COMBINE_MODULATE, uvindex);
+			}
+		
+			if(AI_SUCCESS == aiMat->GetTexture(aiTextureType_SPECULAR, 0, &path, &mapping, &uvindex, &blend, &op, (aiTextureMapMode*) &mapmode))
+			{
+				LOG_DEBUG("Loading SPECULAR texture: " << uvindex << " " << path.C_Str());
+				Texture* texture = level.loadTexture((basepath + path.C_Str()).c_str());
+				if(mapmode == aiTextureMapMode_Clamp)
+				{
+					//texture->setUWrapMode(WRAP_CLAMP);
+					//texture->setVWrapMode(WRAP_CLAMP);
+				}
+				
+				assert(uvindex < 8 && material.textures[Material::SPECULAR] == nullptr);
+				material.textures[Material::SPECULAR] = texture;
+			}
+		
+			if(AI_SUCCESS == aiMat->GetTexture(aiTextureType_NORMALS, 0, &path, &mapping, &uvindex, &blend, &op, (aiTextureMapMode*) &mapmode))
+			{
+				LOG_DEBUG("Loading NORMAL texture: " << uvindex << " " << path.C_Str());
+				Texture* texture = level.loadTexture((basepath + path.C_Str()).c_str());
+				if(mapmode == aiTextureMapMode_Clamp)
+				{
+					//texture->setUWrapMode(WRAP_CLAMP);
+					//texture->setVWrapMode(WRAP_CLAMP);
+				}
+				
+				assert(uvindex < 8 && material.textures[Material::NORMAL] == nullptr);
+				material.textures[Material::NORMAL] = texture;
+			}
+			
+			if(AI_SUCCESS == aiMat->GetTexture(aiTextureType_HEIGHT, 0, &path, &mapping, &uvindex, &blend, &op, (aiTextureMapMode*) &mapmode))
+			{
+				LOG_DEBUG("Loading HEIGHT texture: " << uvindex << " " << path.C_Str());
+				Texture* texture = level.loadTexture((basepath + path.C_Str()).c_str());
+				if(mapmode == aiTextureMapMode_Clamp)
+				{
+					//texture->setUWrapMode(WRAP_CLAMP);
+					//texture->setVWrapMode(WRAP_CLAMP);
+				}
+				
+				assert(uvindex < 8 && material.textures[Material::HEIGHT] == nullptr);
+				material.textures[Material::HEIGHT] = texture;
+			}
+		
+		/*	if(AI_SUCCESS == aiMat->GetTexture(aiTextureType_EMISSIVE, 0, &path, &mapping, &uvindex, &blend, &op, (aiTextureMapMode*) &mapmode))
+			{
 				Texture* texture = level.loadTexture((basepath + path.C_Str()).c_str());
 				if(mapmode == aiTextureMapMode_Clamp)
 				{
@@ -254,55 +313,6 @@ bool LevelLoader::load(Level& level, const char* file, const char* rootNode)
 				
 				assert(uvindex < 4 && material.textures[uvindex] == nullptr);
 				material.textures[uvindex] = texture;
-				//material.addTexturePass(texture, TEX_COMBINE_MODULATE, uvindex);
-			}
-		
-			/*if(AI_SUCCESS == aiMat->GetTexture(aiTextureType_SPECULAR, 0, &path, &mapping, &uvindex, &blend, &op, (aiTextureMapMode*) &mapmode))
-			{
-				getGlobalFilename(globalPath, meshRep, path.C_Str());
-				TextureRef * texRef = level->loadTexture(globalPath, true);
-				Texture * texture = mesh->addNewTexture(texRef);
-				if(mapmode == aiTextureMapMode_Clamp){
-					texture->setUWrapMode(WRAP_CLAMP);
-					texture->setVWrapMode(WRAP_CLAMP);
-				}
-				
-				while(material.getTexturesPassNumber() < 1)
-					material.addTexturePass(NULL, TEX_COMBINE_MODULATE, 0);
-				
-				material.addTexturePass(texture, TEX_COMBINE_MODULATE, uvindex);
-			}
-		
-			if(AI_SUCCESS == aiMat->GetTexture(aiTextureType_NORMALS, 0, &path, &mapping, &uvindex, &blend, &op, (aiTextureMapMode*) &mapmode))
-			{
-				getGlobalFilename(globalPath, meshRep, path.C_Str());
-				TextureRef * texRef = level->loadTexture(globalPath, true);
-				Texture * texture = mesh->addNewTexture(texRef);
-				if(mapmode == aiTextureMapMode_Clamp){
-					texture->setUWrapMode(WRAP_CLAMP);
-					texture->setVWrapMode(WRAP_CLAMP);
-				}
-				
-				while(material.getTexturesPassNumber() < 2)
-					material.addTexturePass(NULL, TEX_COMBINE_MODULATE, 0);
-					
-				material.addTexturePass(texture, TEX_COMBINE_MODULATE, uvindex);
-			}
-		
-			if(AI_SUCCESS == aiMat->GetTexture(aiTextureType_EMISSIVE, 0, &path, &mapping, &uvindex, &blend, &op, (aiTextureMapMode*) &mapmode))
-			{
-				getGlobalFilename(globalPath, meshRep, path.C_Str());
-				TextureRef * texRef = level->loadTexture(globalPath, true);
-				Texture * texture = mesh->addNewTexture(texRef);
-				if(mapmode == aiTextureMapMode_Clamp){
-					texture->setUWrapMode(WRAP_CLAMP);
-					texture->setVWrapMode(WRAP_CLAMP);
-				}
-				
-				while(material.getTexturesPassNumber() < 3)
-					material.addTexturePass(NULL, TEX_COMBINE_MODULATE, 0);
-				
-				material.addTexturePass(texture, TEX_COMBINE_MODULATE, uvindex);
 			}*/
 		}
 		
@@ -315,7 +325,9 @@ bool LevelLoader::load(Level& level, const char* file, const char* rootNode)
 		const aiMesh* mesh = scene->mMeshes[i];
 		subMesh.set(mesh->mNumVertices, 
 			    (Vector3*) mesh->mVertices, 
-			    (Vector3*) mesh->mNormals,  
+			    (Vector3*) mesh->mNormals,
+			    (Vector3*) mesh->mTangents,
+			    (Vector3*) mesh->mBitangents,
 			    0, nullptr);
 		
 		auto& textureChannels = subMesh.getTextureChannels();
