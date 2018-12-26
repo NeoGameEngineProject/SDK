@@ -29,8 +29,7 @@ add_subdirectory(glew-external/build/cmake)
 set(GLEW_LIBRARIES glew_s)
 fix_install_includes(glew_s)
 
-preprocess_files(SOURCES ${SHADERS}
-					INCLUDE_DIRECTORIES "")
+preprocess_files(SOURCES ${SHADERS} INCLUDE_DIRECTORIES "")
 
 add_custom_target(build-shaders SOURCES ${PROCESSED_SHADERS} COMMENT "Building shaders")
 

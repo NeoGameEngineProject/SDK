@@ -35,6 +35,8 @@ void PlatformRenderer::beginFrame(Neo::CameraBehavior& camera)
 
 void PlatformRenderer::beginFrame(Level& level, CameraBehavior& cam)
 {
+	glBindFramebuffer(GL_FRAMEBUFFER, m_pfxFBO);
+	
 	m_currentCamera = &cam;
 	beginFrame(cam);
 	level.updateVisibility(cam, m_visibleLights);
@@ -90,14 +92,48 @@ void PlatformRenderer::updateLights(MeshBehavior* mesh)
 
 void PlatformRenderer::clear(float r, float g, float b, bool depth)
 {
+	glBindFramebuffer(GL_FRAMEBUFFER, m_pfxFBO);
+
 	glClearColor(r, g, b, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | (depth ? GL_DEPTH_BUFFER_BIT : 0));
+	
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+unsigned long long PlatformRenderer::getTime()
+{
+	using namespace std::chrono;
+	milliseconds ms = duration_cast<milliseconds>(
+		system_clock::now().time_since_epoch()
+	);
+	
+	return ms.count();
 }
 
 void PlatformRenderer::endFrame()
 {
-	m_currentCamera = nullptr;
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	
+	useShader(1);
+	
+	glUniform2f(m_pfxUFrustum, m_currentCamera->getNear(), m_currentCamera->getFar());
+	glUniform1i(m_pfxTime, getTime() - m_startTime);
+	
+	glDisable(GL_DEPTH_TEST);
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, m_pfxTexture);
+	glGenerateMipmap(GL_TEXTURE_2D);
+	
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, m_pfxDepthTexture);
+	
+	glBindVertexArray(m_pfxVAO);
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, 6);
+	glBindVertexArray(0);
+	
+	m_currentCamera = nullptr;
 }
 
 void PlatformRenderer::initialize(unsigned int w, unsigned int h, void* ndt, void* nwh, void* ctx)
@@ -105,6 +141,8 @@ void PlatformRenderer::initialize(unsigned int w, unsigned int h, void* ndt, voi
 	m_width = w;
 	m_height = h;
 
+	m_startTime = getTime();
+	
 	glewExperimental = true;
 	auto err = glewInit();
 	if(err == GLEW_ERROR_NO_GLX_DISPLAY)
@@ -169,6 +207,95 @@ void PlatformRenderer::initialize(unsigned int w, unsigned int h, void* ndt, voi
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 	m_visibleLights.alloc(m_maxVisibleLights);
+	
+	// Create FBO for post fx
+	{
+		auto pfxShader = loadShader("assets/glsl/pfx");
+		glUseProgram(pfxShader);
+		glUniform1i(glGetUniformLocation(pfxShader, "Color"), 0);
+		glUniform1i(glGetUniformLocation(pfxShader, "Depth"), 1);
+		glUniform2f(glGetUniformLocation(pfxShader, "FrameSize"), 1.0f/w, 1.0f/h);
+		
+		m_pfxUFrustum = glGetUniformLocation(pfxShader, "Frustum");
+		m_pfxTime = glGetUniformLocation(pfxShader, "Time");
+
+		glGenFramebuffers(1, &m_pfxFBO);
+		glBindFramebuffer(GL_FRAMEBUFFER, m_pfxFBO);
+
+		/*glGenRenderbuffers(1, &m_pfxDepthTexture);
+		glBindRenderbuffer(GL_RENDERBUFFER, m_pfxDepthTexture);
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, w, h);
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_pfxDepthTexture);*/
+		
+		glGenTextures(1, &m_pfxDepthTexture);
+		glBindTexture(GL_TEXTURE_2D, m_pfxDepthTexture);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, w, h, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, nullptr);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_pfxDepthTexture, 0);
+
+		glGenTextures(1, &m_pfxTexture);
+		glBindTexture(GL_TEXTURE_2D, m_pfxTexture);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		
+		//gluBuild2DMipmaps(GL_TEXTURE_2D, 3, w, h, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
+				
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_pfxTexture, 0);
+		
+		GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+		if (status != GL_FRAMEBUFFER_COMPLETE)
+		{
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+			LOG_ERROR("Could not create post effects framebuffer!");
+			m_pfxFBO = 0;
+			exit(1); // FIXME: Maybe just fall back on non-fx rendering?
+		}
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		
+		glGenVertexArrays(1, &m_pfxVAO);
+		glBindVertexArray(m_pfxVAO);
+		
+		glGenBuffers(1, &m_pfxVBO);
+		
+		Vector2 quad[12] = {
+			
+			// Vertices
+			Vector2(-1, -1),
+			Vector2(1, -1),
+			Vector2(1, 1),
+
+			Vector2(-1, -1),
+			Vector2(-1, 1),
+			Vector2(1, 1),
+			
+			// Tecoords
+			Vector2(0, 0),
+			Vector2(1, 0),
+			Vector2(1, 1),
+			Vector2(0, 0),
+			Vector2(0, 1),
+			Vector2(1, 1),
+		};
+
+		glBindBuffer(GL_ARRAY_BUFFER, m_pfxVBO);
+		glBufferData(GL_ARRAY_BUFFER,
+					12*sizeof(Vector2),
+					quad,
+					GL_STATIC_DRAW);
+
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, nullptr); // position
+
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<void*>(sizeof(Vector2)*6)); // texcoord
+
+		glBindVertexArray(0);
+	}
 }
 
 void PlatformRenderer::setTransform(const Matrix4x4& transform)

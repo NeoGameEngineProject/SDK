@@ -36,8 +36,12 @@ class PlatformRenderer : public Common
 	
 	unsigned int m_uNumLights, m_uboLights;
 	
+	unsigned int m_pfxFBO = -1, m_pfxTexture = -1, m_pfxDepthTexture = -1, m_pfxVAO = -1, m_pfxVBO = -1, m_pfxUFrustum = -1, m_pfxTime = -1;
+	
+	unsigned long long m_startTime = 0;
 
 public:
+	unsigned long long getTime();
 	void beginFrame(Level& level, CameraBehavior& cam) override;
 	void beginFrame(Neo::CameraBehavior & camera) override;
 	void clear(float r, float g, float b, bool depth) override;
