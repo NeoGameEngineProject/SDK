@@ -8,6 +8,7 @@
 #include <Array.h>
 #include <Handle.h>
 #include <FixedString.h>
+#include <Box3D.h>
 
 #include <iosfwd>
 
@@ -73,12 +74,6 @@ struct Material
 	BLENDING_MODES blendMode = BLENDING_ALPHA;
 };
 
-struct AABB
-{
-	Vector3 min, max;
-	float diameter;
-};
-
 struct MeshVertex
 {
 	Vector3 position, normal;
@@ -134,7 +129,7 @@ public:
 	const Material& getMaterial() const { return m_material; }
 	void setMaterial(Material& material) { m_material = material; }
 	
-	AABB calculateBoundingBox();
+	Box3D calculateBoundingBox();
 	
 	void serialize(std::ostream& out);
 	void deserialize(Level& level, std::istream& in);

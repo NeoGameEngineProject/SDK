@@ -58,13 +58,16 @@ void PlatformRigidbodyPhysicsBehavior::begin(Level& level)
 	btVector3 position = convert(parentPosition);
     	btDefaultMotionState* motionState = new btDefaultMotionState(btTransform(rotation, position));
 	
-	// mass != 0 to force a dynamic object!
 	m_btbody = new btRigidBody(Mass, motionState, nullptr);
 	m_btbody->setSleepingThresholds(0.2f, 0.2f);
-
+	
 	// Sets all properties without looking at the argument
 	propertyChanged(nullptr);
 	
+	btVector3 inertia;
+	m_btshape->calculateLocalInertia(Mass, inertia);
+	m_btbody->setMassProps(Mass, inertia);
+
 	m_btbody->setUserPointer(this);
 	
 	m_physics = &level.getPhysicsContext();
@@ -127,8 +130,8 @@ void PlatformRigidbodyPhysicsBehavior::setShape(COLLISION_SHAPE shape)
 		case SPHERE_SHAPE:
 		{
 			mesh->updateBoundingBox();
-			const AABB aabb = mesh->getBoundingBox();
-			m_btshape = new btSphereShape(aabb.diameter*0.5f); 
+			const Box3D aabb = mesh->getBoundingBox();
+			m_btshape = new btSphereShape(aabb.getDiameter()*0.5f); 
 		}
 		break;
 			
@@ -136,7 +139,7 @@ void PlatformRigidbodyPhysicsBehavior::setShape(COLLISION_SHAPE shape)
 		case BOX_SHAPE:
 		{
 			mesh->updateBoundingBox();
-			const AABB aabb = mesh->getBoundingBox();
+			const Box3D aabb = mesh->getBoundingBox();
 			const Vector3 halfExtends = (aabb.max - aabb.min) * 0.5f;
 					
 			m_btshape = new btBoxShape(convert(halfExtends));
@@ -157,9 +160,6 @@ void PlatformRigidbodyPhysicsBehavior::setMass(float mass)
 	btVector3 inertia;
 	m_btshape->calculateLocalInertia(mass, inertia);
 	m_btbody->setMassProps(mass, inertia);
-	
-	LOG_INFO(m_btbody->isActive());
-	m_btbody->activate(true);
 	
 	if(mass)
 		m_btbody->setCollisionFlags(m_btbody->getCollisionFlags() & ~btCollisionObject::CF_STATIC_OBJECT);

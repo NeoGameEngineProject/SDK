@@ -111,6 +111,13 @@ Vector3 CameraBehavior::getUnProjectedPoint(const Vector3 & point) const
 	return Vector3(v.x, v.y, v.z)*iw;
 }
 
+Frustum CameraBehavior::getFrustum() const
+{
+	Frustum f;
+	f.makeVolume(*this);
+	return f;
+}
+
 void CameraBehavior::serialize(std::ostream& out)
 {
 }

@@ -4,6 +4,8 @@
 #include <Behavior.h>
 #include <Matrix4x4.h>
 
+#include <Frustum.h>
+
 namespace Neo
 {
 
@@ -17,6 +19,8 @@ class CameraBehavior : public Behavior
 	// Used to prevent enable from changing anything -> Used in VR
 	bool m_lockPerspective = false;
 public:
+	void copyTo(Behavior& b) const override {}
+	
 	const char* getName() const override { return "Camera"; }
 	Behavior* getNew() const override { return new CameraBehavior; }
 
@@ -75,8 +79,13 @@ public:
 	void setFar(float value) { far = value; }
 	float getFar() const { return far; }
 	
+	float getX() const { return m_screenX; }
+	float getY() const { return m_screenY; }
+	
 	unsigned int getHeight() const { return m_height; }
 	unsigned int getWidth() const { return m_width; }
+	
+	Frustum getFrustum() const;
 	
 	void serialize(std::ostream& out) override;
 	void deserialize(Level&, std::istream& out) override;

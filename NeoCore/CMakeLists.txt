@@ -15,7 +15,7 @@ else()
 endif()
 
 if(NOT NO_TESTS)
-  add_executable(NeoCoreTest tests/main.cpp tests/ThreadPoolTest.cpp tests/LogTest.cpp tests/FixedStringTest.cpp)
+  add_executable(NeoCoreTest tests/main.cpp tests/ThreadPoolTest.cpp tests/LogTest.cpp tests/FixedStringTest.cpp tests/OctreeTest.cpp)
 
   ## Travis does not like TARGET_include_directories
   include_directories(${GTEST_INCLUDE_DIR})

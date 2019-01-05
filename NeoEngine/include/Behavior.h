@@ -197,6 +197,7 @@ public:
 	virtual std::unique_ptr<Behavior> clone() const;
 #endif
 	
+	virtual void copyTo(Behavior& destination) const = 0;
 	virtual Behavior* getNew() const = 0;
 	
 	/**
@@ -251,6 +252,8 @@ public:
 	 * @param prop The property that was changed.
 	 */
 	virtual void propertyChanged(IProperty* prop) {}
+	
+	Behavior& operator=(const Behavior& b);
 	
 	const Object* getParent() const { return m_parent; }
 	Object* getParent() { return m_parent; }

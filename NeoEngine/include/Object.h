@@ -9,6 +9,7 @@
 #include <Quaternion.h>
 #include <Matrix4x4.h>
 #include <FixedString.h>
+#include <Box3D.h>
 
 #include <vector>
 #include <unordered_map>
@@ -24,6 +25,7 @@ class NEO_ENGINE_EXPORT Object
 private:
 	Vector3 m_position, m_scale = Vector3(1.0f, 1.0f, 1.0f);
 	Quaternion m_rotation;
+	Box3D m_aabb;
 	
 	Matrix4x4 m_transform;
 	FixedString<64> m_name;
@@ -50,6 +52,7 @@ private:
 	std::unique_ptr<FixedString<256>> m_linkedFile;
 
 public:
+	~Object() = default;
 	Object(ObjectHandle self = ObjectHandle()) : Object("UNNAMED", self) {}
 	Object(const char* name, ObjectHandle self = ObjectHandle()): m_self(self) { setName(name); }
 	Object(Object&& obj)
@@ -57,7 +60,16 @@ public:
 		*this = std::move(obj);
 	}
 	
+	Object(const Object& obj)
+	{
+		*this = obj;
+	}
+	
 	ObjectHandle getSelf() { return m_self; }
+	void setSelf(const ObjectHandle& self) { m_self = self; }
+	
+	Box3D getBoundingBox() const { return m_aabb; }
+	void setBoundingBox(const Box3D& aabb) { m_aabb = aabb; } 
 	
 	/**
 	 * @brief Registers a new behavior.
@@ -99,6 +111,7 @@ public:
 	std::vector<BehaviorRef>& getBehaviors() { return m_behaviors; }
 	const std::vector<BehaviorRef>& getBehaviors() const { return m_behaviors; }
 
+	const Matrix4x4& getTransform() const { return m_transform; }
 	Matrix4x4& getTransform() { return m_transform; }
 	Vector3 getPosition() const { return m_position; }
 	void setPosition(const Vector3& position) { m_position = position; m_needsUpdate = true; }
@@ -136,6 +149,11 @@ public:
 		m_scale.z *= localScale.z;
 		
 		m_needsUpdate = true;
+	}
+	
+	bool isDirty() const
+	{
+		return m_needsUpdate;
 	}
 	
 	const IString& getName() const { return m_name; }
@@ -267,9 +285,6 @@ public:
 		
 		for(auto& k : m_behaviors)
 			k->update(p, dt);
-		
-		// Update matrix after updating the object
-		updateMatrix();
 	}
 	
 	void draw(Renderer& r) 

@@ -10,6 +10,7 @@ namespace Neo
 class LightBehavior : public Neo::Behavior
 {
 public:
+	void copyTo(Behavior& b) const override {}
 	const char* getName() const override{ return "Light"; }
 	Behavior* getNew() const override { return new LightBehavior; }
 	

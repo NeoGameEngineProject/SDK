@@ -49,10 +49,12 @@ std::string Level::getUniqueName(const std::string& name)
 
 ObjectHandle Level::addObject(const char* name)
 {
-	m_objects.push_back(Object(name, ObjectHandle(&m_objects, m_objects.size())));
+	auto self = ObjectHandle(&m_objects, m_objects.size());
+	m_objects.push_back(std::move(Object(name)));
 	m_objects.back().setActive(true);
+	m_objects.back().setSelf(self);
 	
-	return m_objects.back().getSelf();
+	return self;
 }
 
 ObjectHandle Level::find(const char* name)
@@ -69,8 +71,65 @@ ObjectHandle Level::findInactive(size_t idx)
 	for(size_t i = idx; i < m_objects.size(); i++)
 		if(!m_objects[i].isActive())
 			return m_objects[i].getSelf();
-		
+	
 	return ObjectHandle();
+}
+
+void Level::begin(Platform& p, Renderer& r) 
+{
+	m_physics.begin();
+	for(size_t i = 0; i < m_objects.size(); i++)
+	{
+		m_objects[i].setSelf(ObjectHandle(&m_objects, i));
+		m_objects[i].begin(p, r, *this);
+	}
+	
+	rebuildOctree();
+
+}
+
+void Level::update(Platform& p, float dt)
+{
+	// First: Update physics
+	m_physics.update(dt);
+
+	// Second: Update objects and behaviors!
+#ifdef NEO_SINGLE_THREAD
+	for(size_t i = 0; i < m_objects.size(); i++)
+	{
+		auto& o = m_objects[i];
+		if(!o.isActive())
+			return;
+		
+		o.update(p, dt);
+
+		if(o.isDirty())
+		{
+			const auto aabb = o.getBoundingBox();
+			const Vector3 oldPos = o.getTransform().getTranslatedVector3(Vector3());
+			m_octree.update(oldPos, o.getPosition(), (aabb.max - aabb.min)*0.5f, o.getSelf());
+			o.updateMatrix();
+		}
+	}
+#else
+	ThreadPool::foreach(m_objects.begin(), m_objects.end(), [&p, dt, this](Object& o){
+		
+		if(!o.isActive())
+			return;
+		
+		o.update(p, dt);
+
+		if(o.isDirty())
+		{
+			const auto aabb = o.getBoundingBox();
+			const Vector3 oldPos = o.getTransform().getTranslatedVector3(Vector3());
+			m_octree.update(oldPos, o.getPosition(), (aabb.max - aabb.min)*0.5f, o.getSelf());
+			o.updateMatrix();
+		}
+	});
+	
+	ThreadPool::synchronize();
+#endif
 }
 
 void Level::draw(Renderer& r) 
@@ -82,10 +141,44 @@ void Level::draw(Renderer& r)
 void Level::draw(Renderer& r, CameraBehavior& camera)
 {
 	r.beginFrame(*this, camera);
-	for(auto& o : m_objects)
-	{
-		o.draw(r);
-	}
+	
+	const auto frustum = camera.getFrustum();
+	const auto sphere = frustum.getSphere();
+	
+	Vector3 origin(sphere.x, sphere.y, sphere.z);
+
+	// Traverse over octree: Only shows relevant objects
+	m_octree.traverse(origin, sphere.w*1.5f, [&r, &frustum](LevelOctree::Position* point) {
+		
+		// Check for frustum, second try to cull it
+		auto& object = std::get<2>(*point);
+		const auto aabb = object->getBoundingBox();
+		
+		if(!object->isActive())
+			return;
+		
+		if(aabb.getDiameter() != 0)
+		{
+			Vector3 min = object->getPosition() + aabb.min;
+			Vector3 max = object->getPosition() + aabb.max;
+			
+			Vector3 points[8] = {
+				Vector3(min.x, min.y, min.z),
+				Vector3(min.x, max.y, min.z),
+				Vector3(max.x, max.y, min.z),
+				Vector3(max.x, min.y, min.z),
+				Vector3(min.x, min.y, max.z),
+				Vector3(min.x, max.y, max.z),
+				Vector3(max.x, max.y, max.z),
+				Vector3(max.x, min.y, max.z)
+			};
+			
+			if(frustum.isVolumePointsVisible(points, 8))
+				object->draw(r);
+		}
+		else object->draw(r);
+	});
+	
 	r.endFrame();
 }
 
@@ -126,6 +219,32 @@ bool Level::load(const char* path, const char* parentNode)
 void Level::updateVisibility(const CameraBehavior& camera)
 {
 	
+}
+
+void Level::rebuildOctree()
+{
+	m_octree.clear();
+	for(size_t i = 0; i < m_objects.size(); i++)
+	{
+		auto& obj = m_objects[i];
+		auto* mesh = obj.getBehavior<MeshBehavior>();
+		if(!mesh)
+		{
+			m_octree.insert(obj.getPosition(), Vector3(1, 1, 1), ObjectHandle(&m_objects, i));
+		}
+		else
+		{
+			mesh->updateBoundingBox();
+			auto aabb = mesh->getBoundingBox();
+			
+			aabb.min = obj.getScale() * obj.getTransform().getRotatedVector3(aabb.min);
+			aabb.max = obj.getScale() * obj.getTransform().getRotatedVector3(aabb.max);
+			aabb.makeAxisAligned();
+			
+			obj.setBoundingBox(aabb);
+			m_octree.insert(obj.getPosition(), (aabb.max - aabb.min)*0.5f, ObjectHandle(&m_objects, i));
+		}
+	}
 }
 
 // TODO Culling for lights and objects!

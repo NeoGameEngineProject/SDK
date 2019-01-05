@@ -355,7 +355,7 @@ void PlatformRenderer::gatherLights(Array<LightBehavior*>& lights, MeshBehavior*
 	for(size_t i = 0; i < lights.count && lights[i] != nullptr && count < max; i++)
 	{
 		auto parent = lights[i]->getParent();
-		float distance = (mesh->getParent()->getPosition() - parent->getPosition()).getLength() - mesh->getBoundingBox().diameter / 2.0f;
+		float distance = (mesh->getParent()->getPosition() - parent->getPosition()).getLength() - mesh->getBoundingBox().getDiameter() / 2.0f;
 		float radius = sqrt(1.0f / (lights[i]->attenuation * 0.15f)); // 0.15 = Minimum brightness
 		
 		if(distance <= radius)

@@ -45,7 +45,8 @@ void main()
 	float linearDepth = linearizeDepth(depth, Frustum.x, Frustum.y);
 	float invDepth = 1.0f - linearDepth;
 	
-	gl_FragColor.rgb = removeGamma(fxaa(Color, texcoord, FrameSize));
+	gl_FragColor.rgb = fxaa(Color, texcoord, 2*FrameSize);
+	// gl_FragColor.rgb = removeGamma(fxaa(Color, texcoord, FrameSize));
 	
 	if(depth < 1.0f)
 	{
@@ -53,7 +54,7 @@ void main()
 	}
 	
 	//float hdrTone = clamp(0.6f/calculateLuminosity(texture2D(Color, texcoord, 12).rgb), 0.0f, 3.0f);
-	gl_FragColor = toneMap(gl_FragColor, 2.5f);
-	gl_FragColor.rgb = applyGamma(gl_FragColor.rgb);
+	// gl_FragColor = toneMap(gl_FragColor, 2.5f);
+	// gl_FragColor.rgb = applyGamma(gl_FragColor.rgb);
 	gl_FragColor.rgb = bloom(gl_FragColor.rgb, 0.0095, 5.0f, 3);
 }

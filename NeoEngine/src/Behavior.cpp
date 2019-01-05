@@ -77,3 +77,9 @@ std::unique_ptr<Behavior> Behavior::clone() const
 	
 	return std::unique_ptr<Behavior>(newBehavior);
 }
+
+Behavior& Behavior::operator=(const Behavior& b)
+{
+	b.copyTo(*this);
+	return *this;
+}

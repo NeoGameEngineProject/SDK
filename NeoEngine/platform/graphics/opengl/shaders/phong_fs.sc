@@ -40,6 +40,13 @@ layout (std140) uniform Lights
 #include "cook_torrance.sc"
 #include "gamma.sh"
 
+float rand(vec2 co, float rnd_scale)
+{
+	vec2 v1 = vec2(92.,80.);
+	vec2 v2 = vec2(41.,62.);
+	return fract(sin(dot(co.xy ,v1)) + cos(dot(co.xy ,v2)) * rnd_scale);
+}
+
 void main()
 {
 	vec3 Normal = normal;
@@ -92,5 +99,6 @@ void main()
 										lights.directionAngle[i]);
 	}
 
-	gl_FragColor.rgb = applyGamma(accumulator);
+	// Add random part to prevent color banding
+	gl_FragColor.rgb = applyGamma(accumulator) + 0.025f*rand(position.xz*1000.0f, 1000.0f);
 }

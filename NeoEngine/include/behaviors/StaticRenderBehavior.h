@@ -11,6 +11,8 @@ class StaticRenderBehavior : public PlatformStaticRenderBehavior
 {
 public:
 	bool isEditorVisible() const override { return false; }
+	
+	void copyTo(Behavior& b) const override {}
 	const char* getName() const override { return "StaticRender"; }
 	Behavior* getNew() const override;
 };

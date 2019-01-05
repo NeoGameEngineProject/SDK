@@ -14,6 +14,8 @@ public:
 	SoundBehavior(const SoundHandle& sh): PlatformSoundBehavior(sh) {}
 	
 	bool isEditorVisible() const override { return false; }
+	
+	void copyTo(Behavior& b) const override {}
 	const char* getName() const override { return "Sound"; }
 	Behavior* getNew() const override { return new SoundBehavior; }
 };

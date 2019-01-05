@@ -29,8 +29,6 @@ void MeshBehavior::updateBoundingBox()
 						MAX(box.max.y, m_boundingBox.max.y),
 						MAX(box.max.z, m_boundingBox.max.z));
 	}
-	
-	m_boundingBox.diameter = (m_boundingBox.max - m_boundingBox.min).getLength();
 }
 
 MeshBehavior& MeshBehavior::operator= (const MeshBehavior& b)
@@ -41,6 +39,12 @@ MeshBehavior& MeshBehavior::operator= (const MeshBehavior& b)
 	}
 	
 	return *this;
+}
+
+void MeshBehavior::copyTo(Behavior& b) const
+{
+	assert(b.getName() == getName());
+	reinterpret_cast<MeshBehavior*>(&b)->m_submeshes = m_submeshes;
 }
 
 void MeshBehavior::serialize(std::ostream& out)

@@ -8,6 +8,8 @@
 #include <Texture.h>
 #include <Sound.h>
 #include <Mesh.h>
+#include <Octree.h>
+#include <Box3D.h>
 
 #include <PhysicsContext.h>
 
@@ -33,6 +35,10 @@ namespace Neo
  */
 class NEO_ENGINE_EXPORT Level
 {
+	static const unsigned int OCTREE_NODE_SIZE = 64;
+	
+	typedef Octree<ObjectHandle, OCTREE_NODE_SIZE> LevelOctree;
+	LevelOctree m_octree;
 	std::vector<Object> m_objects;
 	Array<char> m_scratchpad;
 	
@@ -49,7 +55,8 @@ public:
 	 * @param maxObjects The maximum number of objects this Level will hold.
 	 * @param scratchpad The maximum size of the scratchpad memory in bytes.
 	 */
-	Level(size_t maxObjects = 4096, size_t scratchpad = 4096)
+	Level(size_t maxObjects = 4096, size_t scratchpad = 4096):
+		m_octree(Vector3(0, 0, 0), Vector3(4096.0f))
 	{
 		m_scratchpad.alloc(scratchpad);
 		m_objects.reserve(maxObjects+1);
@@ -57,9 +64,12 @@ public:
 	}
 	
 	Level(Level&& level):
+		m_octree(Vector3(0, 0, 0), Vector3(4096.0f)),
 		m_objects(std::move(level.m_objects)), 
 		m_scratchpad(std::move(level.m_scratchpad))
-		{ }
+	{ 
+		rebuildOctree();
+	}
 	
 	CameraBehavior* getCurrentCamera() { return m_currentCamera; }
 	void setCurrentCamera(CameraBehavior* cam) { m_currentCamera = cam; }
@@ -122,7 +132,8 @@ public:
 	 * @return The handle to the new object.
 	 */
 	ObjectHandle instantiate(const char* name, const Object& object);
-	
+	ObjectHandle instantiate(const char* name, ObjectHandle& object) { return instantiate(name, *object); }
+
 	/**
 	 * @brief Finds an object by name.
 	 * @param name The name.
@@ -188,12 +199,7 @@ public:
 	 * @param p The platform context.
 	 * @param r The rendering context.
 	 */
-	void begin(Platform& p, Renderer& r) 
-	{
-		m_physics.begin();
-		for(size_t i = 0; i < m_objects.size(); i++)
-			m_objects[i].begin(p, r, *this);
-	}
+	void begin(Platform& p, Renderer& r);
 	
 	/**
 	 * @brief End level.
@@ -216,23 +222,7 @@ public:
 	 * @param p The platform context.
 	 * @param dt The delta time since the last frame.
 	 */
-	void update(Platform& p, float dt)
-	{
-		// First: Update physics
-		m_physics.update(dt);
-
-		// Second: Update objects and behaviors!
-#ifdef NEO_SINGLE_THREAD
-		for(size_t i = 0; i < m_objects.size(); i++)
-			m_objects[i].update(p, dt);
-#else
-		ThreadPool::foreach(m_objects.begin(), m_objects.end(), [&p, dt](Object& o){
-			o.update(p, dt);
-		});
-		
-		ThreadPool::synchronize();
-#endif
-	}
+	void update(Platform& p, float dt);
 	
 	/**
 	 * @brief Draw level.
@@ -258,6 +248,8 @@ public:
 	 */
 	bool castRay(const Vector3& origin, const Vector3& direction, float distance = 1000.0f, Vector3* hitPoint = nullptr, ObjectHandle* hitObject = nullptr);
 
+	void rebuildOctree();
+	
 	bool saveBinary(const char* file, ObjectHandle root);
 	bool saveBinary(const char* file) { return saveBinary(file, getRoot()); }
 	bool loadBinary(const char* file, ObjectHandle insertionPoint = ObjectHandle());

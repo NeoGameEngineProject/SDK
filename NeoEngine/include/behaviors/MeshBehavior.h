@@ -10,7 +10,7 @@ class Level;
 class MeshBehavior : public Neo::Behavior
 {
 	std::vector<MeshHandle> m_submeshes;
-	AABB m_boundingBox;
+	Box3D m_boundingBox;
 	
 public:
 	MeshBehavior() {}
@@ -20,6 +20,8 @@ public:
 		m_submeshes(b.m_submeshes) {}
 	
 	bool isEditorVisible() const override { return false; }
+	
+	void copyTo(Behavior& b) const override;
 	const char* getName() const override { return "Mesh"; }
 	Behavior* getNew() const override { return new MeshBehavior; }
 
@@ -38,7 +40,7 @@ public:
 	MeshBehavior& operator= (const MeshBehavior& b);
 	
 	void updateBoundingBox();
-	AABB getBoundingBox() const { return m_boundingBox; }
+	Box3D getBoundingBox() const { return m_boundingBox; }
 
 	void serialize(std::ostream& out) override;
 	void deserialize(Level& level, std::istream& out) override;

@@ -45,9 +45,9 @@ void Mesh::set(size_t numVertices,
 	}
 }
 
-AABB Mesh::calculateBoundingBox()
+Box3D Mesh::calculateBoundingBox()
 {
-	AABB box;
+	Box3D box;
 	for(size_t i = 0; i < m_meshVertices.size(); i++)
 	{
 		const auto& vertex = m_meshVertices[i];
@@ -60,7 +60,6 @@ AABB Mesh::calculateBoundingBox()
 				  MAX(vertex.position.z, box.max.z));
 	}
 	
-	box.diameter = (box.max - box.min).getLength();
 	return box;
 }
 

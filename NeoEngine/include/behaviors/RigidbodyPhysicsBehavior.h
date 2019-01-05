@@ -10,6 +10,8 @@ namespace Neo
 class RigidbodyPhysicsBehavior : public Neo::PlatformRigidbodyPhysicsBehavior
 {
 public:
+	
+	void copyTo(Behavior& b) const override {}
 	const char* getName() const override;
 	Behavior* getNew() const override;
 };

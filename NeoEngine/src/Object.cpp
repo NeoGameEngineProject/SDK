@@ -86,16 +86,19 @@ ObjectHandle Object::find(const char* name)
 	
 	return ObjectHandle();
 }
-
+#include <Log.h>
 Object& Object::operator= (const Object& obj)
 {
 	if(this != &obj)
 	{
 		for(auto& behavior : obj.m_behaviors)
 		{
-			m_behaviors.push_back(std::move(behavior->clone()));
+			auto newBehavior = behavior->clone();
+			newBehavior->setParent(this);
+			
+			m_behaviors.push_back(std::move(newBehavior));
 		}
-
+	
 		for(auto& behavior : obj.m_behaviorMap)
 		{
 			m_behaviorMap[behavior.first] = behavior.second;
@@ -105,7 +108,8 @@ Object& Object::operator= (const Object& obj)
 		m_rotation = obj.m_rotation;
 		m_scale = obj.m_scale;
 		
-		m_name = obj.m_name;
+		// FIXME Copy name or not?
+		// m_name = obj.m_name;
 		
 		m_active = obj.m_active;
 		m_visible = obj.m_visible;
@@ -113,6 +117,5 @@ Object& Object::operator= (const Object& obj)
 		if(obj.m_linkedFile != nullptr)
 			m_linkedFile = std::make_unique<FixedString<256>>(*obj.m_linkedFile);
 	}
-	
 	return *this;
 }
