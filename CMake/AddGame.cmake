@@ -9,6 +9,10 @@ macro(add_game name sources assetdir)
 	add_executable(${name} WIN32 ${sources})
 	target_link_libraries(${name} PUBLIC NeoEngine NeoCore NeoHTML NeoVR NeoStates)
 	
+	if(ENABLE_SANITIZERS)
+		target_compile_options(${name} PUBLIC -fsanitize=${SANITIZER} -fsanitize=undefined -fno-omit-frame-pointer)
+	endif()
+	
 	if(NOT EMSCRIPTEN)
 		add_custom_target(build-package-${name} 
 			COMMAND ${CMAKE_COMMAND} -E tar "cf" "${CMAKE_CURRENT_BINARY_DIR}/data.neo" --format=zip ${assetdir}
