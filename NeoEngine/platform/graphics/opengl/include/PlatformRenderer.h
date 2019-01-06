@@ -40,6 +40,8 @@ class PlatformRenderer : public Common
 	
 	unsigned long long m_startTime = 0;
 
+	std::vector<Object*> m_opaqueObjects;
+	
 public:
 	CameraBehavior* getCurrentCamera() { return m_currentCamera; }
 	unsigned long long getTime();
@@ -56,6 +58,8 @@ public:
 
 	void setTransform(const Matrix4x4& transform);
 	void setMaterial(MeshHandle mesh);
+	
+	void draw(Object* object);
 };
 
 }

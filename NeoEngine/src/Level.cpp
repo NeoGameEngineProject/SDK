@@ -174,9 +174,9 @@ void Level::draw(Renderer& r, CameraBehavior& camera)
 			};
 			
 			if(frustum.isVolumePointsVisible(points, 8))
-				object->draw(r);
+				r.draw(object.get()); // object->draw(r);
 		}
-		else object->draw(r);
+		else r.draw(object.get()); //object->draw(r);
 	});
 	
 	r.endFrame();

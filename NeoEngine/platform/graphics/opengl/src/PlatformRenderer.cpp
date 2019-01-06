@@ -112,6 +112,19 @@ unsigned long long PlatformRenderer::getTime()
 
 void PlatformRenderer::endFrame()
 {
+	// Sort lists
+	std::sort(m_opaqueObjects.begin(), m_opaqueObjects.end(), [this](Object* o1, Object* o2) {
+		const auto camPos = getCurrentCamera()->getParent()->getPosition();
+		return (o1->getPosition() - camPos).getLength() >= (o2->getPosition() - camPos).getLength();
+	});
+	
+	// Draw sorted lists
+	for(auto* o : m_opaqueObjects)
+		o->draw(*this);
+	
+	m_opaqueObjects.clear();
+	
+	// Finish frame 
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	
@@ -141,8 +154,9 @@ void PlatformRenderer::initialize(unsigned int w, unsigned int h, void* ndt, voi
 {
 	m_width = w;
 	m_height = h;
-
+	
 	m_startTime = getTime();
+	m_opaqueObjects.reserve(128);
 	
 	glewExperimental = true;
 	auto err = glewInit();
@@ -155,7 +169,7 @@ void PlatformRenderer::initialize(unsigned int w, unsigned int h, void* ndt, voi
 		LOG_ERROR("Could not initialize GLEW: " << glewGetErrorString(err));
 		return;
 	}
-
+	
 	auto version = glGetString(GL_VERSION);
 	auto vendor = glGetString(GL_VENDOR);
 	auto renderer = glGetString(GL_RENDERER);
@@ -317,12 +331,10 @@ void PlatformRenderer::setMaterial(MeshHandle mesh)
 	
 	if(material.opacity < 1.0f)
 	{
-		glDepthMask(false);
 		glEnable(GL_BLEND);
 	}
 	else
 	{
-		glDepthMask(true);
 		glDisable(GL_BLEND);
 	}
 	
@@ -355,6 +367,11 @@ void PlatformRenderer::setMaterial(MeshHandle mesh)
 	}
 
 	glActiveTexture(GL_TEXTURE0);
+}
+
+void PlatformRenderer::draw(Object* object)
+{
+	m_opaqueObjects.push_back(object);
 }
 
 void PlatformRenderer::swapBuffers()
