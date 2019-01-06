@@ -156,6 +156,8 @@ public:
 		return m_needsUpdate;
 	}
 	
+	void setDirty(bool b) { m_needsUpdate = b; }
+	
 	const IString& getName() const { return m_name; }
 	void setName(const char* name);
 	

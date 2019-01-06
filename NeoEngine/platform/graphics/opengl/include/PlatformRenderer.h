@@ -41,6 +41,7 @@ class PlatformRenderer : public Common
 	unsigned long long m_startTime = 0;
 
 public:
+	CameraBehavior* getCurrentCamera() { return m_currentCamera; }
 	unsigned long long getTime();
 	void beginFrame(Level& level, CameraBehavior& cam) override;
 	void beginFrame(Neo::CameraBehavior & camera) override;

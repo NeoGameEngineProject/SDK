@@ -121,7 +121,8 @@ void PlatformRenderer::endFrame()
 	glUniform1i(m_pfxTime, getTime() - m_startTime);
 	
 	glDisable(GL_DEPTH_TEST);
-
+	glDisable(GL_BLEND);
+	
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, m_pfxTexture);
 	glGenerateMipmap(GL_TEXTURE_2D);
@@ -313,6 +314,17 @@ void PlatformRenderer::setTransform(const Matrix4x4& transform)
 void PlatformRenderer::setMaterial(MeshHandle mesh)
 {
 	auto& material = mesh->getMaterial();
+	
+	if(material.opacity < 1.0f)
+	{
+		glDepthMask(false);
+		glEnable(GL_BLEND);
+	}
+	else
+	{
+		glDepthMask(true);
+		glDisable(GL_BLEND);
+	}
 	
 	glUniform3fv(m_uMaterialDiffuse, 1, reinterpret_cast<const float*>(&material.diffuseColor));
 	glUniform3fv(m_uMaterialSpecular, 1, reinterpret_cast<const float*>(&material.specularColor));

@@ -39,6 +39,8 @@ void Game::begin()
 	m_window = m_platform.createWindow(m_initialWidth, m_initialHeight, m_title.c_str());
 	m_running = true;
 	
+	srand(time(0));
+	
 #if !defined(NEO_SINGLE_THREAD) && !defined(__EMSCRIPTEN__)
 	if(!ThreadPool::threadCount())
 		ThreadPool::start();
