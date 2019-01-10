@@ -171,6 +171,9 @@ done:
 
 int Common::createTexture(Texture* tex)
 {
+	if(tex->getID() != -1)
+		return tex->getID();
+	
 	auto format = GL_RGBA;
 	if(tex->getComponents() == 3)
 		format = GL_RGB;
@@ -195,6 +198,8 @@ int Common::createTexture(Texture* tex)
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	m_textures.push_back(texture);
+	tex->setID(texture);
+	
 	return texture;
 }
 

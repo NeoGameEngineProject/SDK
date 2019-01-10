@@ -8,9 +8,12 @@ namespace Neo
 {
 
 class Texture;
+
+/// TODO Refactor into rendering and simulation part!
 class PlatformParticleSystemBehavior : public Neo::Behavior
 {
-	unsigned int ParticleCount = 512;
+protected:
+	unsigned int ParticleCount = 64;
 	Vector3 Gravity = Vector3(0.0f, 0.0f, -9.81f);
 	
 	float LifeTime = 2.0f;
@@ -82,6 +85,8 @@ public:
 	
 	void updateParticles(float dt);
 	void updateParticleBuffers();
+	
+	virtual void stepSimulation(float dt);
 };
 
 }

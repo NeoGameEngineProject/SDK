@@ -25,7 +25,10 @@ void PlatformPhysicsContext::update(float dt)
 	for(unsigned int i = 0; i < m_world->getNumCollisionObjects(); i++)
 	{
 		auto* obj = m_world->getCollisionObjectArray()[i];
-		reinterpret_cast<PlatformRigidbodyPhysicsBehavior*>(obj->getUserPointer())->getContacts().clear();
+		auto* behavior = reinterpret_cast<PlatformRigidbodyPhysicsBehavior*>(obj->getUserPointer());
+		
+		if(behavior)
+			behavior->getContacts().clear();
 	}
 	
 	btDispatcher* dispatcher = m_world->getDispatcher();
@@ -43,11 +46,14 @@ void PlatformPhysicsContext::update(float dt)
 			PlatformRigidbodyPhysicsBehavior* behaviorA = (PlatformRigidbodyPhysicsBehavior*) objA->getUserPointer();
 			PlatformRigidbodyPhysicsBehavior* behaviorB = (PlatformRigidbodyPhysicsBehavior*) objB->getUserPointer();
 			
-			auto& contactsA = behaviorA->getContacts();
-			auto& contactsB = behaviorB->getContacts();
-		
-			contactsA.push_back(behaviorB->getParent()->getSelf());
-			contactsB.push_back(behaviorA->getParent()->getSelf());
+			if(behaviorA && behaviorB)
+			{
+				auto& contactsA = behaviorA->getContacts();
+				auto& contactsB = behaviorB->getContacts();
+
+				contactsA.push_back(behaviorB->getParent()->getSelf());
+				contactsB.push_back(behaviorA->getParent()->getSelf());
+			}
 		}
 	}
 }
