@@ -7,6 +7,7 @@
 #include <behaviors/CameraBehavior.h>
 #include <behaviors/LightBehavior.h>
 #include <behaviors/MeshBehavior.h>
+#include <behaviors/SkyboxBehavior.h>
 
 #include <Log.h>
 
@@ -25,6 +26,10 @@ void PlatformRenderer::beginFrame(Neo::CameraBehavior& camera)
 {
 	camera.enable(m_width, m_height);
 
+	auto* skybox = camera.getParent()->getBehavior<SkyboxBehavior>();
+	if(skybox)
+		skybox->drawSky(this);
+	
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
 	glDisable(GL_BLEND);

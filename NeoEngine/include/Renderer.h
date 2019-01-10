@@ -6,6 +6,7 @@ namespace Neo
 
 class CameraBehavior;
 class Level;
+class Object;
 
 /**
  * @brief Represents a renderer for a specific platform.
@@ -71,6 +72,16 @@ public:
 	 * @brief Ends the frame but does not swap it.
 	 */
 	virtual void endFrame() = 0;
+	
+	/**
+	 * @brief Queues an object for drawing.
+	 * 
+	 * This allows the renderer to sort objects by material, depth or other criteria
+	 * before rendering by queuing objects before actually rendering them.
+	 *
+	 * @param object The object to draw.
+	 */
+	virtual void draw(Object* object) = 0;
 };
 
 }

@@ -50,6 +50,8 @@ void PlatformParticleSystemBehavior::begin(Neo::Platform& p, Neo::Renderer& rend
 	
 	m_texture = level.loadTexture(Texture.str());
 	assert(m_texture);
+	
+	prender->createTexture(m_texture);
 }
 
 void PlatformParticleSystemBehavior::end()
