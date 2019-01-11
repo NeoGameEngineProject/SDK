@@ -1,21 +1,20 @@
-#ifndef NEO_PARTICLESYSTEM_H
-#define NEO_PARTICLESYSTEM_H
+#ifndef NEO_PHYSICSPARTICLESYSTEM_H
+#define NEO_PHYSICSPARTICLESYSTEM_H
 
 #include <PlatformParticleSystemBehavior.h>
+#include <PlatformPhysicsContext.h>
 
-namespace Neo
+namespace Neo 
 {
 
-class ParticleSystemBehavior : public Neo::PlatformParticleSystemBehavior
+class PhysicsParticleSystemBehavior : public Neo::PlatformParticleSystemBehavior
 {
-	Vector3 Gravity = Vector3(0.0f, 0.0f, -9.81f);
-	
 	float LifeTime = 2.0f;
 	float LifeDivergence = 1.1f;
 	
 	float SpeedDivergence = 2.0f;
 	Vector3 InitialSpeed = Vector3(0.0f, 0.0f, 0.0f);
-	float Size = 125;
+	float Size = 0.1f;
 	float Alpha = 1.0f;
 	float AlphaDivergence = 0.0f;
 	float SizeDivergence = 20.0f;
@@ -23,9 +22,8 @@ class ParticleSystemBehavior : public Neo::PlatformParticleSystemBehavior
 	float EmissionDivergence = 0.1f;
 	
 public:
-	ParticleSystemBehavior()
+	PhysicsParticleSystemBehavior()
 	{
-		REGISTER_PROPERTY(Gravity);
 		REGISTER_PROPERTY(LifeTime);
 		REGISTER_PROPERTY(LifeDivergence);
 		REGISTER_PROPERTY(InitialSpeed);
@@ -38,21 +36,21 @@ public:
 		REGISTER_PROPERTY(EmissionDivergence);
 	}
 	
-	const char* getName() const override { return "ParticleSystem"; }
-	Neo::Behavior* getNew() const override { return new ParticleSystemBehavior; }
+	const char* getName() const override { return "PhysicsParticleSystemBehavior"; }
+	Neo::Behavior* getNew() const override { return new PhysicsParticleSystemBehavior; }
 	void copyTo(Behavior&) const override {}
+	
+	void begin(Neo::Platform& p, Neo::Renderer& render, Level& level) override;
+	void end() override;
+	void update(Platform& p, float dt) override;
 	
 	void serialize(std::ostream&) override;
 	void deserialize(Level&, std::istream&) override;
 	
 private:
-	void stepSimulation(float dt);
-	void updateParticles(float dt);
-	
 	struct Particle
 	{
 		Vector3 position;
-		Vector3 speed;
 		float size;
 		float alpha;
 		float spin;
@@ -60,12 +58,20 @@ private:
 		bool alive;
 	};
 	
-	std::vector<Particle> m_particles;
-	float m_emissionTimer = 0.0f;
-	float m_currentTime = 0;
+	struct PhysParticle
+	{
+		Particle particle;
+		btRigidBody* btbody = nullptr;
+		btCollisionShape* btshape = nullptr;
+	};
+	
+	std::vector<PhysParticle> m_particles;
+	
+	PlatformPhysicsContext* m_physics = nullptr;
 
+	float m_emissionTimer = 0.0f;
 };
 
 }
 
-#endif // NEO_PARTICLESYSTEM_H
+#endif // NEO_PHYSICSPARTICLESYSTEM_H

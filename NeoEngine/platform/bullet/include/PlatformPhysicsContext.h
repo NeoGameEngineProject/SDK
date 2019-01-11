@@ -8,11 +8,11 @@ namespace Neo
 
 class Level;
 class PlatformRigidbodyPhysicsBehavior;
-class PhysicsParticleSystem;
+class PhysicsParticleSystemBehavior;
 class PlatformPhysicsContext
 {
 	friend PlatformRigidbodyPhysicsBehavior;
-	friend PhysicsParticleSystem;
+	friend PhysicsParticleSystemBehavior;
 	
 	btBroadphaseInterface* m_broadphase = nullptr;
 	btDefaultCollisionConfiguration* m_collisionConfig = nullptr;

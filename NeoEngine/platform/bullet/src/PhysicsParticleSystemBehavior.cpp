@@ -1,17 +1,19 @@
-#include "PhysicsParticleSystem.h"
+#include "PhysicsParticleSystemBehavior.h"
 #include <Level.h>
 
 using namespace Neo;
 
-void PhysicsParticleSystem::begin(Neo::Platform& p, Neo::Renderer& render, Level& level)
+REGISTER_BEHAVIOR(PhysicsParticleSystemBehavior)
+
+void PhysicsParticleSystemBehavior::begin(Neo::Platform& p, Neo::Renderer& render, Level& level)
 {
 	m_physics = reinterpret_cast<PlatformPhysicsContext*>(&level.getPhysicsContext());
-	ParticleSystemBehavior::begin(p, render, level);
+	PlatformParticleSystemBehavior::begin(p, render, level);
 	
 	m_particles.reserve(ParticleCount);
 }
 
-void PhysicsParticleSystem::end()
+void PhysicsParticleSystemBehavior::end()
 {
 	auto* world = m_physics->getWorld();
 	for(auto& p : m_particles)
@@ -21,11 +23,11 @@ void PhysicsParticleSystem::end()
 		delete p.btshape;
 	}
 	
-	ParticleSystemBehavior::end();
+	PlatformParticleSystemBehavior::end();
 }
 
 #define RANDOM (0.5f - 2.0f*static_cast<float>(rand()) / static_cast<float>(RAND_MAX))
-void PhysicsParticleSystem::update(Platform& p, float dt)
+void PhysicsParticleSystemBehavior::update(Platform& p, float dt)
 {
 	auto* world = m_physics->getWorld();
 	m_currentTime += dt;
@@ -66,9 +68,10 @@ void PhysicsParticleSystem::update(Platform& p, float dt)
 			divergence.y = RANDOM * SpeedDivergence;
 			divergence.z = RANDOM * SpeedDivergence;
 
+			Vector3 speed = (InitialSpeed + divergence)*0.1f;
+			
 			newParticle.particle.alive = true;
 			newParticle.particle.time = m_currentTime + LifeTime + RANDOM * LifeDivergence;
-			newParticle.particle.speed = (InitialSpeed + divergence)*0.1f;
 			newParticle.particle.size = Size + RANDOM * SizeDivergence;
 			newParticle.particle.alpha = Alpha + RANDOM * AlphaDivergence;
 			newParticle.particle.position = parentPosition;
@@ -77,9 +80,9 @@ void PhysicsParticleSystem::update(Platform& p, float dt)
 			newParticle.btbody->setSleepingThresholds(0.2f, 0.2f);
 			newParticle.btbody->setUserPointer(nullptr);
 			newParticle.btbody->getWorldTransform().setOrigin(btVector3(parentPosition.x, parentPosition.y, parentPosition.z));
-			newParticle.btbody->applyCentralImpulse(btVector3(newParticle.particle.speed.x, newParticle.particle.speed.y, newParticle.particle.speed.z));
+			newParticle.btbody->applyCentralImpulse(btVector3(speed.x, speed.y, speed.z));
 		
-			newParticle.btshape = new btSphereShape(newParticle.particle.size*0.005); 
+			newParticle.btshape = new btSphereShape(newParticle.particle.size*0.1f); 
 			newParticle.btbody->setCollisionShape(newParticle.btshape);
 			
 			world->addRigidBody(newParticle.btbody);
@@ -94,8 +97,16 @@ void PhysicsParticleSystem::update(Platform& p, float dt)
 		const auto& particle = m_particles[i];
 		const auto& pos = particle.btbody->getWorldTransform().getOrigin();
 		m_buffer[i].position = Vector3(pos.x(), pos.y(), pos.z());
-		m_buffer[i].parameters = Vector3(particle.particle.size, particle.particle.alpha, particle.particle.spin);
+		m_buffer[i].parameters = Vector3(particle.particle.size*10.0f, particle.particle.alpha, particle.particle.spin);
 	}
 	
 	updateParticleBuffers();
+}
+
+void PhysicsParticleSystemBehavior::serialize(std::ostream& out)
+{
+}
+
+void PhysicsParticleSystemBehavior::deserialize(Level&, std::istream& in)
+{
 }
