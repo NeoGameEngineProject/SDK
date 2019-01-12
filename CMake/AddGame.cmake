@@ -7,7 +7,7 @@ endif()
 
 macro(add_game name sources assetdir)
 	add_executable(${name} WIN32 ${sources})
-	target_link_libraries(${name} PUBLIC NeoEngine NeoCore NeoHTML NeoVR NeoStates)
+	target_link_libraries(${name} PUBLIC NeoEngine NeoCore NeoHTML NeoVR NeoStates NeoScript)
 	
 	if(ENABLE_SANITIZERS)
 		target_compile_options(${name} PUBLIC -fsanitize=${SANITIZER} -fsanitize=undefined -fno-omit-frame-pointer)
