@@ -9,15 +9,15 @@ namespace Neo
 
 class PhysicsParticleSystemBehavior : public Neo::PlatformParticleSystemBehavior
 {
-	float LifeTime = 2.0f;
-	float LifeDivergence = 1.1f;
+	float LifeTime = 5.0f;
+	float LifeDivergence = 2.5f;
 	
 	float SpeedDivergence = 2.0f;
 	Vector3 InitialSpeed = Vector3(0.0f, 0.0f, 0.0f);
-	float Size = 0.1f;
+	float Size = 5.0f;
 	float Alpha = 1.0f;
 	float AlphaDivergence = 0.0f;
-	float SizeDivergence = 20.0f;
+	float SizeDivergence = 2.0f;
 	float EmissionDelay = 0.0f;
 	float EmissionDivergence = 0.1f;
 	
