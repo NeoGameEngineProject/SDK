@@ -31,6 +31,7 @@ class Level;
 class GameState;
 class Window;
 class Platform;
+class Object;
 }
 
 
@@ -43,7 +44,9 @@ void pushBehavior(lua_State*, Neo::Behavior*);
 void pushLevel(lua_State*, Neo::Level*);
 void pushWindow(lua_State*, Neo::Window*);
 void pushPlatform(lua_State*, Neo::Platform*);
+void pushObject(lua_State*, Neo::Object*);
 
+void pushGlobalObject(lua_State*, const char*, Neo::Object*);
 void pushGlobalGameState(lua_State*, const char*, Neo::GameState*);
 
 }

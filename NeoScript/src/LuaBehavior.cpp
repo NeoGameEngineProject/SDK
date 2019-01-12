@@ -6,10 +6,15 @@ using namespace Neo;
 
 REGISTER_BEHAVIOR(LuaBehavior)
 
+#define PARENT_GLOBNAME "parent"
+
 LuaBehavior::LuaBehavior(const char* file)
 {
 	fileName = file;
 	m_script.doFile(file);
+	
+	m_hasUpdate = m_script.hasFunction("onUpdate");
+	m_hasDraw = m_script.hasFunction("onDraw");
 	
 	std::string name = file;
 	name = name.substr(name.find_last_of('/') + 1);
@@ -41,10 +46,11 @@ void LuaBehavior::begin(Neo::Platform& p, Neo::Renderer& render, Neo::Level& lev
 	if(m_script.hasFunction("onBegin"))
 	{
 		m_script.startCallFunction("onBegin");
+		pushObject(m_script.getState(), getParent());
 		pushPlatform(m_script.getState(), &p);
 		pushRenderer(m_script.getState(), &render);
 		pushLevel(m_script.getState(), &level);
-		m_script.endCallFunction(3);
+		m_script.endCallFunction(4);
 	}
 }
 
@@ -52,10 +58,14 @@ void LuaBehavior::update(Neo::Platform& p, float dt)
 {
 	if(m_hasUpdate)
 	{
+		// We need to do that since the pointer might change...
 		m_script.startCallFunction("onUpdate");
+		pushObject(m_script.getState(), getParent());
 		pushPlatform(m_script.getState(), &p);
 		lua_pushnumber(m_script.getState(), dt);
-		m_script.endCallFunction(2);
+		m_script.endCallFunction(3);
+		
+		lua_gc(m_script.getState(), LUA_GCCOLLECT, 0);
 	}
 }
 
@@ -64,8 +74,9 @@ void LuaBehavior::draw(Neo::Renderer& render)
 	if(m_hasDraw)
 	{
 		m_script.startCallFunction("onDraw");
+		pushObject(m_script.getState(), getParent());
 		pushRenderer(m_script.getState(), &render);
-		m_script.endCallFunction(1);
+		m_script.endCallFunction(2);
 	}
 
 }

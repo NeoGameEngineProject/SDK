@@ -25,6 +25,7 @@ public:
 	bool isEditorVisible() const override { return false; }
 	const char* getName() const override;
 	Neo::Behavior* getNew() const override;
+	void copyTo(Behavior&) const override {}
 	
 	std::unique_ptr<Neo::Behavior> clone() const override;
 	void begin(Neo::Platform& p, Neo::Renderer& render, Neo::Level& level) override;
