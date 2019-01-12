@@ -123,6 +123,8 @@ void Level::update(Platform& p, float dt)
 		{
 			const auto aabb = o.getBoundingBox();
 			const Vector3 oldPos = o.getTransform().getTranslatedVector3(Vector3());
+			
+			std::lock_guard<std::mutex> lock(m_octreeMutex);
 			m_octree.update(oldPos, o.getPosition(), (aabb.max - aabb.min)*0.5f, o.getSelf());
 			o.updateMatrix();
 		}
@@ -148,6 +150,7 @@ void Level::draw(Renderer& r, CameraBehavior& camera)
 	Vector3 origin(sphere.x, sphere.y, sphere.z);
 
 	// Traverse over octree: Only shows relevant objects
+	std::lock_guard<std::mutex> lock(m_octreeMutex);
 	m_octree.traverse(origin, sphere.w*1.5f, [&r, &frustum](LevelOctree::Position* point) {
 		
 		// Check for frustum, second try to cull it
@@ -223,6 +226,7 @@ void Level::updateVisibility(const CameraBehavior& camera)
 
 void Level::rebuildOctree()
 {
+	std::lock_guard<std::mutex> lock(m_octreeMutex);
 	m_octree.clear();
 	for(size_t i = 0; i < m_objects.size(); i++)
 	{

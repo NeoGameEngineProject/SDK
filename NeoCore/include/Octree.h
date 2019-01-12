@@ -19,7 +19,7 @@ namespace Neo
 
 // Based on the octant layout mechanic used here:
 // https://github.com/brandonpelfrey/SimpleOctree/blob/master/Octree.h
-template<typename T, unsigned short NODE_CAPACITY = 8, bool THREAD_SAFE = true>
+template<typename T, unsigned short NODE_CAPACITY = 8>
 class Octree
 {
 public:
@@ -80,7 +80,10 @@ public:
 				const Vector3 childMin = children[i]->position - children[i]->halfSize;
 				
 				if(childMin.x > boxMax.x || childMin.y > boxMax.y || childMin.z > boxMax.z
-					|| childMax.x < boxMin.x || childMax.y < boxMin.y || childMax.z < boxMin.z) continue;
+					|| childMax.x < boxMin.x || childMax.y < boxMin.y || childMax.z < boxMin.z)
+				{
+					continue;
+				}
 				
 				children[i]->traverse(boxMin, boxMax, functor);
 			}
@@ -135,7 +138,6 @@ public:
 			} 
 			else // If our node is full, split
 			{
-				lock();
 				for(unsigned short i = 0; i < 8; i++)
 				{
 					Vector3 newPosition = position;
@@ -148,7 +150,6 @@ public:
 				
 				auto tmpCopy = data;
 				data.clear();
-				unlock();
 
 				for(const auto& k : tmpCopy)
 				{
@@ -192,7 +193,6 @@ public:
 		
 		T* newObject = insert(position, halfSize);
 		*newObject = object;
-		
 		return newObject;
 	}
 	
@@ -201,7 +201,6 @@ public:
 		auto* node = this;
 		do
 		{
-			node->lock();
 			auto removed = std::remove_if(node->data.begin(), node->data.end(), [&object](const Position& pos) {
 				return std::get<2>(pos) == object;
 			});
@@ -209,11 +208,9 @@ public:
 			if(removed != node->data.end())
 			{
 				node->data.erase(removed);
-				node->unlock();
 				return;
 			}
 			
-			node->unlock();
 			node = node->findDirection(position);
 		}
 		while(node);
@@ -232,7 +229,6 @@ public:
 	
 	void grow()
 	{
-		lock();
 #if 0
 		auto newChild = new Octree<T, NODE_CAPACITY>(std::move(*this));
 		position = Vector3(newChild->position) - newChild->halfSize;
@@ -250,12 +246,10 @@ public:
 			children[i] = new Octree<T, NODE_CAPACITY>(newPosition, halfSize*0.5f);
 		}
 #endif
-		unlock();
 	}
 	
 	void clear()
 	{
-		lock();
 		for(unsigned short i = 0; i < 8; i++)
 		{
 			delete children[i];
@@ -263,7 +257,6 @@ public:
 		}
 		
 		data.clear();
-		unlock();
 	}
 	
 private:
@@ -282,20 +275,6 @@ private:
 		if(point.y >= position.y) oct |= 2;
 		if(point.z >= position.z) oct |= 1;
 		return oct;
-	}
-	
-	typename std::conditional<THREAD_SAFE, std::mutex, std::tuple<>>::type m_mutex;
-	
-	void lock()
-	{
-		if(THREAD_SAFE)
-			m_mutex.lock();
-	}
-	
-	void unlock()
-	{
-		if(THREAD_SAFE)
-			m_mutex.unlock();
 	}
 };
 

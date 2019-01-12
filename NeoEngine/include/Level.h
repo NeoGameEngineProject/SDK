@@ -23,6 +23,8 @@
 #include <ThreadPool.h>
 #endif
 
+#include <mutex>
+
 namespace Neo 
 {
 
@@ -48,6 +50,8 @@ class NEO_ENGINE_EXPORT Level
 	std::vector<Mesh> m_meshes;
 
 	PhysicsContext m_physics;
+	
+	std::mutex m_octreeMutex;
 	
 public:
 	/**
