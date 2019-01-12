@@ -5,6 +5,9 @@
 #include <Texture.h>
 #include <Window.h>
 #include <Game.h>
+#include <Log.h>
+
+#include <algorithm>
 
 #ifdef NEO_OPENGL
 #include <nanovg.h>
@@ -32,12 +35,12 @@ void SplashScreen::draw(Neo::Renderer& r)
 	int w, h;
 	nvgImageSize(m_nv, currentTex, &w, &h);
 
-	auto paint = nvgImagePattern(m_nv, (float) w/2 + m_width/2, (float) h/2 + m_height/2, w, h, 0, currentTex, m_alpha);
+	auto paint = nvgImagePattern(m_nv, 0, 0, w, h, 0, currentTex, m_alpha);
 	
 	nvgBeginPath(m_nv);
 	
 	nvgTranslate(m_nv, 0, 0);
-	nvgRect(m_nv, 0, 0, w, h);
+	nvgRect(m_nv, 0, 0, m_width, m_height);
 
 	nvgFillPaint(m_nv, paint);
 	nvgFill(m_nv);
@@ -53,7 +56,7 @@ void SplashScreen::update(Neo::Platform& p, float dt)
 	switch(m_state)
 	{
 		case FADE_IN:
-			m_alpha += 1.0f/m_transitionDelay * dt; // FIXME dt!
+			m_alpha += 1.0f/m_transitionDelay * dt;
 			if(m_alpha >= 1.0)
 			{
 				m_state = HOLD;
@@ -69,7 +72,7 @@ void SplashScreen::update(Neo::Platform& p, float dt)
 		break;
 		
 		case FADE_OUT:
-			m_alpha -= 1.0f/m_transitionDelay * dt; // FIXME dt!
+			m_alpha -= 1.0f/m_transitionDelay * dt;
 			if(m_alpha <= 0.0f)
 			{
 				m_alpha = 0.0f;
@@ -114,14 +117,14 @@ void SplashScreen::begin(Neo::Platform& p, Neo::Window& w)
 		Neo::Texture image;
 		if(!Neo::TextureLoader::load(image, k.c_str()))
 		{
-			std::cerr << "Could not load image: " << k << std::endl;
+			LOG_ERROR("Could not load image: " << k);
 			continue;
 		}
 		
 		int texture = nvgCreateImageRGBA(m_nv, image.getWidth(), image.getHeight(), 0, (const unsigned char*) image.getData());
 		if(texture == -1)
 		{
-			std::cerr << "Could not load image: " << k << std::endl;
+			LOG_ERROR("Could not load image: " << k);
 			continue;
 		}
 		m_slideshowTextures.push_back(texture);
