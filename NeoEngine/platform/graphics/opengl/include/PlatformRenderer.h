@@ -15,6 +15,7 @@ class LightBehavior;
 struct AABB;
 class MeshBehavior;
 class Material;
+class AABBRenderer;
 
 class PlatformRenderer : public Common
 {
@@ -42,6 +43,9 @@ class PlatformRenderer : public Common
 
 	std::vector<Object*> m_opaqueObjects;
 	
+#ifdef DRAW_AABB
+	AABBRenderer* m_aabbRenderer = nullptr;
+#endif
 public:
 	CameraBehavior* getCurrentCamera() { return m_currentCamera; }
 	unsigned long long getTime();

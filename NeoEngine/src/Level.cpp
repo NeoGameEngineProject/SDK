@@ -121,12 +121,12 @@ void Level::update(Platform& p, float dt)
 
 		if(o.isDirty())
 		{
-			const auto aabb = o.getBoundingBox();
+			const auto aabb = o.getTransformedBoundingBox();
 			const Vector3 oldPos = o.getTransform().getTranslatedVector3(Vector3());
-			
+			o.updateMatrix();
+
 			std::lock_guard<std::mutex> lock(m_octreeMutex);
 			m_octree.update(oldPos, o.getPosition(), (aabb.max - aabb.min)*0.5f, o.getSelf());
-			o.updateMatrix();
 		}
 	});
 	
@@ -146,24 +146,25 @@ void Level::draw(Renderer& r, CameraBehavior& camera)
 	
 	const auto frustum = camera.getFrustum();
 	const auto sphere = frustum.getSphere();
-	
+	const auto box = frustum.getBoundingBox(camera);
+
 	Vector3 origin(sphere.x, sphere.y, sphere.z);
 
 	// Traverse over octree: Only shows relevant objects
 	std::lock_guard<std::mutex> lock(m_octreeMutex);
-	m_octree.traverse(origin, sphere.w*1.5f, [&r, &frustum](LevelOctree::Position* point) {
+	m_octree.traverse(box.min, box.max, [&r, &frustum](LevelOctree::Position* point) {
 		
 		// Check for frustum, second try to cull it
 		auto& object = std::get<2>(*point);
-		const auto aabb = object->getBoundingBox();
+		const auto aabb = object->getTransformedBoundingBox();
 		
 		if(!object->isActive())
 			return;
 		
 		if(aabb.getDiameter() != 0)
 		{
-			Vector3 min = object->getPosition() + aabb.min;
-			Vector3 max = object->getPosition() + aabb.max;
+			Vector3 min = aabb.min;
+			Vector3 max = aabb.max;
 			
 			Vector3 points[8] = {
 				Vector3(min.x, min.y, min.z),
@@ -240,12 +241,9 @@ void Level::rebuildOctree()
 		{
 			mesh->updateBoundingBox();
 			auto aabb = mesh->getBoundingBox();
-			
-			aabb.min = obj.getScale() * obj.getTransform().getRotatedVector3(aabb.min);
-			aabb.max = obj.getScale() * obj.getTransform().getRotatedVector3(aabb.max);
-			aabb.makeAxisAligned();
-			
 			obj.setBoundingBox(aabb);
+
+			aabb = obj.getTransformedBoundingBox();
 			m_octree.insert(obj.getPosition(), (aabb.max - aabb.min)*0.5f, ObjectHandle(&m_objects, i));
 		}
 	}

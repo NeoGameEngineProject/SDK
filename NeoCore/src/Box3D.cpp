@@ -12,3 +12,18 @@ void Box3D::makeAxisAligned()
 	min = minTmp;
 	max = maxTmp;
 }
+
+void Box3D::addPoint(const Vector3& p)
+{
+	min = Vector3(
+		std::min(min.x, p.x),
+		std::min(min.y, p.y),
+		std::min(min.z, p.z)
+	);
+	
+	max = Vector3(
+		std::max(max.x, p.x),
+		std::max(max.y, p.y),
+		std::max(max.z, p.z)
+	);
+}

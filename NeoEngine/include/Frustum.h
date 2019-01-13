@@ -47,7 +47,7 @@ public:
 
 	void makeVolume(const CameraBehavior& camera);
 	bool isVolumePointsVisible(Vector3* points, unsigned int pointsNumber) const;
-	Box3D getBoundingBox() const;
+	Box3D getBoundingBox(const CameraBehavior& camera) const;
 	float getRadius() const;
 	Vector4 getSphere() const;
 };

@@ -60,6 +60,8 @@ void ParticleSystemBehavior::stepSimulation(float dt)
 	aabb.min = m_particles[0].position;
 	aabb.max = m_particles[0].position;
 	
+	const Matrix4x4 invM = getParent()->getTransform().getInverse();
+	
 	for(int i = 0; i < m_particles.size(); i++)
 	{
 		auto* particle = &m_particles[i];
@@ -69,22 +71,23 @@ void ParticleSystemBehavior::stepSimulation(float dt)
 		m_buffer[i].position = particle->position;
 		m_buffer[i].parameters = Vector3(particle->size, particle->alpha, particle->spin);
 		
+		const Vector3 position = invM * particle->position;
 		aabb.min = Vector3(
-			std::min(aabb.min.x, particle->position.x),
-			std::min(aabb.min.y, particle->position.y),
-			std::min(aabb.min.z, particle->position.z)
+			std::min(aabb.min.x, position.x),
+			std::min(aabb.min.y, position.y),
+			std::min(aabb.min.z, position.z)
 		);
 		
 		aabb.max = Vector3(
-			std::max(aabb.max.x, particle->position.x),
-			std::max(aabb.max.y, particle->position.y),
-			std::max(aabb.max.z, particle->position.z)
+			std::max(aabb.max.x, position.x),
+			std::max(aabb.max.y, position.y),
+			std::max(aabb.max.z, position.z)
 		);
 	}
 	
-	// auto* parent = getParent();
-	// parent->setBoundingBox(aabb);
-	// parent->setDirty(true);
+	auto* parent = getParent();
+	parent->setBoundingBox(aabb);
+	parent->setDirty(true);
 }
 
 void ParticleSystemBehavior::serialize(std::ostream& out)

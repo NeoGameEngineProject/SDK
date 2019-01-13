@@ -13,6 +13,7 @@
 
 #include <Log.h>
 #include "Maths.h"
+#include <Box3D.h>
 
 namespace Neo 
 {
@@ -60,15 +61,25 @@ public:
 		return isPointInBox(point, boxMin, boxMax);
 	}
 	
+	Box3D makeBox(const Vector3& position, const Vector3& halfSize) const
+	{
+		Box3D box;
+		box.min = position - halfSize;
+		box.max = position + halfSize;
+		return box;
+	}
+	
 	template<typename Fn>
 	void traverse(const Vector3& boxMin, const Vector3& boxMax, Fn functor)
 	{
 		for(unsigned short i = 0; i < data.size(); i++)
 		{
 			const auto& pos = std::get<0>(data[i]);
-			if(!isPointInBox(pos, boxMin, boxMax))
+			const auto aabb = makeBox(pos, std::get<1>(data[i]));
+			if(!isPointInBox(pos, boxMin, boxMax) && !isBoxToBoxCollision(boxMin, boxMax, aabb.min, aabb.max))
+			{
 				continue;
-			
+			}
 			functor(&data[i]);
 		}
 		
@@ -79,8 +90,7 @@ public:
 				const Vector3 childMax = children[i]->position + children[i]->halfSize;
 				const Vector3 childMin = children[i]->position - children[i]->halfSize;
 				
-				if(childMin.x > boxMax.x || childMin.y > boxMax.y || childMin.z > boxMax.z
-					|| childMax.x < boxMin.x || childMax.y < boxMin.y || childMax.z < boxMin.z)
+				if(!isBoxToBoxCollision(childMin, childMax, boxMin, boxMax))
 				{
 					continue;
 				}

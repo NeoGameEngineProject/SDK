@@ -68,6 +68,7 @@ public:
 	ObjectHandle getSelf() { return m_self; }
 	void setSelf(const ObjectHandle& self) { m_self = self; }
 	
+	Box3D getTransformedBoundingBox() const;
 	Box3D getBoundingBox() const { return m_aabb; }
 	void setBoundingBox(const Box3D& aabb) { m_aabb = aabb; } 
 	

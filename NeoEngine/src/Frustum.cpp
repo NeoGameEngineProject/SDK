@@ -147,11 +147,32 @@ bool Frustum::isVolumePointsVisible(Vector3* points, unsigned int pointsNumber) 
 	return true;
 }
 
-Box3D Frustum::getBoundingBox() const
+#include <Log.h>
+Box3D Frustum::getBoundingBox(const CameraBehavior& camera) const
 {
 	Box3D result;
-	// TODO
+	Vector4 box[] = {
+		Vector4(-1, -1, -1, 1),
+		Vector4(1, -1, -1, 1),
+		Vector4(1, 1, -1, 1),
+		Vector4(-1, 1, -1, 1),
+		
+		Vector4(-1, -1, 1, 1),
+		Vector4(1, -1, 1, 1),
+		Vector4(1, 1, 1, 1),
+		Vector4(-1, 1, 1, 1),
+	};
 	
+	const Matrix4x4 invPers = (camera.getProjectionMatrix() * camera.getViewMatrix()).getInverse();
+	
+	result.min = camera.getParent()->getPosition() - Vector3(camera.getFar());
+	result.max = camera.getParent()->getPosition() + Vector3(camera.getFar());
+	
+	for(unsigned short i = 1; i < 8; i++)
+	{
+		Vector4 point = invPers * box[i];
+		result.addPoint(point);
+	}
 	return result;
 }
 

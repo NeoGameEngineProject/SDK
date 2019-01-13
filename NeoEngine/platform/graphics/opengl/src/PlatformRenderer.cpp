@@ -9,6 +9,8 @@
 #include <behaviors/MeshBehavior.h>
 #include <behaviors/SkyboxBehavior.h>
 
+#include <AABBRenderer.h>
+
 #include <Log.h>
 
 #define vec4 Neo::Vector4
@@ -125,7 +127,16 @@ void PlatformRenderer::endFrame()
 	
 	// Draw sorted lists
 	for(auto* o : m_opaqueObjects)
+	{
 		o->draw(*this);
+	}
+
+#ifdef DRAW_AABB
+	for(auto* o : m_opaqueObjects)
+	{
+		m_aabbRenderer->drawBox(*this, o->getTransformedBoundingBox());
+	}
+#endif
 	
 	m_opaqueObjects.clear();
 	
@@ -316,6 +327,11 @@ void PlatformRenderer::initialize(unsigned int w, unsigned int h, void* ndt, voi
 
 		glBindVertexArray(0);
 	}
+	
+#ifdef DRAW_AABB
+	m_aabbRenderer = new AABBRenderer();
+	m_aabbRenderer->begin(*this);
+#endif
 }
 
 void PlatformRenderer::setTransform(const Matrix4x4& transform)

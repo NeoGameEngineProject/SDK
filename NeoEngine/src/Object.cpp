@@ -86,7 +86,36 @@ ObjectHandle Object::find(const char* name)
 	
 	return ObjectHandle();
 }
-#include <Log.h>
+
+Box3D Object::getTransformedBoundingBox() const
+{
+	Box3D aabb = getBoundingBox();
+	
+	const Matrix4x4 M = getTransform();
+	
+	const Vector3& min = aabb.min;
+	const Vector3& max = aabb.max;
+		
+	Vector3 points[8] = {
+		Vector3(min.x, min.y, min.z),
+		Vector3(min.x, max.y, min.z),
+		Vector3(max.x, max.y, min.z),
+		Vector3(max.x, min.y, min.z),
+		Vector3(min.x, min.y, max.z),
+		Vector3(min.x, max.y, max.z),
+		Vector3(max.x, max.y, max.z),
+		Vector3(max.x, min.y, max.z)
+	};
+	
+	aabb.min = M * points[0];
+	aabb.max = M * points[0];
+	
+	for(unsigned short i = 1; i < 8; i++)
+		aabb.addPoint(M * points[i]);
+	
+	return aabb;
+}
+
 Object& Object::operator= (const Object& obj)
 {
 	if(this != &obj)

@@ -11,6 +11,7 @@ struct Box3D
 	Vector3 min, max;
 	
 	void makeAxisAligned();
+	void addPoint(const Vector3& p);
 	float getDiameter() const { return (max - min).getLength(); }
 };
 
