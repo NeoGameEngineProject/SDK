@@ -127,6 +127,8 @@ void PlatformStaticRenderBehavior::draw(Neo::Renderer& render)
 
 		glBindVertexArray(m_vaos[i]);
 		glDrawArrays(GL_TRIANGLES, 0, submesh->getIndices().size());
+		
+		render.addDrawCall(submesh->getIndices().size() / 3);
 	}
 
 	glBindVertexArray(0);

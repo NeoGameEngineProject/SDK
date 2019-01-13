@@ -96,6 +96,7 @@ void PlatformParticleSystemBehavior::draw(Neo::Renderer& render)
 	glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
 	
 	glDrawArrays(GL_POINTS, 0, ParticleCount);
+	render.addDrawCall(ParticleCount);
 	
 	glBindVertexArray(0);
 	glUseProgram(0);

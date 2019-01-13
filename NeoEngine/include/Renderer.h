@@ -82,6 +82,24 @@ public:
 	 * @param object The object to draw.
 	 */
 	virtual void draw(Object* object) = 0;
+	
+	unsigned int getDrawCallCount() const { return m_drawCallCount; }
+	unsigned int getFaceCount() const { return m_faceCount; }
+	void resetStatistics()
+	{
+		m_drawCallCount = 0;
+		m_faceCount = 0;
+	}
+	
+	void addDrawCall(unsigned int faces)
+	{
+		m_drawCallCount++;
+		m_faceCount += faces;
+	}
+	
+private:
+	// Statistics
+	unsigned int m_drawCallCount = 0, m_faceCount = 0;
 };
 
 }

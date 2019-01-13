@@ -136,6 +136,8 @@ void PlatformSkyboxBehavior::drawSky(PlatformRenderer* prender)
 		glDrawArrays(GL_TRIANGLES, i*6, 6);
 	}
 	
+	prender->addDrawCall(36/3);
+	
 	glDepthMask(GL_TRUE);
 	
 	glUseProgram(0);
