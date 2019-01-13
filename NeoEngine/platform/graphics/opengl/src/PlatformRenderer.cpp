@@ -26,6 +26,7 @@ using namespace Neo;
 
 void PlatformRenderer::beginFrame(Neo::CameraBehavior& camera)
 {
+	resetStatistics();
 	camera.enable(m_width, m_height);
 
 	auto* skybox = camera.getParent()->getBehavior<SkyboxBehavior>();
@@ -51,6 +52,56 @@ void PlatformRenderer::beginFrame(Level& level, CameraBehavior& cam)
 
 void PlatformRenderer::setViewport(unsigned int x, unsigned int y, unsigned int w, unsigned int h)
 {
+	if(m_width != w || m_height != h)
+	{
+		if(m_pfxFBO != -1)
+			glDeleteFramebuffers(1, &m_pfxFBO);
+		
+		if(m_pfxDepthTexture != -1)
+			glDeleteTextures(1, &m_pfxDepthTexture);
+		
+		if(m_pfxTexture != -1)
+			glDeleteTextures(1, &m_pfxTexture);
+		
+		glGenFramebuffers(1, &m_pfxFBO);
+		glBindFramebuffer(GL_FRAMEBUFFER, m_pfxFBO);
+
+		/*glGenRenderbuffers(1, &m_pfxDepthTexture);
+		glBindRenderbuffer(GL_RENDERBUFFER, m_pfxDepthTexture);
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, w, h);
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_pfxDepthTexture);*/
+		
+		glGenTextures(1, &m_pfxDepthTexture);
+		glBindTexture(GL_TEXTURE_2D, m_pfxDepthTexture);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, w, h, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, nullptr);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_pfxDepthTexture, 0);
+
+		glGenTextures(1, &m_pfxTexture);
+		glBindTexture(GL_TEXTURE_2D, m_pfxTexture);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		
+		//gluBuild2DMipmaps(GL_TEXTURE_2D, 3, w, h, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
+				
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_pfxTexture, 0);
+		
+		GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+		if (status != GL_FRAMEBUFFER_COMPLETE)
+		{
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+			LOG_ERROR("Could not create post effects framebuffer!");
+			m_pfxFBO = 0;
+			exit(1); // FIXME: Maybe just fall back on non-fx rendering?
+		}
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	}
+	
 	m_width = w;
 	m_height = h;
 	
@@ -168,9 +219,6 @@ void PlatformRenderer::endFrame()
 
 void PlatformRenderer::initialize(unsigned int w, unsigned int h, void* ndt, void* nwh, void* ctx)
 {
-	m_width = w;
-	m_height = h;
-	
 	m_startTime = getTime();
 	m_opaqueObjects.reserve(128);
 	
@@ -250,43 +298,7 @@ void PlatformRenderer::initialize(unsigned int w, unsigned int h, void* ndt, voi
 		m_pfxUFrustum = glGetUniformLocation(pfxShader, "Frustum");
 		m_pfxTime = glGetUniformLocation(pfxShader, "Time");
 
-		glGenFramebuffers(1, &m_pfxFBO);
-		glBindFramebuffer(GL_FRAMEBUFFER, m_pfxFBO);
-
-		/*glGenRenderbuffers(1, &m_pfxDepthTexture);
-		glBindRenderbuffer(GL_RENDERBUFFER, m_pfxDepthTexture);
-		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, w, h);
-		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_pfxDepthTexture);*/
-		
-		glGenTextures(1, &m_pfxDepthTexture);
-		glBindTexture(GL_TEXTURE_2D, m_pfxDepthTexture);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, w, h, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, nullptr);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_pfxDepthTexture, 0);
-
-		glGenTextures(1, &m_pfxTexture);
-		glBindTexture(GL_TEXTURE_2D, m_pfxTexture);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		
-		//gluBuild2DMipmaps(GL_TEXTURE_2D, 3, w, h, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
-				
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_pfxTexture, 0);
-		
-		GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-		if (status != GL_FRAMEBUFFER_COMPLETE)
-		{
-			glBindFramebuffer(GL_FRAMEBUFFER, 0);
-			LOG_ERROR("Could not create post effects framebuffer!");
-			m_pfxFBO = 0;
-			exit(1); // FIXME: Maybe just fall back on non-fx rendering?
-		}
-
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		setViewport(0, 0, w, h);
 		
 		glGenVertexArrays(1, &m_pfxVAO);
 		glBindVertexArray(m_pfxVAO);
