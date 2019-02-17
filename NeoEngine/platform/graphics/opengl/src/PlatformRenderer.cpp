@@ -110,19 +110,19 @@ void PlatformRenderer::setViewport(unsigned int x, unsigned int y, unsigned int 
 
 void PlatformRenderer::updateLights(MeshBehavior* mesh)
 {
-	unsigned short lightCount = 0;
+	m_visibleLightCount = 0;
 	unsigned short indices[MAX_LIGHTS_PER_OBJECT]; // Here we will gather all light indices into the m_visibleLights field
 
-	gatherLights(m_visibleLights, mesh, indices, MAX_LIGHTS_PER_OBJECT, lightCount);
+	gatherLights(m_visibleLights, mesh, indices, MAX_LIGHTS_PER_OBJECT, m_visibleLightCount);
 
 	// Not required because gatherLights should ensure this, just to be sure we do it anyways
-	assert(lightCount <= MAX_LIGHTS_PER_OBJECT);
+	assert(m_visibleLightCount <= MAX_LIGHTS_PER_OBJECT);
 
 	glBindBuffer(GL_UNIFORM_BUFFER, m_uboLights);
 	auto buffer = reinterpret_cast<ShaderLight*>(glMapBuffer(GL_UNIFORM_BUFFER, GL_WRITE_ONLY));
 
 	size_t i = 0;
-	for(i = 0; i < lightCount; i++)
+	for(i = 0; i < m_visibleLightCount; i++)
 	{
 		auto light = m_visibleLights[indices[i]];
 		if(light == nullptr)
@@ -144,8 +144,6 @@ void PlatformRenderer::updateLights(MeshBehavior* mesh)
 	}
 
 	glUnmapBuffer(GL_UNIFORM_BUFFER);
-
-	glUniform1i(m_uNumLights, lightCount);
 }
 
 void PlatformRenderer::clear(float r, float g, float b, bool depth)
@@ -171,6 +169,8 @@ unsigned long long PlatformRenderer::getTime()
 void PlatformRenderer::endFrame()
 {
 	// Sort lists
+	// FIXME Render opaque and transparent objects separately
+	// FIXME Sort by shader
 	std::sort(m_opaqueObjects.begin(), m_opaqueObjects.end(), [this](Object* o1, Object* o2) {
 		const auto camPos = getCurrentCamera()->getParent()->getPosition();
 		return (o1->getPosition() - camPos).getLength() >= (o2->getPosition() - camPos).getLength();
@@ -195,7 +195,7 @@ void PlatformRenderer::endFrame()
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	
-	useShader(1);
+	useShader(0);
 	
 	glUniform2f(m_pfxUFrustum, m_currentCamera->getNear(), m_currentCamera->getFar());
 	glUniform1i(m_pfxTime, getTime() - m_startTime);
@@ -242,47 +242,11 @@ void PlatformRenderer::initialize(unsigned int w, unsigned int h, void* ndt, voi
 	LOG_INFO("Version:\t" << version);
 	LOG_INFO("Vendor:\t" << vendor);
 
-	auto shader = loadShader("assets/glsl/phong");
-	assert(shader != -1 && "Could not load shader!");
-	
 	glViewport(0, 0, w, h);
 
-	glUseProgram(shader);
-	m_uModelView = glGetUniformLocation(shader, "ModelViewMatrix");
-	m_uModelViewProj = glGetUniformLocation(shader, "ModelViewProjectionMatrix");
-	m_uNormal = glGetUniformLocation(shader, "NormalMatrix");
-	
-	m_uMaterialDiffuse = glGetUniformLocation(shader, "Diffuse");
-	m_uMaterialSpecular = glGetUniformLocation(shader, "Specular");
-	m_uMaterialShininess = glGetUniformLocation(shader, "Shininess");
-	m_uMaterialOpacity = glGetUniformLocation(shader, "Opacity");
-	m_uMaterialEmit = glGetUniformLocation(shader, "Emit");
-
-	m_uDiffuseTexture = glGetUniformLocation(shader, "DiffuseTexture");
-	m_uNumTextures = glGetUniformLocation(shader, "NumTextures");
-
-	glUniform1i(m_uDiffuseTexture, 0);
-	
-	glUniform1i(glGetUniformLocation(shader, "DiffuseTexture"), Material::DIFFUSE);
-	glUniform1i(glGetUniformLocation(shader, "NormalTexture"), Material::NORMAL);
-	glUniform1i(glGetUniformLocation(shader, "SpecularTexture"), Material::SPECULAR);
-	glUniform1i(glGetUniformLocation(shader, "HeightTexture"), Material::HEIGHT);
-
-	m_uTextureFlags[0] = glGetUniformLocation(shader, "HasDiffuse");
-	m_uTextureFlags[1] = glGetUniformLocation(shader, "HasNormal");
-	m_uTextureFlags[2] = glGetUniformLocation(shader, "HasSpecular");
-	m_uTextureFlags[3] = glGetUniformLocation(shader, "HasHeight");
-	
-	m_uNumLights = glGetUniformLocation(shader, "NumLights");
 	glGenBuffers(1, &m_uboLights);
 	glBindBuffer(GL_UNIFORM_BUFFER, m_uboLights);
 	glBufferData(GL_UNIFORM_BUFFER, sizeof(ShaderLight), nullptr, GL_DYNAMIC_DRAW);
-
-	auto uboBind = glGetUniformBlockIndex(shader, "Lights");
-	const auto bindingPoint = 2;
-	glBindBufferBase(GL_UNIFORM_BUFFER, bindingPoint, m_uboLights);
-	glUniformBlockBinding(shader, uboBind, bindingPoint);
-
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 	m_visibleLights.alloc(m_maxVisibleLights);
@@ -340,66 +304,40 @@ void PlatformRenderer::initialize(unsigned int w, unsigned int h, void* ndt, voi
 		glBindVertexArray(0);
 	}
 	
+	compileShaders();
+	
 #ifdef DRAW_AABB
 	m_aabbRenderer = new AABBRenderer();
 	m_aabbRenderer->begin(*this);
 #endif
 }
 
-void PlatformRenderer::setTransform(const Matrix4x4& transform)
+void PlatformRenderer::compileShaders()
 {
-	assert(m_currentCamera);
-	auto MV = m_currentCamera->getViewMatrix() * transform;
-	auto MVP = m_currentCamera->getProjectionMatrix() * MV;
-	auto N = MV.getInversetranspose();
-
-	glUniformMatrix4fv(m_uModelView, 1, GL_FALSE, MV.entries);
-	glUniformMatrix4fv(m_uModelViewProj, 1, GL_FALSE, MVP.entries);
-	glUniformMatrix4fv(m_uNormal, 1, GL_FALSE, N.entries);
+	Common::compileShaders();
+	
+	for(auto& shader : getShaders())
+	{
+		glUseProgram(shader.id);
+		auto uboBind = glGetUniformBlockIndex(shader.id, "Lights");
+		if(uboBind == -1)
+		{
+			LOG_DEBUG("No light UBO found for " << shader.name.str());
+			continue;
+		}
+		
+		const auto bindingPoint = 2;
+		glBindBufferBase(GL_UNIFORM_BUFFER, bindingPoint, m_uboLights);
+		glUniformBlockBinding(shader.id, uboBind, bindingPoint);
+	}
 }
 
-void PlatformRenderer::setMaterial(MeshHandle mesh)
+void PlatformRenderer::enableMaterial(Neo::Material& material, const Neo::Matrix4x4& ModelView, const Neo::Matrix4x4& ModelViewProjection, const Neo::Matrix4x4& Normal)
 {
-	auto& material = mesh->getMaterial();
+	Common::enableMaterial(material, ModelView, ModelViewProjection, Normal);
 	
-	if(material.opacity < 1.0f)
-	{
-		glEnable(GL_BLEND);
-	}
-	else
-	{
-		glDisable(GL_BLEND);
-	}
-	
-	glUniform3fv(m_uMaterialDiffuse, 1, reinterpret_cast<const float*>(&material.diffuseColor));
-	glUniform3fv(m_uMaterialSpecular, 1, reinterpret_cast<const float*>(&material.specularColor));
-	glUniform3fv(m_uMaterialEmit, 1, reinterpret_cast<const float*>(&material.emitColor));
-
-	glUniform1f(m_uMaterialOpacity, material.opacity);
-	glUniform1f(m_uMaterialShininess, material.shininess);
-
-	auto& channels = mesh->getTextureChannels();
-	auto numTextures = channels.size();
-
-	glUniform1i(m_uNumTextures, numTextures);
-
-	for(unsigned short i = 0; i < Material::TEXTURE_MAX; i++)
-	{
-		if(material.textures[i] != nullptr)
-		{
-			glActiveTexture(GL_TEXTURE0 + i);
-			glBindTexture(GL_TEXTURE_2D, material.textures[i]->getID());
-			glUniform1i(m_uTextureFlags[i], 1);
-		}
-		else
-		{
-			glActiveTexture(GL_TEXTURE0 + i);
-			glBindTexture(GL_TEXTURE_2D, 0);
-			glUniform1i(m_uTextureFlags[i], 0);
-		}
-	}
-
-	glActiveTexture(GL_TEXTURE0);
+	auto* shader = getShader(material.getShader());
+	glUniform1i(shader->uNumLights, m_visibleLightCount);
 }
 
 void PlatformRenderer::draw(Object* object)

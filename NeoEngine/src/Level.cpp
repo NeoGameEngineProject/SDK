@@ -8,6 +8,7 @@
 #include <TextureLoader.h>
 #include <LevelLoader.h>
 #include <SoundLoader.h>
+#include <Property.h>
 
 #include <Maths.h>
 #include <behaviors/MeshBehavior.h>
@@ -77,6 +78,8 @@ ObjectHandle Level::findInactive(size_t idx)
 
 void Level::begin(Platform& p, Renderer& r) 
 {
+	r.compileShaders();
+	
 	m_physics.begin();
 	for(size_t i = 0; i < m_objects.size(); i++)
 	{
@@ -215,9 +218,9 @@ MeshHandle Level::loadMesh(const char* name)
 	return MeshHandle();
 }
 
-bool Level::load(const char* path, const char* parentNode)
+bool Level::load(const char* path, Renderer& render, const char* parentNode)
 {
-	return LevelLoader::load(*this, path, parentNode);
+	return LevelLoader::load(*this, render, path, parentNode);
 }
 
 void Level::updateVisibility(const CameraBehavior& camera)

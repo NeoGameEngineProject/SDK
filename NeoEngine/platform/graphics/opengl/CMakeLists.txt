@@ -1,6 +1,6 @@
 file(GLOB SOURCES src/*.c*)
 file(GLOB INCLUDES include/*.h)
-file(GLOB_RECURSE SHADERS shaders/*.sc)
+file(GLOB_RECURSE SHADERS shaders/*)
 
 ## OpenGL
 set(OpenGL_GL_PREFERENCE GLVND)
@@ -29,8 +29,7 @@ add_subdirectory(glew-external/build/cmake)
 set(GLEW_LIBRARIES glew_s)
 fix_install_includes(glew_s)
 
-preprocess_files(SOURCES ${SHADERS} INCLUDE_DIRECTORIES "")
-
+preprocess_files(SOURCES ${SHADERS} ${CMAKE_CURRENT_SOURCE_DIR}/shaders/ShaderLight.h INCLUDE_DIRECTORIES "")
 add_custom_target(build-shaders SOURCES ${PROCESSED_SHADERS} COMMENT "Building shaders")
 
 add_platform_module(
@@ -45,3 +44,4 @@ add_platform_module(
 
 install(FILES ../opengl-common/Common.h DESTINATION include)
 install(DIRECTORY include/ DESTINATION include)
+install(DIRECTORY materials/ DESTINATION share/neo-materials)

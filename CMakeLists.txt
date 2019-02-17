@@ -18,6 +18,7 @@ set(NEO_COPYRIGHT "Copyright (c) 2014-2018, ${NEO_VENDOR}.")
 set(NEO_CMAKE_EXPORT "lib/cmake")
 set(CMAKE_INSTALL_LIBDIR "lib") # To prevent GNUInstallDirs from creating lib64
 
+include(CopyFiles)
 include(ExternalProject)
 
 set(CMAKE_CXX_STANDARD 14)

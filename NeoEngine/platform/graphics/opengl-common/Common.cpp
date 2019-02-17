@@ -2,6 +2,7 @@
 #include <string>
 #include <memory>
 
+#include <Material.h>
 #include <Texture.h>
 #include <FileTools.h>
 #include <Log.h>
@@ -13,10 +14,14 @@
 #include <GL/gl.h>
 #include <cassert>
 
+#include <regex>
+#include <unordered_map>
+
 using namespace Neo;
 
 namespace
 {
+
 bool checkShaderStatus(GLuint shader)
 {
 	GLint result = 0;
@@ -62,79 +67,63 @@ bool checkProgramStatus(GLuint shader)
 
 Common::~Common()
 {
-	for(auto program : m_shaders)
-		glDeleteProgram(program);
+	for(auto shader : m_shaders)
+		glDeleteProgram(shader.id);
 }
 
 void Common::useShader(unsigned int id)
 {
 	assert(id < m_shaders.size());
-	glUseProgram(m_shaders[id]);
+	assert(m_shaders[id].id != -1);
+	
+	glUseProgram(m_shaders[id].id);
 }
 
-int Common::loadShader(const char* path)
+int Common::loadShader(const std::string& vert, const std::string& frag)
 {
-	std::string fullpath = path;
+	return loadShader(vert.c_str(), frag.c_str());
+}
+
+int Common::loadShader(const char* vert, const char* frag)
+{
 	GLuint vertexShader = -1, fragmentShader = -1;
 
 	{
-		char* vertShaderData = readTextFile((fullpath + "_vs.glsl").c_str());
-		if (!vertShaderData)
-		{
-			LOG_ERROR("Could not load shader " << path << "_vs.glsl");
-			return -1;
-		}
-
 		vertexShader = glCreateShader(GL_VERTEX_SHADER);
 		if(!vertexShader)
 		{
 			LOG_ERROR("Could not create OpenGL vertex shader!");
-			delete vertShaderData;
 			return -1;
 		}
 
-		char* array[] = {vertShaderData};
+		const char* array[] = {vert};
 		glShaderSource(vertexShader, 1, array, nullptr);
 		glCompileShader(vertexShader);
 
 		if(!checkShaderStatus(vertexShader))
 		{
-			delete vertShaderData;
 			glDeleteShader(vertexShader);
 			return -1;
 		}
-
-		delete vertShaderData;
 	}
 
 	{
-		char* fragShaderData = readTextFile((fullpath + "_fs.glsl").c_str());
-		if (!fragShaderData)
-		{
-			LOG_ERROR("Could not load shader " << path << "_fs.glsl");
-			return -1;
-		}
-
 		fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 		if(!fragmentShader)
 		{
 			LOG_ERROR("Could not create OpenGL fragment shader!");
-			delete fragShaderData;
 			return -1;
 		}
 
-		char* array[] = {fragShaderData};
+		const char* array[] = {frag};
 		glShaderSource(fragmentShader, 1, array, nullptr);
 		glCompileShader(fragmentShader);
 
 		if(!checkShaderStatus(fragmentShader))
 		{
-			delete fragShaderData;
 			glDeleteShader(fragmentShader);
 			return -1;
 		}
-		
-		delete fragShaderData;
 	}
 
 	GLuint program = glCreateProgram();
@@ -161,11 +150,35 @@ done:
 	glDeleteShader(fragmentShader);
 	glDeleteShader(vertexShader);
 
-	if(program != -1)
+	return program;
+}
+
+int Common::loadShader(const char* path)
+{
+	std::string fullpath = path;
+
+	const auto vertShaderData = preprocess((fullpath + "_vs.glsl").c_str());
+	if (vertShaderData.empty())
 	{
-		m_shaders.push_back(program);
+		LOG_ERROR("Could not load shader " << path << "_vs.glsl");
+		return -1;
 	}
 
+		
+	const auto fragShaderData = preprocess((fullpath + "_fs.glsl").c_str());
+	if(fragShaderData.empty())
+	{
+		LOG_ERROR("Could not load shader " << path << "_fs.glsl");
+		return -1;
+	}
+
+	
+	int program = loadShader(vertShaderData.c_str(), fragShaderData.c_str());
+	if(program != -1)
+	{
+		m_shaders.emplace_back(program, path);
+	}
+	
 	return program;
 }
 
@@ -182,6 +195,7 @@ int Common::createTexture(Texture* tex)
 	glGenTextures(1, &texture);
 	glBindTexture(GL_TEXTURE_2D, texture);
 
+	// TODO Use material settings!
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
@@ -203,4 +217,298 @@ int Common::createTexture(Texture* tex)
 	return texture;
 }
 
+std::string Common::preprocess(const char* path)
+{
+	char* file = readTextFile(path);
+	if(!file)
+		return std::string();
+	
+	std::stringstream in(file); // TODO Make readTextFile STL aware!
+	delete file;
+	
+	std::string basePath(path);
+	basePath.erase(basePath.find_last_of('/') + 1);
+	
+	std::stringstream out;
+	std::string line;
+	
+	static const std::regex regex("#include(\\s)+(<|\")(.*)(>|\")");
+	
+	while(!in.eof())
+	{
+		std::smatch result;
+		std::getline(in, line, '\n');
+				
+		std::regex_search(line, result, regex);
+		
+		if(!result.empty())
+		{
+			std::string file = preprocess((basePath + result[3].str()).c_str());
+			if(file.empty())
+			{
+				LOG_ERROR("Could not load include file: " << basePath << result[3].str());
+				return "";
+			}
+			out << file;
+			continue;
+		}
+		
+		out << line << '\n';
+	}
+	
+	return out.str();
+}
 
+int Common::findShader(const char* name)
+{
+	for(int i = 0; i < m_shaders.size(); i++)
+	{
+		if(m_shaders[i].name == name)
+			return i;
+	}
+	
+	return -1;
+}
+
+#define CCPP_IMPL
+#include "ccpp.h"
+
+void Common::gatherUniforms(const std::string& code, Shader& shader)
+{
+	static const std::regex regex("uniform\\s+(\\w+)\\s+([a-zA-Z_]+)(\\s+=\\s+(.*)|);\\s*(//(.*)|)");
+	static const std::unordered_map<std::string, PROPERTY_TYPES> typeMap{
+		{"int", INTEGER},
+		{"float", FLOAT},
+		{"vec2", VECTOR2},
+		{"vec3", VECTOR3},
+		{"vec4", VECTOR4},
+		{"mat4", MATRIX4x4},
+		{"sampler2D", INTEGER},
+		{"sampler3D", INTEGER}
+	};
+	
+	auto uniformIterBegin = std::sregex_iterator(code.begin(), code.end(), regex);
+	auto uniformIterEnd = std::sregex_iterator();
+	
+	LOG_DEBUG(shader.name.str() << ": Found " << std::distance(uniformIterBegin, uniformIterEnd) << " uniforms.");
+	
+	for(; uniformIterBegin != uniformIterEnd; uniformIterBegin++)
+	{
+		auto& match = *uniformIterBegin;
+		if(match[6] == " HIDDEN")
+			continue;
+		
+		IProperty* prop;
+		auto type = typeMap.at(match[1]);
+		auto initializer = match[4].str();
+		
+		switch(type)
+		{
+		default: type = INTEGER;
+		case INTEGER: prop = new StaticProperty<int>(match[2].str().c_str(), initializer.empty() ? 0 : std::stoi(initializer), type); break;
+		case FLOAT: prop = new StaticProperty<float>(match[2].str().c_str(), initializer.empty() ? 0.0f : std::stod(initializer), type); break;
+		case VECTOR2: prop = new StaticProperty<Vector2>(match[2].str().c_str(), type); break;
+		case VECTOR3: prop = new StaticProperty<Vector3>(match[2].str().c_str(), type); break;
+		case VECTOR4: prop = new StaticProperty<Vector4>(match[2].str().c_str(), type); break;
+		}
+		
+		shader.uniforms.push_back({ std::unique_ptr<IProperty>(prop), -1 });
+	}
+}
+
+void Common::setupMaterial(Material& material, const char* shaderName)
+{
+	int shaderId = findShader(shaderName);
+	if(shaderId != -1)
+	{
+		LOG_DEBUG("Found shader in cache for " << shaderName);
+		material.setShader(shaderId);
+		
+		LOG_DEBUG("Cloning " << getShader(shaderId)->uniforms.size() << " properties");
+		for(auto& k : getShader(shaderId)->uniforms)
+		{
+			material.registerProperty(k.first->clone());
+		}
+		
+		return;
+	}
+	
+	// Preprocess sources
+	std::string fullPath("assets/shaders/");
+	fullPath += shaderName;
+	fullPath += ".glsl";
+	
+	std::string vertexShader = preprocess(fullPath.c_str());
+	std::string fragmentShader = vertexShader;
+	
+	ccpp::processor pp;
+	pp.set_command_callback([] (const char*, const char*) {
+		return true;
+	});
+	
+	pp.add_define("NEO_VERTEX");
+	pp.process(&vertexShader[0], vertexShader.size());
+	
+	pp.remove_define("NEO_VERTEX");
+	pp.add_define("NEO_FRAGMENT");
+	pp.process(&fragmentShader[0], fragmentShader.size());
+	
+	vertexShader.erase(vertexShader.find_last_not_of(' ') + 1);
+	fragmentShader.erase(fragmentShader.find_last_not_of(' ') + 1);
+	
+	std::replace(vertexShader.begin(), vertexShader.end(), '$', '#');
+	std::replace(fragmentShader.begin(), fragmentShader.end(), '$', '#');
+		
+	shaderId = m_shaders.size();
+	m_shaders.emplace_back();
+	Shader& shader = m_shaders.back();
+	shader.name = shaderName;
+	shader.id = -1;
+	
+	material.setShader(shaderId);
+	
+	shader.vertexSource = std::move(vertexShader);
+	shader.fragmentSource = std::move(fragmentShader);
+		
+	// Gather uniforms
+	gatherUniforms(shader.vertexSource, shader);
+	gatherUniforms(shader.fragmentSource, shader);
+	
+	LOG_DEBUG("Created a new shader " << shaderName);
+	for(auto& k : shader.uniforms)
+	{
+		LOG_DEBUG("Shader property: " << k.first->getName());
+		material.registerProperty(k.first->clone());
+	}
+}
+
+void Common::compileShaders()
+{
+	LOG_DEBUG("Compiling shaders");
+	for(unsigned int i = 0; i < m_shaders.size(); i++)
+	{
+		Shader* shader = &m_shaders[i];
+		if(shader->id == -1)
+		{
+			LOG_DEBUG("Building shader " << shader->name.str());
+			shader->id = loadShader(shader->vertexSource.c_str(), shader->fragmentSource.c_str());
+			
+			glUseProgram(shader->id);
+			shader->uModelView = glGetUniformLocation(shader->id, "ModelViewMatrix");
+			shader->uModelViewProj = glGetUniformLocation(shader->id, "ModelViewProjectionMatrix");
+			shader->uNormal = glGetUniformLocation(shader->id, "NormalMatrix");
+			shader->uTime = glGetUniformLocation(shader->id, "Time");
+			shader->uNumLights = glGetUniformLocation(shader->id, "NumLights");
+			
+			glUniform1i(glGetUniformLocation(shader->id, "DiffuseTexture"), Material::DIFFUSE);
+			glUniform1i(glGetUniformLocation(shader->id, "NormalTexture"), Material::NORMAL);
+			glUniform1i(glGetUniformLocation(shader->id, "SpecularTexture"), Material::SPECULAR);
+			glUniform1i(glGetUniformLocation(shader->id, "HeightTexture"), Material::HEIGHT);
+
+			shader->uTextureFlags[0] = glGetUniformLocation(shader->id, "HasDiffuse");
+			shader->uTextureFlags[1] = glGetUniformLocation(shader->id, "HasNormal");
+			shader->uTextureFlags[2] = glGetUniformLocation(shader->id, "HasSpecular");
+			shader->uTextureFlags[3] = glGetUniformLocation(shader->id, "HasHeight");
+			
+			assert(shader->uModelView != -1);
+			
+			for(auto& prop : shader->uniforms)
+			{
+				prop.second = glGetUniformLocation(shader->id, prop.first->getName().c_str());
+			}
+		}
+		else
+		{
+			LOG_DEBUG("Ignore already built shader " << shader->name.str());
+		}
+	}
+	
+	glUseProgram(0);
+}
+
+void Common::enableMaterialTransform(Neo::Material& material, const Neo::Matrix4x4& transform, const Neo::Matrix4x4& view, const Neo::Matrix4x4& proj)
+{
+	auto MV = view * transform;
+	auto MVP = proj * MV;
+	auto N = MV.getInversetranspose();
+	
+	enableMaterial(material, MV, MVP, N);
+}
+
+void Common::enableMaterial(Neo::Material& material, const Neo::Matrix4x4& ModelView, const Neo::Matrix4x4& ModelViewProjection, const Neo::Matrix4x4& Normal)
+{
+	useShader(material.getShader());
+	Shader* shader = getShader(material.getShader());
+	
+	switch(material.blendMode)
+	{
+		default:
+		case BLENDING_NONE: 
+			glDisable(GL_BLEND);
+			glBlendFunc(GL_ONE, GL_ZERO);
+		break;
+		
+		case BLENDING_ALPHA:
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		break;
+			
+		case BLENDING_ADD:
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_ONE, GL_ONE);
+		break;
+		
+		case BLENDING_SUB:
+			glEnable(GL_BLEND);
+			glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+		break;
+		
+		case BLENDING_LIGHT:
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_COLOR);
+		break;
+		
+		case BLENDING_PRODUCT:
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_ZERO, GL_SRC_COLOR);
+		break;
+	}
+	
+	assert(shader->uModelView != -1);
+	glUniformMatrix4fv(shader->uModelView, 1, GL_FALSE, ModelView.entries);
+	glUniformMatrix4fv(shader->uModelViewProj, 1, GL_FALSE, ModelViewProjection.entries);
+	glUniformMatrix4fv(shader->uNormal, 1, GL_FALSE, Normal.entries);
+	
+	for(unsigned short i = 0; i < shader->uniforms.size(); i++)
+	{
+		int uniform = shader->uniforms[i].second;
+		auto& prop = material.getProperties()[i];
+		switch(prop->getType())
+		{
+		default:
+		case INTEGER: glUniform1i(uniform, prop->get<int>()); break;
+		case FLOAT: glUniform1f(uniform, prop->get<float>()); break;
+		case VECTOR2: glUniform2fv(uniform, 1, (const float*) prop->data()); break;
+		case VECTOR3: glUniform3fv(uniform, 1, (const float*) prop->data()); break;
+		case VECTOR4: glUniform4fv(uniform, 1, (const float*) prop->data()); break;
+		}
+	}
+	
+	for(unsigned short i = 0; i < Material::TEXTURE_MAX; i++)
+	{
+		if(material.textures[i] != nullptr)
+		{
+			glActiveTexture(GL_TEXTURE0 + i);
+			glBindTexture(GL_TEXTURE_2D, material.textures[i]->getID());
+			glUniform1i(shader->uTextureFlags[i], 1);
+		}
+		else
+		{
+			glActiveTexture(GL_TEXTURE0 + i);
+			glBindTexture(GL_TEXTURE_2D, 0);
+			glUniform1i(shader->uTextureFlags[i], 0);
+		}
+	}
+
+	glActiveTexture(GL_TEXTURE0);
+}

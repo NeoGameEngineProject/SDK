@@ -2,6 +2,8 @@
 #define _BEHAVIOR_H
 
 #include "NeoEngine.h"
+
+#include <Property.h>
 #include <Platform.h>
 #include <memory>
 
@@ -51,110 +53,6 @@ namespace Neo
 #warning "Using default implementation of runtime registration"
 #define REGISTER_BEHAVIOR(classname) namespace { classname g_obj; }
 #endif
-
-enum PROPERTY_TYPES
-{
-	UNKNOWN = 0,
-	INTEGER,
-	FLOAT,
-	VECTOR2,
-	VECTOR3,
-	VECTOR4,
-	COLOR,
-	STRING,
-	PATH,
-	BOOL
-};
-
-template<typename T>
-PROPERTY_TYPES typeOf()
-{
-	if(std::is_same<T, int>::value)
-		return INTEGER;
-	else if(std::is_same<T, float>::value)
-		return FLOAT;
-	else if(std::is_same<T, Vector2>::value)
-		return VECTOR2;
-	else if(std::is_same<T, Vector3>::value)
-		return VECTOR3;
-	else if(std::is_same<T, Vector4>::value)
-		return VECTOR4;
-	else if(std::is_same<T, Color>::value)
-		return COLOR;
-	else if(std::is_same<T, std::string>::value)
-		return STRING;
-	else if(std::is_same<T, bool>::value)
-		return BOOL;
-	
-	return UNKNOWN;
-}
-
-class Object;
-class IProperty 
-{
-	std::string m_name;
-	size_t m_size = 0;
-	PROPERTY_TYPES m_type = UNKNOWN;
-	
-public:
-	IProperty(const char* name, PROPERTY_TYPES type = UNKNOWN, size_t size = 0):
-		m_name(name), m_size(size), m_type(type) {}
-	
-	virtual ~IProperty() = default;
-	
-	const std::string& getName() const { return m_name; }
-	size_t getSize() const { return m_size; }
-	PROPERTY_TYPES getType() const { return m_type; }
-	
-	virtual void* data() = 0;
-	virtual void* data() const { return data(); }
-	
-	template<typename T>
-	T& get()
-	{
-		return *reinterpret_cast<T*>(data());
-	}
-	
-	template<typename T>
-	const T& get() const
-	{
-		return *reinterpret_cast<const T*>(data());
-	}
-	
-	template<typename T>
-	void set(const T& value)
-	{
-		assert((typeOf<T>() == m_type 
-			|| typeOf<T>() == VECTOR4 && m_type == COLOR
-			|| typeOf<T>() == STRING && m_type == PATH) && "Types don't match!");
-		assert(sizeof(T) == m_size && "Assigned type is wrong!");
-		
-		get<T>() = value;
-	}
-};
-
-template<typename T>
-class Property : public IProperty
-{
-	T* m_data;
-
-public:
-	Property(const char* name, T& data):
-		IProperty(name, typeOf<T>(), sizeof(T)), m_data(&data)
-	{
-		static_assert(std::is_trivially_copyable<T>::value, "A property must be serializable!");
-	}
-	
-	Property(const char* name, T& data, PROPERTY_TYPES type):
-		IProperty(name, type, sizeof(T)), m_data(&data)
-	{
-		static_assert(std::is_trivially_copyable<T>::value, "A property must be serializable!");
-	}
-
-	T* get() { return m_data; }
-	T& operator*() { return *m_data; }
-	void* data() override { return m_data; }
-};
 
 /**
  * @brief Super class for all behaviors an object might have.
@@ -290,13 +188,13 @@ public:
 	template<typename T>
 	void registerProperty(const char* name, T& data)
 	{
-		m_properties.push_back(new Property<T>(name, data));
+		m_properties.push_back(new Property<T>(name, &data));
 	}
 	
 	template<typename T>
 	void registerProperty(const char* name, T& data, PROPERTY_TYPES type)
 	{
-		m_properties.push_back(new Property<T>(name, data, type));
+		m_properties.push_back(new Property<T>(name, &data, type));
 	}
 
 	std::vector<IProperty*>& getProperties() { return m_properties; }

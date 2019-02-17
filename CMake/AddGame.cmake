@@ -38,6 +38,9 @@ macro(add_game name sources assetdir)
 				COMMAND ${CMAKE_COMMAND} -E remove_directory ${assetdir}/glsl ## TODO Find real shader output!
 				COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/assets/glsl ${assetdir}/glsl ## TODO Find real shader output!
 
+				COMMAND ${CMAKE_COMMAND} -E remove_directory ${assetdir}/shaders/builtin
+				COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/assets/glsl/ ${assetdir}/shaders/builtin/
+				
 				WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 				COMMENT "Copying shaders"
 				DEPENDS build-shaders

@@ -7,6 +7,7 @@ namespace Neo
 class CameraBehavior;
 class Level;
 class Object;
+class Material;
 
 /**
  * @brief Represents a renderer for a specific platform.
@@ -82,6 +83,9 @@ public:
 	 * @param object The object to draw.
 	 */
 	virtual void draw(Object* object) = 0;
+	
+	virtual void setupMaterial(Material& material, const char* shaderName) = 0;
+	virtual void compileShaders() = 0;
 	
 	unsigned int getDrawCallCount() const { return m_drawCallCount; }
 	unsigned int getFaceCount() const { return m_faceCount; }
