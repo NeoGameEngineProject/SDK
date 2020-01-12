@@ -28,6 +28,7 @@ class PlatformRenderer : public Common
 	static const unsigned int MAX_LIGHTS_PER_OBJECT = 8;
 
 	CameraBehavior* m_currentCamera = nullptr;
+	unsigned int m_currentFBO = -1;
 
 	unsigned int m_uModelView = -1, m_uModelViewProj = -1, m_uNormal = -1;
 
@@ -37,7 +38,7 @@ class PlatformRenderer : public Common
 	
 	unsigned int m_uNumLights, m_uboLights;
 	
-	unsigned int m_pfxFBO = -1, m_pfxTexture = -1, m_pfxDepthTexture = -1, m_pfxVAO = -1, m_pfxVBO = -1, m_pfxUFrustum = -1, m_pfxTime = -1;
+	unsigned int m_pfxFBO = -1, m_pfxTexture = -1, m_pfxDepthTexture = -1, m_pfxVAO = -1, m_pfxVBO = -1, m_pfxUFrustum = -1, m_pfxTime = -1, m_pfxShader = -1;
 	
 	unsigned long long m_startTime = 0;
 
@@ -64,6 +65,8 @@ public:
 	void setMaterial(MeshHandle mesh);
 	
 	void draw(Object* object);
+	
+	void setCurrentFBO(unsigned int fbo) { m_currentFBO = fbo; }
 };
 
 }

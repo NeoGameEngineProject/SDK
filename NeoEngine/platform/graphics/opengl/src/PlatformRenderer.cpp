@@ -99,7 +99,10 @@ void PlatformRenderer::setViewport(unsigned int x, unsigned int y, unsigned int 
 			exit(1); // FIXME: Maybe just fall back on non-fx rendering?
 		}
 
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glBindFramebuffer(GL_FRAMEBUFFER, m_currentFBO);
+		
+		glUseProgram(m_pfxShader);
+		glUniform2f(glGetUniformLocation(m_pfxShader, "FrameSize"), 1.0f/w, 1.0f/h);
 	}
 	
 	m_width = w;
@@ -193,7 +196,7 @@ void PlatformRenderer::endFrame()
 	
 	// Finish frame 
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glBindFramebuffer(GL_FRAMEBUFFER, m_currentFBO);
 	
 	useShader(1);
 	
@@ -289,14 +292,13 @@ void PlatformRenderer::initialize(unsigned int w, unsigned int h, void* ndt, voi
 	
 	// Create FBO for post fx
 	{
-		auto pfxShader = loadShader("assets/glsl/pfx");
-		glUseProgram(pfxShader);
-		glUniform1i(glGetUniformLocation(pfxShader, "Color"), 0);
-		glUniform1i(glGetUniformLocation(pfxShader, "Depth"), 1);
-		glUniform2f(glGetUniformLocation(pfxShader, "FrameSize"), 1.0f/w, 1.0f/h);
+		m_pfxShader = loadShader("assets/glsl/pfx");
+		glUseProgram(m_pfxShader);
+		glUniform1i(glGetUniformLocation(m_pfxShader, "Color"), 0);
+		glUniform1i(glGetUniformLocation(m_pfxShader, "Depth"), 1);
 		
-		m_pfxUFrustum = glGetUniformLocation(pfxShader, "Frustum");
-		m_pfxTime = glGetUniformLocation(pfxShader, "Time");
+		m_pfxUFrustum = glGetUniformLocation(m_pfxShader, "Frustum");
+		m_pfxTime = glGetUniformLocation(m_pfxShader, "Time");
 
 		setViewport(0, 0, w, h);
 		

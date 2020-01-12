@@ -56,6 +56,7 @@ enum PROPERTY_TYPES
 {
 	UNKNOWN = 0,
 	INTEGER,
+	UNSIGNED_INTEGER,
 	FLOAT,
 	VECTOR2,
 	VECTOR3,
@@ -71,6 +72,8 @@ PROPERTY_TYPES typeOf()
 {
 	if(std::is_same<T, int>::value)
 		return INTEGER;
+	else if(std::is_same<T, unsigned int>::value)
+		return UNSIGNED_INTEGER;
 	else if(std::is_same<T, float>::value)
 		return FLOAT;
 	else if(std::is_same<T, Vector2>::value)
