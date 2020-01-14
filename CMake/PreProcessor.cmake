@@ -13,13 +13,13 @@ macro(preprocess_file input output)
 
 		if(NOT WIN32)
 			add_custom_command(OUTPUT ${output}
-				                COMMAND cpp -nostdinc -P -E ${input} | sed "s/\\$/\#/g" > ${output}
+				                COMMAND cpp -nostdinc -CC -P -E ${input} | sed "s/\\$/\#/g" > ${output}
 								WORKING_DIRECTORY ${_CWD}
 								DEPENDS ${input}
 								COMMENT "Preprocessing shader ${_NAME}" VERBATIM)
 		else()
 			add_custom_command(OUTPUT ${output}
-				                COMMAND cpp -nostdinc -P -E ${input} > ${output}.tmp
+				                COMMAND cpp -nostdinc -CC -P -E ${input} > ${output}.tmp
 								COMMAND PowerShell -Command "get-content ${output}.tmp | %{$_ -replace \"\\$\",\"\#\"} | out-file \"${output}\" -encoding ascii"
 								WORKING_DIRECTORY ${_CWD}
 								DEPENDS ${input}
@@ -30,7 +30,7 @@ macro(preprocess_file input output)
 
 	elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 		add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${output}
-				COMMAND ${CMAKE_CXX_COMPILER} /X /EP ${input} > ${CMAKE_CURRENT_BINARY_DIR}/${output}
+				COMMAND ${CMAKE_CXX_COMPILER} /C /X /EP ${input} > ${CMAKE_CURRENT_BINARY_DIR}/${output}
 				WORKING_DIRECTORY ${_CWD}
 				DEPENDS ${input}
 				COMMENT "Preprocessing shader ${_NAME}")
@@ -47,7 +47,7 @@ function(preprocess_files)
 	foreach(FILE ${ARG_SOURCES})
 		message(${FILE})
 		get_filename_component(NAME ${FILE} NAME_WE)
-		set(OUTFILE ${CMAKE_BINARY_DIR}/bin/assets/glsl/${NAME}.glsl)
+		set(OUTFILE ${CMAKE_BINARY_DIR}/bin/assets/materials/builtin/${NAME}.glsl)
 		preprocess_file(${FILE} ${OUTFILE})
 		set(_PROCESSED_SHADERS ${_PROCESSED_SHADERS} ${OUTFILE})
 	endforeach()

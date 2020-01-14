@@ -159,8 +159,7 @@ static void traverseAssimpScene(Level* level,
 	}
 }
 
-
-bool LevelLoader::load(Level& level, const char* file, const char* rootNode)
+bool LevelLoader::load(Level& level, const char* file, Renderer& render, const char* rootNode)
 {
 	ObjectHandle root;
 	if(rootNode)
@@ -199,28 +198,9 @@ bool LevelLoader::load(Level& level, const char* file, const char* rootNode)
 	for(size_t i = 0; i < scene->mNumMaterials; i++)
 	{
 		auto aiMat = scene->mMaterials[i];
-		Material material;
-		
-		aiColor4D color;
-		if(AI_SUCCESS == aiGetMaterialColor(aiMat, AI_MATKEY_COLOR_DIFFUSE, &color))
-			material.diffuseColor = Vector3(color.r, color.g, color.b);
-		
-		if(AI_SUCCESS == aiGetMaterialColor(aiMat, AI_MATKEY_COLOR_SPECULAR, &color))
-			material.specularColor = Vector3(color.r, color.g, color.b);
-		
-		if(AI_SUCCESS == aiGetMaterialColor(aiMat, AI_MATKEY_COLOR_EMISSIVE, &color))
-			material.emitColor = Vector3(color.r * material.diffuseColor.x, 
-							color.g * material.diffuseColor.y,
-							color.b * material.diffuseColor.z);
+		materials.emplace_back();
+		Material& material = materials.back();
 	
-		if(AI_SUCCESS == aiGetMaterialFloat(aiMat, AI_MATKEY_OPACITY, &material.opacity))
-		{}
-		
-		if(AI_SUCCESS == aiGetMaterialFloat(aiMat, AI_MATKEY_SHININESS, &material.shininess))
-		{
-			material.shininess *= 0.025; // Need to quarter values since Assimp multiplies with 4 for some reason.
-		}
-		
 		int blendMode;
 		if(AI_SUCCESS == aiGetMaterialInteger(aiMat, AI_MATKEY_BLEND_FUNC, &blendMode))
 		{
@@ -244,6 +224,9 @@ bool LevelLoader::load(Level& level, const char* file, const char* rootNode)
 			// but enums are always 32bit leading to a stack corruption!
 			//aiTextureMapMode mapmode;
 			long long mapmode = 0;
+	
+			// Default: Diffuse shading with a single color
+			material.setShaderName("DiffuseColor");
 
 			if(AI_SUCCESS == aiMat->GetTexture(aiTextureType_DIFFUSE, 0, &path, &mapping, &uvindex, &blend, &op, (aiTextureMapMode*) &mapmode))
 			{
@@ -257,6 +240,8 @@ bool LevelLoader::load(Level& level, const char* file, const char* rootNode)
 				
 				assert(uvindex < 8 && material.textures[Material::DIFFUSE] == nullptr);
 				material.textures[Material::DIFFUSE] = texture;
+				material.setShaderName("Diffuse");
+
 				//material.addTexturePass(texture, TEX_COMBINE_MODULATE, uvindex);
 			}
 		
@@ -272,6 +257,7 @@ bool LevelLoader::load(Level& level, const char* file, const char* rootNode)
 				
 				assert(uvindex < 8 && material.textures[Material::SPECULAR] == nullptr);
 				material.textures[Material::SPECULAR] = texture;
+				material.setShaderName("DiffuseSpecular");
 			}
 		
 			if(AI_SUCCESS == aiMat->GetTexture(aiTextureType_NORMALS, 0, &path, &mapping, &uvindex, &blend, &op, (aiTextureMapMode*) &mapmode))
@@ -286,6 +272,7 @@ bool LevelLoader::load(Level& level, const char* file, const char* rootNode)
 				
 				assert(uvindex < 8 && material.textures[Material::NORMAL] == nullptr);
 				material.textures[Material::NORMAL] = texture;
+				material.setShaderName("DiffuseSpecularNormal");
 			}
 			
 			if(AI_SUCCESS == aiMat->GetTexture(aiTextureType_HEIGHT, 0, &path, &mapping, &uvindex, &blend, &op, (aiTextureMapMode*) &mapmode))
@@ -300,6 +287,7 @@ bool LevelLoader::load(Level& level, const char* file, const char* rootNode)
 				
 				assert(uvindex < 8 && material.textures[Material::HEIGHT] == nullptr);
 				material.textures[Material::HEIGHT] = texture;
+				material.setShaderName("DiffuseSpecularBump");
 			}
 		
 		/*	if(AI_SUCCESS == aiMat->GetTexture(aiTextureType_EMISSIVE, 0, &path, &mapping, &uvindex, &blend, &op, (aiTextureMapMode*) &mapmode))
@@ -315,8 +303,29 @@ bool LevelLoader::load(Level& level, const char* file, const char* rootNode)
 				material.textures[uvindex] = texture;
 			}*/
 		}
+
+		render.setupMaterial(material, material.getShaderName());
+
+		aiColor4D color;
+		if(AI_SUCCESS == aiGetMaterialColor(aiMat, AI_MATKEY_COLOR_DIFFUSE, &color))
+			material.setProperty("Diffuse", Vector3(color.r, color.g, color.b));
 		
-		materials.push_back(material);
+		if(AI_SUCCESS == aiGetMaterialColor(aiMat, AI_MATKEY_COLOR_SPECULAR, &color))
+			material.setProperty("Specular", Vector3(color.r, color.g, color.b));
+		
+		if(AI_SUCCESS == aiGetMaterialColor(aiMat, AI_MATKEY_COLOR_EMISSIVE, &color))
+			material.setProperty("Emit", Vector3(color.r, 
+							color.g,
+							color.b));
+	
+		auto* prop = material.getProperty("Diffuse");
+		if(AI_SUCCESS == aiGetMaterialFloat(aiMat, AI_MATKEY_OPACITY, &material.getProperty("Opacity")->get<float>()))
+		{}
+		
+		if(AI_SUCCESS == aiGetMaterialFloat(aiMat, AI_MATKEY_SHININESS, &material.getProperty("Shininess")->get<float>()))
+		{
+			material.getProperty("Shininess")->get<float>() *= 0.025; // Need to quarter values since Assimp multiplies with 4 for some reason.
+		}
 	}
 	
 	for(size_t i = 0; i < scene->mNumMeshes; i++)

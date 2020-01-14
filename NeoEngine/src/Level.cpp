@@ -8,6 +8,7 @@
 #include <TextureLoader.h>
 #include <LevelLoader.h>
 #include <SoundLoader.h>
+#include <Property.h>
 
 #include <Maths.h>
 #include <behaviors/MeshBehavior.h>
@@ -85,7 +86,7 @@ void Level::begin(Platform& p, Renderer& r)
 	}
 	
 	rebuildOctree();
-
+	r.compileShaders();
 }
 
 void Level::update(Platform& p, float dt)
@@ -215,9 +216,13 @@ MeshHandle Level::loadMesh(const char* name)
 	return MeshHandle();
 }
 
-bool Level::load(const char* path, const char* parentNode)
+bool Level::load(const char* path, Renderer& render, const char* parentNode)
 {
-	return LevelLoader::load(*this, path, parentNode);
+	const bool result = LevelLoader::load(*this, path, render, parentNode);
+	//if(result)
+	//	render.compileShaders();
+
+	return result;
 }
 
 void Level::updateVisibility(const CameraBehavior& camera)

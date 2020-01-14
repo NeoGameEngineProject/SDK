@@ -20,6 +20,8 @@ class AABBRenderer;
 class PlatformRenderer : public Common
 {
 	unsigned int m_width, m_height;
+	
+	unsigned short m_visibleLightCount = 0;
 	Array<LightBehavior*> m_visibleLights;
 	Array<Vector4> m_lightBuffer;
 	Array<unsigned char> m_buffer;
@@ -28,18 +30,10 @@ class PlatformRenderer : public Common
 	static const unsigned int MAX_LIGHTS_PER_OBJECT = 8;
 
 	CameraBehavior* m_currentCamera = nullptr;
-	unsigned int m_currentFBO = -1;
-
-	unsigned int m_uModelView = -1, m_uModelViewProj = -1, m_uNormal = -1;
-
-	unsigned int m_uMaterialDiffuse, m_uMaterialSpecular, m_uMaterialShininess, m_uMaterialOpacity, m_uMaterialEmit;
-	unsigned int m_uDiffuseTexture, m_uNumTextures;
-	unsigned int m_uTextureFlags[8];
+	unsigned int m_uboLights;
 	
-	unsigned int m_uNumLights, m_uboLights;
-	
-	unsigned int m_pfxFBO = -1, m_pfxTexture = -1, m_pfxDepthTexture = -1, m_pfxVAO = -1, m_pfxVBO = -1, m_pfxUFrustum = -1, m_pfxTime = -1, m_pfxShader = -1;
-	
+	unsigned int m_currentFBO = -1, m_pfxFBO = -1, m_pfxTexture = -1, m_pfxDepthTexture = -1, m_pfxVAO = -1, m_pfxVBO = -1, m_pfxUFrustum = -1, m_pfxTime = -1;
+	unsigned int m_pfxShader = -1;
 	unsigned long long m_startTime = 0;
 
 	std::vector<Object*> m_opaqueObjects;
@@ -57,12 +51,12 @@ public:
 	void initialize(unsigned int w, unsigned int h, void* ndt, void* nwh, void* ctx) override;
 	void swapBuffers() override;
 	void setViewport(unsigned int x, unsigned int y, unsigned int w, unsigned int h) override;
-
+	void compileShaders() override;
+	
 	void updateLights(MeshBehavior* mesh);
 	void gatherLights(Array<LightBehavior*>& lights, MeshBehavior* mesh, unsigned short* buffer, unsigned short max, unsigned short& count);
 
-	void setTransform(const Matrix4x4& transform);
-	void setMaterial(MeshHandle mesh);
+	void enableMaterial(Neo::Material& material, const Neo::Matrix4x4& ModelView, const Neo::Matrix4x4& ModelViewProjection, const Neo::Matrix4x4& Normal) override;
 	
 	void draw(Object* object);
 	

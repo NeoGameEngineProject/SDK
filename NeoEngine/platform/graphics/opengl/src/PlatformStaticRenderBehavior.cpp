@@ -1,5 +1,7 @@
 #include "PlatformStaticRenderBehavior.h"
 #include <behaviors/MeshBehavior.h>
+#include <behaviors/CameraBehavior.h>
+
 #include <Object.h>
 #include <Texture.h>
 #include <Log.h>
@@ -93,6 +95,8 @@ void PlatformStaticRenderBehavior::begin(Neo::Platform& p, Neo::Renderer& render
 		}
 		
 		auto& material = submesh->getMaterial();
+		if(material.getShader() == -1)
+			prender->setupMaterial(material, material.getShaderName());
 		
 		for(unsigned int i = 0; i < Material::TEXTURE_MAX; i++)
 		{
@@ -116,14 +120,17 @@ void PlatformStaticRenderBehavior::draw(Neo::Renderer& render)
 {
 	PlatformRenderer* prender = reinterpret_cast<PlatformRenderer*>(&render);
 
-	prender->useShader(0);
+	// prender->useShader(0);
 	prender->updateLights(m_mesh);
-	prender->setTransform(getParent()->getTransform());
 
+	auto MV = prender->getCurrentCamera()->getViewMatrix() * getParent()->getTransform();
+	auto MVP = prender->getCurrentCamera()->getProjectionMatrix() * MV;
+	auto N = MV.getInversetranspose();
+	
 	for(size_t i = 0; i < m_vaos.count; i++)
 	{
 		auto& submesh = m_mesh->getMeshes()[i];
-		prender->setMaterial(submesh);
+		prender->enableMaterial(submesh->getMaterial(), MV, MVP, N);
 
 		glBindVertexArray(m_vaos[i]);
 		glDrawArrays(GL_TRIANGLES, 0, submesh->getIndices().size());

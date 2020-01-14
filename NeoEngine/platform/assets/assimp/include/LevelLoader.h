@@ -3,11 +3,12 @@
 
 namespace Neo 
 {
+class Renderer;
 class Level;
 class LevelLoader
 {
 public:
-	static bool load(Level& level, const char* file, const char* rootNode = nullptr);
+	static bool load(Level& level, const char* file, Renderer& render, const char* rootNode = nullptr);
 };
 
 }
