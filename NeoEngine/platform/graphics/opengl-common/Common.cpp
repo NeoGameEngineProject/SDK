@@ -327,12 +327,25 @@ void Common::setupMaterial(Material& material, const char* shaderName)
 		LOG_DEBUG("Found shader in cache for " << shaderName);
 		material.setShader(shaderId);
 		
+		// FIXME Duplicate code!
 		LOG_DEBUG("Cloning " << getShader(shaderId)->uniforms.size() << " properties");
 		for(auto& k : getShader(shaderId)->uniforms)
 		{
-			material.registerProperty(k.first->clone());
+			LOG_DEBUG("Shader property: " << k.first->getName());
+			auto* prop = material.getProperty(k.first->getName().c_str());
+			if(!prop)
+			{
+				prop = k.first->clone();
+				material.registerProperty(prop);
+			}
+			else
+			{
+				LOG_DEBUG("Property skipped.");
+			}
+
+			// Set ID to zero to indicate it is uninitialized
+			prop->setUserId(0);
 		}
-		
 		return;
 	}
 	
@@ -364,6 +377,7 @@ void Common::setupMaterial(Material& material, const char* shaderName)
 		
 	shaderId = m_shaders.size();
 	m_shaders.emplace_back();
+
 	Shader& shader = m_shaders.back();
 	shader.name = shaderName;
 	shader.id = -1;
@@ -377,16 +391,24 @@ void Common::setupMaterial(Material& material, const char* shaderName)
 	gatherUniforms(shader.vertexSource, shader);
 	gatherUniforms(shader.fragmentSource, shader);
 	
+	// FIXME Duplicate code!
 	LOG_DEBUG("Created a new shader " << shaderName);
 	for(auto& k : shader.uniforms)
 	{
 		LOG_DEBUG("Shader property: " << k.first->getName());
-		if(!material.getProperty(k.first->getName().c_str()))
-			material.registerProperty(k.first->clone());
+		auto* prop = material.getProperty(k.first->getName().c_str());
+		if(!prop)
+		{
+			prop = k.first->clone();
+			material.registerProperty(prop);
+		}
 		else
 		{
 			LOG_DEBUG("Property skipped.");
 		}
+
+		// Set ID to zero to indicate it is uninitialized
+		prop->setUserId(0);
 	}
 }
 
@@ -487,10 +509,37 @@ void Common::enableMaterial(Neo::Material& material, const Neo::Matrix4x4& Model
 	glUniformMatrix4fv(shader->uModelViewProj, 1, GL_FALSE, ModelViewProjection.entries);
 	glUniformMatrix4fv(shader->uNormal, 1, GL_FALSE, Normal.entries);
 	
+#if 0
 	for(unsigned short i = 0; i < shader->uniforms.size(); i++)
 	{
 		int uniform = shader->uniforms[i].second;
 		auto& prop = material.getProperties()[i];
+		switch(prop->getType())
+		{
+		default:
+		case INTEGER: glUniform1i(uniform, prop->get<int>()); break;
+		case FLOAT: glUniform1f(uniform, prop->get<float>()); break;
+		case VECTOR2: glUniform2fv(uniform, 1, (const float*) prop->data()); break;
+		case VECTOR3: glUniform3fv(uniform, 1, (const float*) prop->data()); break;
+		case VECTOR4: glUniform4fv(uniform, 1, (const float*) prop->data()); break;
+		}
+	}
+#endif
+
+	for(auto& prop : material.getProperties())
+	{
+		int uniform = prop->getUserId();
+		if(uniform == -1) // Not found
+			continue;
+		if(uniform == 0) // Not initialized
+		{
+			uniform = glGetUniformLocation(shader->id, prop->getName().c_str());
+			prop->setUserId(uniform);
+			
+			if(uniform == -1) // Still not found
+				continue;
+		}
+
 		switch(prop->getType())
 		{
 		default:

@@ -56,6 +56,16 @@ public:
 #endif
 	
 public:
+	Material()
+	{
+		// ATTENTION Need to have the same types in the shader!
+		registerProperty<Vector3>("Diffuse");
+		registerProperty<Vector3>("Specular");
+		registerProperty<Vector3>("Emit");
+		registerProperty<float>("Shininess");
+		registerProperty<float>("Opacity");
+	}
+
 	enum TEXTURE_TYPE
 	{
 		DIFFUSE = 0,

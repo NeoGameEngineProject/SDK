@@ -59,8 +59,18 @@ protected:
 		
 		int id = -1;
 		Neo::FixedString<64> name;
-		std::vector<std::pair<std::unique_ptr<Neo::IProperty>, int>> uniforms;
 		
+		typedef std::pair<std::unique_ptr<Neo::IProperty>, int> Uniform;
+		std::vector<Uniform> uniforms;
+
+		Uniform* findUniform(const char* name)
+		{
+			for(auto& u : uniforms)
+				if(u.first->getName() == name)
+					return &u;
+			return nullptr;
+		}
+
 		std::string vertexSource, fragmentSource;
 		
 		// Builtin default uniforms

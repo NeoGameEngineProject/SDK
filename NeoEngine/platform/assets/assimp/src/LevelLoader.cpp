@@ -211,6 +211,27 @@ bool LevelLoader::load(Level& level, const char* file, Renderer& render, const c
 				case aiBlendMode_Additive: material.blendMode = BLENDING_ADD; break;
 			}
 		}
+
+		aiColor4D color;
+		if(AI_SUCCESS == aiGetMaterialColor(aiMat, AI_MATKEY_COLOR_DIFFUSE, &color))
+			material.setProperty("Diffuse", Vector3(color.r, color.g, color.b));
+		
+		if(AI_SUCCESS == aiGetMaterialColor(aiMat, AI_MATKEY_COLOR_SPECULAR, &color))
+			material.setProperty("Specular", Vector3(color.r, color.g, color.b));
+		
+		if(AI_SUCCESS == aiGetMaterialColor(aiMat, AI_MATKEY_COLOR_EMISSIVE, &color))
+			material.setProperty("Emit", Vector3(color.r, 
+							color.g,
+							color.b));
+	
+		auto* prop = material.getProperty("Diffuse");
+		if(AI_SUCCESS == aiGetMaterialFloat(aiMat, AI_MATKEY_OPACITY, &material.getProperty("Opacity")->get<float>()))
+		{}
+		
+		if(AI_SUCCESS == aiGetMaterialFloat(aiMat, AI_MATKEY_SHININESS, &material.getProperty("Shininess")->get<float>()))
+		{
+			material.getProperty("Shininess")->get<float>() *= 0.025; // Need to quarter values since Assimp multiplies with 4 for some reason.
+		}
 	
 		// Textures
 		{
@@ -302,29 +323,6 @@ bool LevelLoader::load(Level& level, const char* file, Renderer& render, const c
 				assert(uvindex < 4 && material.textures[uvindex] == nullptr);
 				material.textures[uvindex] = texture;
 			}*/
-		}
-
-		render.setupMaterial(material, material.getShaderName());
-
-		aiColor4D color;
-		if(AI_SUCCESS == aiGetMaterialColor(aiMat, AI_MATKEY_COLOR_DIFFUSE, &color))
-			material.setProperty("Diffuse", Vector3(color.r, color.g, color.b));
-		
-		if(AI_SUCCESS == aiGetMaterialColor(aiMat, AI_MATKEY_COLOR_SPECULAR, &color))
-			material.setProperty("Specular", Vector3(color.r, color.g, color.b));
-		
-		if(AI_SUCCESS == aiGetMaterialColor(aiMat, AI_MATKEY_COLOR_EMISSIVE, &color))
-			material.setProperty("Emit", Vector3(color.r, 
-							color.g,
-							color.b));
-	
-		auto* prop = material.getProperty("Diffuse");
-		if(AI_SUCCESS == aiGetMaterialFloat(aiMat, AI_MATKEY_OPACITY, &material.getProperty("Opacity")->get<float>()))
-		{}
-		
-		if(AI_SUCCESS == aiGetMaterialFloat(aiMat, AI_MATKEY_SHININESS, &material.getProperty("Shininess")->get<float>()))
-		{
-			material.getProperty("Shininess")->get<float>() *= 0.025; // Need to quarter values since Assimp multiplies with 4 for some reason.
 		}
 	}
 	

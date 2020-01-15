@@ -67,6 +67,8 @@ class IProperty
 	size_t m_size = 0;
 	PROPERTY_TYPES m_type = UNKNOWN;
 	
+	int m_userId = 0; ///< Represents a custom user define ID value for example when representing shader Uniforms.
+
 public:
 	IProperty(const char* name, PROPERTY_TYPES type = UNKNOWN, size_t size = 0):
 		m_name(name), m_size(size), m_type(type) {}
@@ -77,6 +79,9 @@ public:
 	size_t getSize() const { return m_size; }
 	PROPERTY_TYPES getType() const { return m_type; }
 	
+	int getUserId() const { return m_userId; }
+	void setUserId(int value) { m_userId = value; }
+
 	virtual void* data() = 0;
 	virtual const void* cdata() const = 0;
 	virtual IProperty* clone() const = 0;
