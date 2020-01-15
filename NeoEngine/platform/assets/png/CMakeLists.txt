@@ -5,11 +5,16 @@ set(PNG_BUILD_ZLIB ON)
 
 add_subdirectory(libpng-external)
 
+set(LIBPNG png_static)
+if(BUILD_SHARED_LIBS)
+	set(LIBPNG png)
+endif()
+
 add_platform_module(
 	SOURCES ${SOURCES} ${INCLUDES}
 	INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/include
 		${CMAKE_CURRENT_SOURCE_DIR}/libpng-external/
 		${CMAKE_CURRENT_BINARY_DIR}/libpng-external/
-	LIBRARIES png_static)
+	LIBRARIES ${LIBPNG})
 
 install(DIRECTORY include/ DESTINATION include)
