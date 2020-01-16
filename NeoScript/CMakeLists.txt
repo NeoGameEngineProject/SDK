@@ -62,7 +62,7 @@ if(NOT NO_TESTS)
 	target_link_libraries(NeoScriptTest ${GTEST_LIBRARIES} NeoScript NeoCore)
 endif()
 
-install(FILES $<TARGET_FILE:luajit> DESTINATION lib)
+install(FILES $<TARGET_FILE:luajit> DESTINATION bin)
 install(TARGETS NeoLuaPlayer NeoLua NeoScript
 		EXPORT FindNeoScript
 		RUNTIME DESTINATION bin

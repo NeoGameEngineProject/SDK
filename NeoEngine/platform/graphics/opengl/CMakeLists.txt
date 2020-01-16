@@ -45,7 +45,8 @@ add_platform_module(
 
 install(FILES ../opengl-common/Common.h DESTINATION include)
 install(DIRECTORY include/ DESTINATION include)
-install(DIRECTORY materials/ DESTINATION share/neo-materials)
+#install(DIRECTORY materials DESTINATION bin/assets/)
+install(DIRECTORY ${CMAKE_BINARY_DIR}/bin/assets DESTINATION bin/)
 
 include(CopyFiles)
 

@@ -112,7 +112,7 @@ set(CPACK_PACKAGE_VERSION_PATCH "${NEO_PATCH_VERSION}")
 set(CPACK_PACKAGE_CONTACT "Neo Project https://github.com/orgs/NeoGameEngineProject")
 
 ## Set install path
-set(CMAKE_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX}/Neo)
+#set(CMAKE_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX}/Neo)
 
 include(CPack)
 

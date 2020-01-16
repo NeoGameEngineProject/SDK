@@ -3,7 +3,7 @@ file(GLOB INCLUDES include/*.h)
 
 set(PNG_BUILD_ZLIB ON)
 
-add_subdirectory(libpng-external)
+add_subdirectory(libpng-external EXCLUDE_FROM_ALL)
 
 set(LIBPNG png_static)
 if(BUILD_SHARED_LIBS)
@@ -18,3 +18,9 @@ add_platform_module(
 	LIBRARIES ${LIBPNG})
 
 install(DIRECTORY include/ DESTINATION include)
+
+install(TARGETS ${LIBPNG}
+		RUNTIME DESTINATION bin
+		LIBRARY DESTINATION bin
+		ARCHIVE DESTINATION lib)
+	
