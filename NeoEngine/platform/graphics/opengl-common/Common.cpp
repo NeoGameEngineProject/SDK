@@ -11,7 +11,13 @@
 #include <StringTools.h>
 
 #include <GL/glew.h>
+
+#ifndef __APPLE__
 #include <GL/gl.h>
+#else
+#include <OpenGL/gl.h>
+#endif
+
 #include <cassert>
 
 #include <regex>
@@ -22,14 +28,14 @@ using namespace Neo;
 namespace
 {
 
-bool checkShaderStatus(GLuint shader)
+bool checkShaderStatus(GLuint shader, const char* name)
 {
 	GLint result = 0;
 	glGetShaderiv(shader, GL_COMPILE_STATUS, &result);
 
 	if(!result)
 	{
-		LOG_ERROR("Could not compile shader!");
+		LOG_ERROR("Could not compile shader: " << name);
 		glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &result);
 		if(result)
 		{
@@ -100,7 +106,7 @@ int Common::loadShader(const char* vert, const char* frag)
 		glShaderSource(vertexShader, 1, array, nullptr);
 		glCompileShader(vertexShader);
 
-		if(!checkShaderStatus(vertexShader))
+		if(!checkShaderStatus(vertexShader, vert))
 		{
 			glDeleteShader(vertexShader);
 			return -1;
@@ -119,7 +125,7 @@ int Common::loadShader(const char* vert, const char* frag)
 		glShaderSource(fragmentShader, 1, array, nullptr);
 		glCompileShader(fragmentShader);
 
-		if(!checkShaderStatus(fragmentShader))
+		if(!checkShaderStatus(fragmentShader, frag))
 		{
 			glDeleteShader(fragmentShader);
 			return -1;

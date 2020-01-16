@@ -240,9 +240,11 @@ void PlatformRenderer::initialize(unsigned int w, unsigned int h, void* ndt, voi
 	auto version = glGetString(GL_VERSION);
 	auto vendor = glGetString(GL_VENDOR);
 	auto renderer = glGetString(GL_RENDERER);
+	auto glslVersion = glGetString(GL_SHADING_LANGUAGE_VERSION);
 
 	LOG_INFO("Renderer:\t" << renderer);
 	LOG_INFO("Version:\t" << version);
+	LOG_INFO("GLSL Version:\t" << glslVersion);
 	LOG_INFO("Vendor:\t" << vendor);
 
 	glViewport(0, 0, w, h);

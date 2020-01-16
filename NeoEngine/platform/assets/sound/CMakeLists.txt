@@ -3,8 +3,10 @@ file(GLOB INCLUDES include/*.h)
 
 if(NOT EMSCRIPTEN)
 	
-	find_package(OpenAL)
-	
+	if(NOT APPLE)
+		find_package(OpenAL)
+	endif()
+
 	if(NOT OPENAL_FOUND)
 		set(LIBTYPE "DYNAMIC" CACHE STRING "" FORCE)
 		set(ALSOFT_UTILS OFF CACHE BOOL "")
@@ -17,7 +19,6 @@ if(NOT EMSCRIPTEN)
 		
 		install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/openal-soft-external/include/ DESTINATION include)
 	endif()
-	
 	
 	add_platform_module(
 		SOURCES ${SOURCES} ${INCLUDES}

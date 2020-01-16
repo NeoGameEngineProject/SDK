@@ -7,6 +7,9 @@ using namespace Neo;
 LuaScript::LuaScript()
 {
 	L = luaL_newstate();
+	
+	if(!L) return; // Error checking?
+
 	luaL_openlibs(L);
 	luaopen_Neo(L);
 }

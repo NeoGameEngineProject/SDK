@@ -2,16 +2,29 @@ file(GLOB_RECURSE HEADERS include/*.h)
 file(GLOB_RECURSE SOURCES src/*.c*)
 
 find_program(MAKE_EXE make)
-ExternalProject_Add(luajit-build
-	SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/luajit-external
-	CONFIGURE_COMMAND ""
-	INSTALL_COMMAND ""
-	BUILD_COMMAND sh -e ${CMAKE_CURRENT_SOURCE_DIR}/build-luajit-linux-shared.sh "${CMAKE_C_COMPILER}"
-	BUILD_IN_SOURCE ON
-	GIT_REPOSITORY http://luajit.org/git/luajit-2.0.git
-)
 
-if(CMAKE_POSITION_INDEPENDENT_CODE)
+# Linux yay!
+if(NOT APPLE AND UNIX)
+	ExternalProject_Add(luajit-build
+		SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/luajit-external
+		CONFIGURE_COMMAND ""
+		INSTALL_COMMAND ""
+		BUILD_COMMAND sh -e ${CMAKE_CURRENT_SOURCE_DIR}/build-luajit-linux-shared.sh "${CMAKE_C_COMPILER}"
+		BUILD_IN_SOURCE ON
+		GIT_REPOSITORY http://luajit.org/git/luajit-2.0.git
+	)
+elseif(APPLE)
+	ExternalProject_Add(luajit-build
+		SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/luajit-external
+		CONFIGURE_COMMAND ""
+		INSTALL_COMMAND ""
+		BUILD_COMMAND sh -e ${CMAKE_CURRENT_SOURCE_DIR}/build-luajit-macos-shared.sh "cc"# "${CMAKE_C_COMPILER}"
+		BUILD_IN_SOURCE ON
+		GIT_REPOSITORY http://luajit.org/git/luajit-2.0.git
+	)
+endif()
+
+if(CMAKE_POSITION_INDEPENDENT_CODE AND NOT APPLE)
 	add_library(luajit SHARED IMPORTED GLOBAL)
 	set_target_properties(luajit PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/luajit-external/src/libluajit.so)
 else()

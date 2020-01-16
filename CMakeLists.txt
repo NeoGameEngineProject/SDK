@@ -61,6 +61,7 @@ endif()
 
 if(ENABLE_SANITIZERS)
 	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fsanitize=${SANITIZER} -fsanitize=undefined")
+	set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -fsanitize=${SANITIZER} -fsanitize=undefined")
 endif()
 
 if(ENABLE_OPENGL_RENDERER)
@@ -71,8 +72,11 @@ add_subdirectory(NeoCore)
 add_subdirectory(NeoEngine)
 add_subdirectory(NeoHTML)
 add_subdirectory(NeoStates)
-add_subdirectory(NeoVR)
 add_subdirectory(NeoScript)
+
+if(NOT APPLE)
+	add_subdirectory(NeoVR)
+endif()
 
 if(DISABLE_MULTITHREAD)
 	target_compile_definitions(NeoEngine PUBLIC -DNEO_SINGLE_THREAD=1)

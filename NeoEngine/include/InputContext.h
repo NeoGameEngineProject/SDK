@@ -31,6 +31,7 @@
 #include <memory>
 #include <vector>
 #include <cstring>
+#include <array>
 
 namespace Neo
 {

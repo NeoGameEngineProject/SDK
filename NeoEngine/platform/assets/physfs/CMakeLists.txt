@@ -23,9 +23,13 @@ endif()
 
 add_subdirectory(physfs-external)
 
+if(APPLE)
+	set(COREFOUNDATION "-framework CoreFoundation -framework IOKit -framework AppKit")
+endif()
+
 add_platform_module(
 	SOURCES ${SOURCES} ${INCLUDES}
 	INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/physfs-external/src
-	LIBRARIES physfs-static)
+	LIBRARIES physfs-static ${COREFOUNDATION})
 
 install(DIRECTORY include/ DESTINATION include)

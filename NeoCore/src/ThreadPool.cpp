@@ -84,7 +84,7 @@ void ThreadPool::work()
 #ifndef NEO_SINGLE_THREAD
 	while(running)
 	{
-		std::mutex mtx;
+		static std::mutex mtx;
 		do
 		{
 			std::unique_lock<std::mutex> lock(mtx);

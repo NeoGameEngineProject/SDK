@@ -125,7 +125,12 @@ namespace ccpp
 
 #include <string>
 #include <cstring>
+
+#ifndef __APPLE__
 #include <malloc.h>
+#else
+#include <malloc/malloc.h>
+#endif
 
 #ifndef CCPP_ERROR
 #define CCPP_ERROR(error, ...) printf("[CCPP ERROR] " error "\n", ##__VA_ARGS__)
