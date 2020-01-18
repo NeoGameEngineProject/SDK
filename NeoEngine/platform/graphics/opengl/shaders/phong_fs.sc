@@ -59,7 +59,7 @@ void main()
 		if(HasHeight == 1)
 		{	
 			vec3 vdir = normalize(vec3(dot(v, tangent), dot(v, bitangent), dot(v, normal)));
-			float height = texture2D(HeightTexture, texcoord).x * 0.025 - 0.015;
+			float height = texture(HeightTexture, texcoord).x * 0.025 - 0.015;
 			vec2 offset = vdir.xy / vdir.z * height;
 
 			offset = vdir.xy * height;
@@ -68,17 +68,17 @@ void main()
 		
 		if(HasNormal == 1)
 		{
-			vec3 bump = texture2D(NormalTexture, TexCoord).xyz * 2.0 - 1.0;
+			vec3 bump = texture(NormalTexture, TexCoord).xyz * 2.0 - 1.0;
 			Normal = vec3(normalize(tangent*bump.x + bitangent*bump.y + normal*bump.z));
 		}
 		
 		if(HasSpecular == 1)
 		{
-			vec3 spec = texture2D(SpecularTexture, TexCoord).rgb;
+			vec3 spec = texture(SpecularTexture, TexCoord).rgb;
 			Roughness = ((spec.r + spec.b + spec.g) * Shininess);
 		}
 		
-		gl_FragColor = texture2D(DiffuseTexture, TexCoord);
+		gl_FragColor = texture(DiffuseTexture, TexCoord);
 	}
 	else
 	{

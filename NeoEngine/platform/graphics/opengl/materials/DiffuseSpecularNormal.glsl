@@ -43,9 +43,9 @@ void main()
 	float Roughness = 0.4f / Shininess;
 	vec3 v = normalize(-position);
 	
-	vec3 bump = texture2D(NormalTexture, texcoord).xyz * 2.0 - 1.0;
+	vec3 bump = texture(NormalTexture, texcoord).xyz * 2.0 - 1.0;
 	Normal = vec3(normalize(tangent*bump.x + bitangent*bump.y + normal*bump.z));
-	gl_FragColor = texture2D(DiffuseTexture, texcoord);
+	gl_FragColor = texture(DiffuseTexture, texcoord);
 	
 	gl_FragColor.rgb = removeGamma(gl_FragColor.rgb);
 	vec3 accumulator = Emit.rgb; // = Ambient + Emissive;

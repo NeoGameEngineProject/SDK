@@ -41,7 +41,7 @@ float calculateLuminosity(vec3 color)
 
 void main()
 {
-	float depth = texture2D(Depth, texcoord).x;
+	float depth = texture(Depth, texcoord).x;
 	float linearDepth = linearizeDepth(depth, Frustum.x, Frustum.y);
 	float invDepth = 1.0f - linearDepth;
 	
@@ -53,7 +53,7 @@ void main()
 		gl_FragColor.rgb *= ssao(gl_FragColor.rgb, linearDepth, int(32*invDepth), 5.0f); //, texcoord, FrameSize * 13.0f));
 	}
 	
-	//float hdrTone = clamp(0.6f/calculateLuminosity(texture2D(Color, texcoord, 12).rgb), 0.0f, 3.0f);
+	//float hdrTone = clamp(0.6f/calculateLuminosity(texture(Color, texcoord, 12).rgb), 0.0f, 3.0f);
 	// gl_FragColor = toneMap(gl_FragColor, 2.5f);
 	// gl_FragColor.rgb = applyGamma(gl_FragColor.rgb);
 	gl_FragColor.rgb = bloom(gl_FragColor.rgb, 0.0095, 5.0f, 3);

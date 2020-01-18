@@ -37,7 +37,7 @@ void main()
 	float Roughness = 0.4f / Shininess;
 	vec3 v = normalize(-position);
 	
-	gl_FragColor = texture2D(DiffuseTexture, texcoord);
+	gl_FragColor = texture(DiffuseTexture, texcoord);
 	
 	gl_FragColor.rgb = removeGamma(gl_FragColor.rgb);
 	vec3 accumulator = Emit.rgb; // = Ambient + Emissive;

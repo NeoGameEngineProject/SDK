@@ -42,12 +42,12 @@ void main()
 	vec3 v = normalize(-position);
 	
 	vec2 TexCoord = texcoord;
-	vec3 bump = texture2D(NormalTexture, TexCoord).xyz * 2.0 - 1.0;
+	vec3 bump = texture(NormalTexture, TexCoord).xyz * 2.0 - 1.0;
 	Normal = vec3(normalize(tangent*bump.x + bitangent*bump.y + normal*bump.z));
 	
-	vec3 spec = texture2D(SpecularTexture, TexCoord).rgb;
+	vec3 spec = texture(SpecularTexture, TexCoord).rgb;
 	Roughness = ((spec.r + spec.b + spec.g) * Shininess);
-	gl_FragColor = texture2D(DiffuseTexture, TexCoord);
+	gl_FragColor = texture(DiffuseTexture, TexCoord);
 	
 	gl_FragColor.rgb = removeGamma(gl_FragColor.rgb);
 	vec3 accumulator = Emit.rgb; // = Ambient + Emissive;
