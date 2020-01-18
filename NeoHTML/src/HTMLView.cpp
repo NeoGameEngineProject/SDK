@@ -17,8 +17,7 @@ extern "C" NVGcontext* nvgCreateGL3(int);
 extern "C" void nvgDeleteGL3(NVGcontext*);
 #endif
 
-// FIXME: Ugly?
-#include "../litehtml-external/include/litehtml/el_text.h"
+#include <litehtml/el_text.h>
 
 static char s_masterCSS[] = 
 {

@@ -31,11 +31,8 @@ endif()
 set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/include/master.css.inc PROPERTIES GENERATED TRUE)
 
 fix_install_includes(NeoHTML)
-fix_install_includes(litehtml)
-# fix_install_includes(gumbo)
 
-# get_target_property(INCS litehtml INCLUDE_DIRECTORIES)
-install(TARGETS NeoHTML litehtml
+install(TARGETS NeoHTML
 		EXPORT FindNeoHTML
 		RUNTIME DESTINATION bin
 		LIBRARY DESTINATION lib
