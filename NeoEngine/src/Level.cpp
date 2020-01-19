@@ -218,11 +218,7 @@ MeshHandle Level::loadMesh(const char* name)
 
 bool Level::load(const char* path, Renderer& render, const char* parentNode)
 {
-	const bool result = LevelLoader::load(*this, path, render, parentNode);
-	//if(result)
-	//	render.compileShaders();
-
-	return result;
+	return LevelLoader::load(*this, path, render, parentNode);
 }
 
 void Level::updateVisibility(const CameraBehavior& camera)

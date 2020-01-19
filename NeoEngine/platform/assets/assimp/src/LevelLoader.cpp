@@ -166,7 +166,7 @@ bool LevelLoader::load(Level& level, const char* file, Renderer& render, const c
 		root = level.find(rootNode);
 	else
 		root = level.getRoot();
-	
+
 	aiFileIO iostruct;
 	iostruct.OpenProc = aiOpen;
 	iostruct.CloseProc = aiClose;

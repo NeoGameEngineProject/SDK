@@ -158,7 +158,13 @@ public:
 	}
 	
 	void setDirty(bool b) { m_needsUpdate = b; }
-	
+	void makeSubtreeDirty()
+	{
+		m_needsUpdate = true;
+		for(auto& k : m_children)
+			k->makeSubtreeDirty();
+	}
+
 	const IString& getName() const { return m_name; }
 	void setName(const char* name);
 	
@@ -179,6 +185,8 @@ public:
 	FixedString<256>* getLinkedFile() { return m_linkedFile.get(); }
 	void setLinkedFile(std::unique_ptr<FixedString<256>>&& str) { m_linkedFile = std::move(str); }
 	
+	Vector3 getGlobalPosition() const { return m_transform.getTranslationPart(); }
+
 	/**
 	 * @brief Updates the transformation matrix based on position, rotation and scale.
 	 */

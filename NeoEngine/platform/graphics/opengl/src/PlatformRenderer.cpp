@@ -133,7 +133,7 @@ void PlatformRenderer::updateLights(MeshBehavior* mesh)
 
 		Object* parent = light->getParent();
 
-		buffer->positionExponent[i] = m_currentCamera->getViewMatrix() * parent->getPosition();
+		buffer->positionExponent[i] = m_currentCamera->getViewMatrix() * parent->getGlobalPosition();
 		buffer->positionExponent[i].w = light->exponent;
 
 		buffer->diffuseBrightness[i] = light->diffuse;
@@ -175,8 +175,8 @@ void PlatformRenderer::endFrame()
 	// FIXME Render opaque and transparent objects separately
 	// FIXME Sort by shader
 	std::sort(m_opaqueObjects.begin(), m_opaqueObjects.end(), [this](Object* o1, Object* o2) {
-		const auto camPos = getCurrentCamera()->getParent()->getPosition();
-		return (o1->getPosition() - camPos).getLength() >= (o2->getPosition() - camPos).getLength();
+		const auto camPos = getCurrentCamera()->getParent()->getGlobalPosition();
+		return (o1->getGlobalPosition() - camPos).getLength() >= (o2->getGlobalPosition() - camPos).getLength();
 	});
 	
 	// Draw sorted lists
@@ -359,7 +359,7 @@ void PlatformRenderer::gatherLights(Array<LightBehavior*>& lights, MeshBehavior*
 	for(size_t i = 0; i < lights.count && lights[i] != nullptr && count < max; i++)
 	{
 		auto parent = lights[i]->getParent();
-		float distance = (mesh->getParent()->getPosition() - parent->getPosition()).getLength() - mesh->getBoundingBox().getDiameter() / 2.0f;
+		float distance = (mesh->getParent()->getGlobalPosition() - parent->getGlobalPosition()).getLength() - mesh->getBoundingBox().getDiameter() / 2.0f;
 		float radius = sqrt(1.0f / (lights[i]->attenuation * 0.15f)); // 0.15 = Minimum brightness
 		
 		if(distance <= radius)
