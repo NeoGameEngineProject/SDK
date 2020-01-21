@@ -24,13 +24,13 @@ elseif(APPLE)
 	)
 endif()
 
-if(CMAKE_POSITION_INDEPENDENT_CODE AND NOT APPLE)
-	add_library(luajit SHARED IMPORTED GLOBAL)
-	set_target_properties(luajit PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/luajit-external/src/libluajit.so)
-else()
+#if(CMAKE_POSITION_INDEPENDENT_CODE AND NOT APPLE)
+#	add_library(luajit SHARED IMPORTED GLOBAL)
+#	set_target_properties(luajit PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/luajit-external/src/libluajit.so)
+#else()
 	add_library(luajit STATIC IMPORTED GLOBAL)
 	set_target_properties(luajit PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/luajit-external/src/libluajit.a)
-endif()
+#endif()
 
 add_dependencies(luajit luajit-build)
 
@@ -75,7 +75,7 @@ if(NOT NO_TESTS)
 	target_link_libraries(NeoScriptTest ${GTEST_LIBRARIES} NeoScript NeoCore)
 endif()
 
-install(FILES $<TARGET_FILE:luajit> DESTINATION bin)
+install(FILES $<TARGET_FILE:luajit> DESTINATION lib)
 install(TARGETS NeoLuaPlayer NeoLua NeoScript
 		EXPORT FindNeoScript
 		RUNTIME DESTINATION bin
