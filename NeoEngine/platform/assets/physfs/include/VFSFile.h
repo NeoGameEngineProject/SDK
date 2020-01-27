@@ -8,12 +8,13 @@
 #include <physfs.h>
 
 #include <string>
+#include "NeoEngine.h"
 
 namespace Neo
 {
 
 class VFSOpenHook;
-class VFSFile : public File
+class NEO_ENGINE_EXPORT VFSFile : public File
 {
 	std::string m_path;
 	PHYSFS_file* m_file = nullptr;
@@ -36,7 +37,7 @@ public:
 
 };
 
-class VFSOpenHook : public FileOpenHook
+class NEO_ENGINE_EXPORT VFSOpenHook : public FileOpenHook
 {
 public:
 	VFSOpenHook();

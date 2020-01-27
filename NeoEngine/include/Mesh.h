@@ -10,6 +10,7 @@
 #include <FixedString.h>
 #include <Box3D.h>
 #include <Material.h>
+#include "NeoEngine.h"
 
 #include <iosfwd>
 
@@ -27,7 +28,7 @@ struct Tangent
 };
 
 class Level;
-class Mesh
+class NEO_ENGINE_EXPORT Mesh
 {
 public:
 	Mesh() {}

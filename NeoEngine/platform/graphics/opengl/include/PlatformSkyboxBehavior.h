@@ -7,7 +7,7 @@ namespace Neo
 {
 
 class Texture;
-class PlatformSkyboxBehavior : public Neo::Behavior
+class NEO_ENGINE_EXPORT PlatformSkyboxBehavior : public Neo::Behavior
 {
 public:
 	void drawSky(PlatformRenderer* prender);

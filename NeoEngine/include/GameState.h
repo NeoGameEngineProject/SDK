@@ -2,6 +2,7 @@
 #define NEO_GAMESTATE_H
 
 #include <memory>
+#include "NeoEngine.h"
 
 namespace Neo
 {
@@ -10,7 +11,7 @@ class Platform;
 class Window;
 class Renderer;
 class Game;
-class GameState
+class NEO_ENGINE_EXPORT GameState
 {
 	Game* m_game = nullptr;
 public:

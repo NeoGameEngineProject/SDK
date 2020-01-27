@@ -18,7 +18,7 @@ else()
 endif()
 
 if(NOT BUILD_SHARED_LIBS)
-	target_compile_definitions(NeoCore PUBLIC -DNEO_ENGINE_STATIC)
+	target_compile_definitions(NeoEngine PUBLIC -DNEO_ENGINE_STATIC)
 endif()
 
 target_compile_definitions(NeoEngine PRIVATE -DNEO_ENGINE_DLL)
@@ -52,6 +52,7 @@ install(EXPORT FindNeoEngine DESTINATION ${NEO_CMAKE_EXPORT})
 install(DIRECTORY include/ DESTINATION include/)
 
 get_target_property(INCS NeoEngine INCLUDE_DIRECTORIES)
+
 #foreach(INC ${INCS})
 #	install(DIRECTORY ${INC} DESTINATION include/)
 #endforeach()

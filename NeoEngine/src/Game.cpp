@@ -12,6 +12,7 @@
 #include <Log.h>
 #include <VFSFile.h>
 #include <iostream>
+#include <ctime>
 
 using namespace Neo;
 

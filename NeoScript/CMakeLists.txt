@@ -22,14 +22,30 @@ elseif(APPLE)
 		BUILD_IN_SOURCE ON
 		GIT_REPOSITORY http://luajit.org/git/luajit-2.0.git
 	)
+elseif(WIN32 AND CMAKE_CROSSCOMPILING)
+	ExternalProject_Add(luajit-build
+		SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/luajit-external
+		CONFIGURE_COMMAND ""
+		INSTALL_COMMAND ""
+		BUILD_COMMAND sh -e ${CMAKE_CURRENT_SOURCE_DIR}/build-luajit-win32-shared.sh "${CMAKE_C_COMPILER}"
+		BUILD_IN_SOURCE ON
+		GIT_REPOSITORY http://luajit.org/git/luajit-2.0.git
+	)
 endif()
 
 #if(CMAKE_POSITION_INDEPENDENT_CODE AND NOT APPLE)
 #	add_library(luajit SHARED IMPORTED GLOBAL)
 #	set_target_properties(luajit PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/luajit-external/src/libluajit.so)
 #else()
+if(WIN32)
+	add_library(luajit STATIC IMPORTED GLOBAL)
+	set_target_properties(luajit PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/luajit-external/src/libluajit-5.1.dll.a)
+	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/luajit-external/src/libluajit-5.1.dll.a DESTINATION lib)
+	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/luajit-external/src/libluajit-5.1.dll DESTINATION lib)
+else()
 	add_library(luajit STATIC IMPORTED GLOBAL)
 	set_target_properties(luajit PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/luajit-external/src/libluajit.a)
+endif()
 #endif()
 
 add_dependencies(luajit luajit-build)

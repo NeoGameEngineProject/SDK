@@ -1,6 +1,8 @@
 #ifndef NEO_RENDERER_H
 #define NEO_RENDERER_H
 
+#include "NeoEngine.h"
+
 namespace Neo 
 {
 
@@ -14,7 +16,7 @@ class Material;
  * 
  * Every renderer is bound to a Window.
  */
-class Renderer
+class NEO_ENGINE_EXPORT Renderer
 {
 public:
 	virtual ~Renderer() {}

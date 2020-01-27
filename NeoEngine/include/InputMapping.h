@@ -37,7 +37,7 @@ namespace Neo
  * 
  * Can be used to manage user configurable input settings.
  */
-class NEO_ENGINE_EXPORT InputMapping
+class InputMapping
 {
 	///< The input context used
 	InputContext& m_input;

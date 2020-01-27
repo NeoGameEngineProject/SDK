@@ -4,6 +4,8 @@
 #include <Property.h>
 #include <FixedString.h>
 
+#include "NeoEngine.h"
+
 namespace Neo
 {
 
@@ -41,7 +43,7 @@ enum CULL_MODES
 };
 
 class Texture;
-class Material : public PropertySystem
+class NEO_ENGINE_EXPORT Material : public PropertySystem
 {
 public:
 	// TODO Blend mode

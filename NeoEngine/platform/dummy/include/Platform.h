@@ -12,7 +12,7 @@
 namespace Neo
 {
 
-class Platform
+class NEO_ENGINE_EXPORT Platform
 {
 	InputContextDummy m_input;
 	OpenALContext m_soundContext;

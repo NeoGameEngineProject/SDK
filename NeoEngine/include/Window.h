@@ -1,13 +1,14 @@
 #ifndef NEO_WINDOW_H
 #define NEO_WINDOW_H
 
+#include "NeoEngine.h"
 #include <Renderer.h>
 #include <memory>
 
 namespace Neo
 {
 
-class Window
+class NEO_ENGINE_EXPORT Window
 {
 	std::unique_ptr<Renderer> m_renderer;
 	unsigned int m_width, m_height;

@@ -6,7 +6,7 @@
 namespace Neo
 {
 
-class SoundContext
+class NEO_ENGINE_EXPORT SoundContext
 {
 public:
 	virtual void initialize(const char* device) = 0;

@@ -17,7 +17,7 @@ class MeshBehavior;
 class Material;
 class AABBRenderer;
 
-class PlatformRenderer : public Common
+class NEO_ENGINE_EXPORT PlatformRenderer : public Common
 {
 	unsigned int m_width, m_height;
 	

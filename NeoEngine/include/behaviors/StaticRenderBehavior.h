@@ -7,7 +7,7 @@
 namespace Neo 
 {
 
-class StaticRenderBehavior : public PlatformStaticRenderBehavior
+class NEO_ENGINE_EXPORT StaticRenderBehavior : public PlatformStaticRenderBehavior
 {
 public:
 	bool isEditorVisible() const override { return false; }

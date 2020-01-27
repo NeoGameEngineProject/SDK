@@ -7,7 +7,7 @@
 namespace Neo 
 {
 
-class RigidbodyPhysicsBehavior : public Neo::PlatformRigidbodyPhysicsBehavior
+class NEO_ENGINE_EXPORT RigidbodyPhysicsBehavior : public Neo::PlatformRigidbodyPhysicsBehavior
 {
 public:
 	

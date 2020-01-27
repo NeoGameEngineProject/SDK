@@ -7,7 +7,7 @@
 namespace Neo 
 {
 class Level;
-class MeshBehavior : public Neo::Behavior
+class NEO_ENGINE_EXPORT MeshBehavior : public Neo::Behavior
 {
 	std::vector<MeshHandle> m_submeshes;
 	Box3D m_boundingBox;

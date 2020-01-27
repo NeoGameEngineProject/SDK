@@ -6,10 +6,12 @@
 
 #include <Frustum.h>
 
+#include "NeoEngine.h"
+
 namespace Neo
 {
 
-class CameraBehavior : public Behavior
+class NEO_ENGINE_EXPORT CameraBehavior : public Behavior
 {
 	Matrix4x4 m_projectionMatrix, m_viewMatrix;
 	float fov = 60.0f, near = 0.1f, far = 1000.0f, m_width, m_height,

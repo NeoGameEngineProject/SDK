@@ -7,7 +7,7 @@
 namespace Neo
 {
 
-class PlatformSoundBehavior : public Neo::Behavior
+class NEO_ENGINE_EXPORT PlatformSoundBehavior : public Neo::Behavior
 {
 	SoundHandle m_sound;
 	ALuint m_source = -1;

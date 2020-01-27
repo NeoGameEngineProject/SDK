@@ -6,7 +6,7 @@
 namespace Neo 
 {
 
-class PlatformSoundListenerBehavior : public Behavior
+class NEO_ENGINE_EXPORT PlatformSoundListenerBehavior : public Behavior
 {
 public:
 	void update(Neo::Platform & p, float dt) override;

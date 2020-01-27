@@ -8,7 +8,7 @@
 namespace Neo
 {
 
-class SDLWindow : public Window
+class NEO_ENGINE_EXPORT SDLWindow : public Window
 {
 	SDL_Window* m_win = nullptr;
 	SDL_GLContext m_context = nullptr;

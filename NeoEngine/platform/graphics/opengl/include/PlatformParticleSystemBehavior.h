@@ -10,7 +10,7 @@ namespace Neo
 class Texture;
 
 /// TODO Refactor into rendering and simulation part!
-class PlatformParticleSystemBehavior : public Neo::Behavior
+class NEO_ENGINE_EXPORT PlatformParticleSystemBehavior : public Neo::Behavior
 {
 protected:
 	unsigned int ParticleCount = 64;

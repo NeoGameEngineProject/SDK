@@ -17,7 +17,7 @@ class Level;
 class Material;
 }
 
-class Common : public Neo::Renderer
+class NEO_ENGINE_EXPORT Common : public Neo::Renderer
 {
 public:
 	virtual ~Common();
@@ -37,7 +37,7 @@ protected:
 	std::string preprocess(const char* path);
 	void compileShaders() override;
 	
-	struct Shader
+	struct NEO_ENGINE_EXPORT Shader
 	{
 		Shader() = default;
 		Shader(Shader&&) = default;
@@ -54,7 +54,7 @@ protected:
 			uboLights(sh.uboLights)
 		{
 			for(auto& p : sh.uniforms)
-				uniforms.emplace_back(p.first->clone(), p.second);
+				uniforms.emplace_back(std::unique_ptr<Neo::IProperty>(p.first->clone()), p.second);
 		}
 		
 		int id = -1;

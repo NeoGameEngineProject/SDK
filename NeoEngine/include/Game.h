@@ -9,7 +9,7 @@
 namespace Neo
 {
 
-class Game
+class NEO_ENGINE_EXPORT Game
 {
 	GameStateRef m_currentGame;
 	GameStateRef m_requestedGame;

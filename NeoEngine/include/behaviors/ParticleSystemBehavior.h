@@ -6,7 +6,7 @@
 namespace Neo
 {
 
-class ParticleSystemBehavior : public Neo::PlatformParticleSystemBehavior
+class NEO_ENGINE_EXPORT ParticleSystemBehavior : public Neo::PlatformParticleSystemBehavior
 {
 	Vector3 Gravity = Vector3(0.0f, 0.0f, -9.81f);
 	

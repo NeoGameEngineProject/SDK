@@ -4,10 +4,12 @@
 #include <FixedString.h>
 #include <Array.h>
 
+#include "NeoEngine.h"
+
 namespace Neo 
 {
 
-class Texture
+class NEO_ENGINE_EXPORT Texture
 {
 	bool m_mipmap = false;
 	unsigned int m_componentSize = 0;

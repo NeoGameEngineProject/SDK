@@ -5,7 +5,7 @@
 #include <unordered_map>
 #include <SDL.h>
 
-class SDLInputContext : public Neo::InputContext
+class NEO_ENGINE_EXPORT SDLInputContext : public Neo::InputContext
 {
 	Neo::INPUT_KEYS translateEvent(SDL_Keycode key);
 
@@ -13,7 +13,7 @@ class SDLInputContext : public Neo::InputContext
 	int addGameController(int sdlId);
 	int removeGameController(int index);
 
-	class SDLJoystick : public Neo::DynamicAxisInputDevice
+	class NEO_ENGINE_EXPORT SDLJoystick : public Neo::DynamicAxisInputDevice
 	{
 	public:
 		SDLJoystick(unsigned int numberOfAxis, SDL_JoystickID id, SDL_Joystick* dev)
@@ -33,7 +33,7 @@ class SDLInputContext : public Neo::InputContext
 		SDL_Joystick* device;
 	};
 
-	class SDLController : public Neo::DynamicAxisInputDevice
+	class NEO_ENGINE_EXPORT SDLController : public Neo::DynamicAxisInputDevice
 	{
 	public:
 		SDLController(unsigned int numberOfAxis, SDL_JoystickID id, SDL_GameController* dev)

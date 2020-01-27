@@ -2,6 +2,7 @@
 #define NEO_PLATFORMPHYSICSCONTEXT_H
 
 #include <btBulletDynamicsCommon.h>
+#include "NeoEngine.h"
 
 namespace Neo 
 {
@@ -9,7 +10,7 @@ namespace Neo
 class Level;
 class PlatformRigidbodyPhysicsBehavior;
 class PhysicsParticleSystemBehavior;
-class PlatformPhysicsContext
+class NEO_ENGINE_EXPORT PlatformPhysicsContext
 {
 	friend PlatformRigidbodyPhysicsBehavior;
 	friend PhysicsParticleSystemBehavior;

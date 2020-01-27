@@ -7,7 +7,7 @@
 namespace Neo 
 {
 
-class AABBRenderer : public Neo::Behavior
+class NEO_ENGINE_EXPORT AABBRenderer : public Neo::Behavior
 {
 public:
 	const char* getName() const override;

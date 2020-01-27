@@ -18,11 +18,6 @@ Platform::Platform(const char* soundDevice)
 	m_soundContext.initialize(soundDevice);
 }
 
-Platform::~Platform()
-{
-	
-}
-
 std::unique_ptr<Window> Platform::createWindow(unsigned int w, unsigned int h, const char* title)
 {
 	auto window = std::make_unique<SDLWindow>(w, h);

@@ -8,7 +8,7 @@ namespace Neo
 {
 
 class MeshBehavior;
-class PlatformStaticRenderBehavior : public Neo::Behavior
+class NEO_ENGINE_EXPORT PlatformStaticRenderBehavior : public Neo::Behavior
 {
 	Array<unsigned int> m_vaos;
 	Array<unsigned int> m_vertexBuffers;

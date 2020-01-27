@@ -16,7 +16,7 @@ enum COLLISION_SHAPE
 	HULL_SHAPE
 };
 
-class PlatformRigidbodyPhysicsBehavior : public Neo::Behavior
+class NEO_ENGINE_EXPORT PlatformRigidbodyPhysicsBehavior : public Neo::Behavior
 {
 	friend PlatformPhysicsContext;
 	PhysicsContext* m_physics = nullptr;

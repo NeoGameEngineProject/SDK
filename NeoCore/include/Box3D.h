@@ -6,7 +6,7 @@
 namespace Neo 
 {
 
-struct Box3D
+struct NEO_CORE_EXPORT Box3D
 {
 	Vector3 min, max;
 	

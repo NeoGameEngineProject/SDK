@@ -2,6 +2,7 @@
 #define NEO_FIXEDSTRING_H
 
 #include <string>
+#include "NeoCore.h"
 
 namespace Neo 
 {
@@ -9,7 +10,7 @@ namespace Neo
 /**
  * @brief Implements the interface of a string.
  */
-class IString
+class NEO_CORE_EXPORT IString
 {
 protected:
 	/**
@@ -63,13 +64,13 @@ public:
 	void deserialize(std::istream& in);
 };
 
-bool operator==(const char* str1, const IString& str2);
-bool operator!=(const char* str1, const IString& str2);
+NEO_CORE_EXPORT bool operator==(const char* str1, const IString& str2);
+NEO_CORE_EXPORT bool operator!=(const char* str1, const IString& str2);
 
-bool operator==(const std::string& str1, const IString& str2);
-bool operator!=(const std::string& str1, const IString& str2);
+NEO_CORE_EXPORT bool operator==(const std::string& str1, const IString& str2);
+NEO_CORE_EXPORT bool operator!=(const std::string& str1, const IString& str2);
 
-std::ostream& operator<<(std::ostream& out, const IString& str);
+NEO_CORE_EXPORT std::ostream& operator<<(std::ostream& out, const IString& str);
 
 /**
  * @brief Implements a fixed size string.
@@ -99,10 +100,10 @@ public:
 	
 	FixedString(const std::string& data) 
 	{
-		set(data.c_str()); 
+		set(data.c_str());
 	}
 	
-	FixedString(const IString& data) 
+	FixedString(const IString& data)
 	{
 		set(data.str());
 	}

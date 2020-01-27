@@ -129,7 +129,7 @@ public:
 		if(!isFitting(objectHalfSize))
 			return nullptr;
 		
-		Position newPos = {objectPosition, objectHalfSize, T()};
+		Position newPos = Position{objectPosition, objectHalfSize, T()};
 		data.push_back(newPos);
 		return &std::get<2>(data.back());
 	}

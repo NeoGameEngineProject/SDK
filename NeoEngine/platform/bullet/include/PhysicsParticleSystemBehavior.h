@@ -7,7 +7,7 @@
 namespace Neo 
 {
 
-class PhysicsParticleSystemBehavior : public Neo::PlatformParticleSystemBehavior
+class NEO_ENGINE_EXPORT PhysicsParticleSystemBehavior : public Neo::PlatformParticleSystemBehavior
 {
 	float LifeTime = 5.0f;
 	float LifeDivergence = 2.5f;

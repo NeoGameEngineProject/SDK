@@ -11,7 +11,7 @@ macro(preprocess_file input output)
 	if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"
 			OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 
-		if(NOT WIN32)
+		if(NOT WIN32 OR CMAKE_CROSSCOMPILING)
 			add_custom_command(OUTPUT ${output}
 				                COMMAND cpp -nostdinc -CC -P -E ${input} | sed "s/\\$/\#/g" > ${output}
 								WORKING_DIRECTORY ${_CWD}

@@ -10,7 +10,7 @@
 namespace Neo 
 {
 
-class OpenALContext : public SoundContext
+class NEO_ENGINE_EXPORT OpenALContext : public SoundContext
 {
 	ALCdevice* m_device = nullptr;
 	ALCcontext* m_context = nullptr;

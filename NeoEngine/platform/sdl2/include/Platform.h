@@ -8,17 +8,19 @@
 #include <PlatformRenderer.h>
 #include <OpenALContext.h>
 
+#include "NeoEngine.h"
+
 namespace Neo
 {
 
-class Platform
+class NEO_ENGINE_EXPORT Platform
 {
 	SDLInputContext m_inputContext;
 	OpenALContext m_soundContext;
 	
 public:
 	Platform(const char* soundDevice = nullptr);
-	~Platform();
+	~Platform() = default;
 	
 #ifndef SWIG
 	std::unique_ptr<Window> createWindow(unsigned int w, unsigned int h, const char* title);

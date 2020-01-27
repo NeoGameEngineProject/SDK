@@ -6,7 +6,7 @@
 namespace Neo
 {
 
-class PhysicsContext : public PlatformPhysicsContext
+class NEO_ENGINE_EXPORT PhysicsContext : public PlatformPhysicsContext
 {
 	float m_timeMultiplier = 1.0f;
 	bool m_enabled = true;

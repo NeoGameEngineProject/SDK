@@ -7,7 +7,7 @@
 
 namespace Neo 
 {
-class SoundBehavior : public Neo::PlatformSoundBehavior
+class NEO_ENGINE_EXPORT SoundBehavior : public Neo::PlatformSoundBehavior
 {
 public:
 	SoundBehavior() {}

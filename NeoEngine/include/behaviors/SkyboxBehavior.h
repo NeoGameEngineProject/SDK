@@ -6,7 +6,7 @@
 namespace Neo 
 {
 
-class SkyboxBehavior : public PlatformSkyboxBehavior
+class NEO_ENGINE_EXPORT SkyboxBehavior : public PlatformSkyboxBehavior
 {
 public:
 	const char* getName() const override { return "Skybox"; }

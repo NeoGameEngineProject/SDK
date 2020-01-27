@@ -1,11 +1,13 @@
 #ifndef NEO_LEVELLOADER_H
 #define NEO_LEVELLOADER_H
 
+#include "NeoEngine.h"
+
 namespace Neo 
 {
 class Renderer;
 class Level;
-class LevelLoader
+class NEO_ENGINE_EXPORT LevelLoader
 {
 public:
 	static bool load(Level& level, const char* file, Renderer& render, const char* rootNode = nullptr);

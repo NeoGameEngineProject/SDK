@@ -7,7 +7,7 @@
 namespace Neo 
 {
 
-class LevelGameState : public Neo::GameState
+class NEO_ENGINE_EXPORT LevelGameState : public Neo::GameState
 {
 	Level m_level;
 public:

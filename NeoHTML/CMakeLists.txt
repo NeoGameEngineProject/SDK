@@ -18,7 +18,7 @@ target_include_directories(NeoHTML PUBLIC
 	${CMAKE_CURRENT_SOURCE_DIR}/litehtml-external/include
 	$<INSTALL_INTERFACE:include>)
 
-if(NOT WIN32)
+if(NOT WIN32 OR CMAKE_CROSSCOMPILING)
 	find_program(XXD_COMMAND xxd)
 	add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/include/master.css.inc
 					   COMMAND cat ${CMAKE_CURRENT_SOURCE_DIR}/litehtml-external/include/master.css | xxd -i > ${CMAKE_CURRENT_SOURCE_DIR}/include/master.css.inc)

@@ -7,7 +7,7 @@
 namespace Neo
 {
 
-class LightBehavior : public Neo::Behavior
+class NEO_ENGINE_EXPORT LightBehavior : public Neo::Behavior
 {
 public:
 	void copyTo(Behavior& b) const override {}

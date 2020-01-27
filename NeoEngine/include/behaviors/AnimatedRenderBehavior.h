@@ -6,7 +6,7 @@
 namespace Neo 
 {
 
-class AnimatedRenderBehavior : public Neo::Behavior
+class NEO_ENGINE_EXPORT AnimatedRenderBehavior : public Neo::Behavior
 {
 public:
 	void copyTo(Behavior& b) const override {}
