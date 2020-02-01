@@ -10,6 +10,7 @@ public:
 	static const char* getStaticName() { return "Test"; }
 	
 	Behavior* getNew() const override { return new TestBehavior(); }
+	void copyTo(Behavior& destination) const {}
 };
 
 TEST(Object, AddBehaviorTemplate)

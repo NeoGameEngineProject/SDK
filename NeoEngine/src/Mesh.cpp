@@ -66,7 +66,7 @@ Box3D Mesh::calculateBoundingBox()
 void Mesh::serialize(std::ostream& out)
 {
 	m_name.serialize(out);
-	
+
 	uint32_t value = 0;
 	value = getIndices().size();
 	out.write((char*) &value, sizeof(value));
@@ -91,16 +91,7 @@ void Mesh::serialize(std::ostream& out)
 	}
 
 	auto& material = getMaterial();
-	out.write((char*) &material.diffuseColor, sizeof(Vector3));
-	out.write((char*) &material.specularColor, sizeof(Vector3));
-	out.write((char*) &material.emitColor, sizeof(Vector3));
-	out.write((char*) &material.customColor, sizeof(Vector3));
-	out.write((char*) &material.shininess, sizeof(float));
-	out.write((char*) &material.opacity, sizeof(float));
-	out.write((char*) &material.customValue, sizeof(float));
-
-	// FIXME: NEED TO DEFINE BLEND MODE VALUES!
-	out.write((char*) &material.blendMode, sizeof(BLENDING_MODES));
+	m_material.serialize(out);
 
 	FixedString<1> empty;
 	for(unsigned short i = 0; i < 4; i++)
@@ -140,17 +131,7 @@ void Mesh::deserialize(Level& level, std::istream& in)
 		in.read((char*) channel.data, sizeof(Vector2) * value);
 	}
 
-	Material material;
-	in.read((char*) &material.diffuseColor, sizeof(Vector3));
-	in.read((char*) &material.specularColor, sizeof(Vector3));
-	in.read((char*) &material.emitColor, sizeof(Vector3));
-	in.read((char*) &material.customColor, sizeof(Vector3));
-	in.read((char*) &material.shininess, sizeof(float));
-	in.read((char*) &material.opacity, sizeof(float));
-	in.read((char*) &material.customValue, sizeof(float));
-
-	// FIXME: NEED TO DEFINE BLEND MODE VALUES!
-	in.read((char*) &material.blendMode, sizeof(BLENDING_MODES));
+	m_material.deserialize(in);
 
 	for(unsigned short i = 0; i < 4; i++)
 	{
@@ -158,9 +139,7 @@ void Mesh::deserialize(Level& level, std::istream& in)
 		path.deserialize(in);
 		
 		if(path.getLength())
-			material.textures[i] = level.loadTexture(path.str());
+			m_material.textures[i] = level.loadTexture(path.str());
 	}
-	
-	setMaterial(material);
 }
 

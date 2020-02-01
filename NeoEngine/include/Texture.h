@@ -19,7 +19,7 @@ class NEO_ENGINE_EXPORT Texture
 	unsigned int m_textureId = -1;
 	
 	Array<unsigned char> m_data;
-	FixedString<128> m_path;
+	FixedString<256> m_path;
 	
 public:
 	Texture() = default;

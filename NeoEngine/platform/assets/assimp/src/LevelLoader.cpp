@@ -8,6 +8,8 @@
 #include <assimp/cimport.h>
 #include <assimp/cfileio.h>
 
+#include <assimp/cexport.h>
+
 #include <Object.h>
 #include <Level.h>
 #include <FileTools.h>
@@ -159,7 +161,7 @@ static void traverseAssimpScene(Level* level,
 	}
 }
 
-bool LevelLoader::load(Level& level, const char* file, Renderer& render, const char* rootNode)
+bool LevelLoader::load(Level& level, const char* file, const char* rootNode)
 {
 	ObjectHandle root;
 	if(rootNode)
@@ -173,7 +175,15 @@ bool LevelLoader::load(Level& level, const char* file, Renderer& render, const c
 	
 	// Import scene from the given file!
 	const aiScene* scene = aiImportFileEx(file, 0, &iostruct);
-	if(!scene || !aiApplyPostProcessing(scene, aiProcess_Triangulate | aiProcess_FindInstances | aiProcess_ImproveCacheLocality | aiProcess_SplitLargeMeshes | aiProcess_CalcTangentSpace))
+	if(!scene || !aiApplyPostProcessing(scene,
+		// aiProcess_JoinIdenticalVertices
+		aiProcess_SortByPType
+		| aiProcess_Triangulate
+		| aiProcess_FindInstances
+		| aiProcess_ImproveCacheLocality
+		| aiProcess_SplitLargeMeshes
+		| aiProcess_CalcTangentSpace
+		| aiProcess_GenNormals))
 	{
 		std::cerr << "Could not load level: " << aiGetErrorString() << std::endl;
 		return false;
@@ -237,8 +247,8 @@ bool LevelLoader::load(Level& level, const char* file, Renderer& render, const c
 		{
 			aiString path;
 			aiTextureMapping mapping;
-			unsigned int uvindex;
-			float blend;
+			unsigned int uvindex = 0;
+			float blend = 0.0f;
 			aiTextureOp op;
 
 			// FIXME: Bug in Assimp: They use 64bit integers to save the aiTextureMapMode
@@ -251,8 +261,14 @@ bool LevelLoader::load(Level& level, const char* file, Renderer& render, const c
 
 			if(AI_SUCCESS == aiMat->GetTexture(aiTextureType_DIFFUSE, 0, &path, &mapping, &uvindex, &blend, &op, (aiTextureMapMode*) &mapmode))
 			{
-				LOG_DEBUG("Loading DIFFUSE texture: " << uvindex << " " << path.C_Str());
-				Texture* texture = level.loadTexture((basepath + path.C_Str()).c_str());
+				LOG_DEBUG("Loading DIFFUSE texture: " << uvindex << " " << basepath << path.C_Str());
+				
+				Texture* texture;
+				if(path.C_Str()[0] != '/')
+					texture = level.loadTexture((basepath + path.C_Str()).c_str());
+				else
+					texture = level.loadTexture(path.C_Str());
+				
 				if(mapmode == aiTextureMapMode_Clamp)
 				{
 					//texture->setUWrapMode(WRAP_CLAMP);
@@ -269,7 +285,13 @@ bool LevelLoader::load(Level& level, const char* file, Renderer& render, const c
 			if(AI_SUCCESS == aiMat->GetTexture(aiTextureType_SPECULAR, 0, &path, &mapping, &uvindex, &blend, &op, (aiTextureMapMode*) &mapmode))
 			{
 				LOG_DEBUG("Loading SPECULAR texture: " << uvindex << " " << path.C_Str());
-				Texture* texture = level.loadTexture((basepath + path.C_Str()).c_str());
+				
+				Texture* texture;
+				if(path.C_Str()[0] != '/')
+					texture = level.loadTexture((basepath + path.C_Str()).c_str());
+				else
+					texture = level.loadTexture(path.C_Str());
+
 				if(mapmode == aiTextureMapMode_Clamp)
 				{
 					//texture->setUWrapMode(WRAP_CLAMP);
@@ -284,7 +306,13 @@ bool LevelLoader::load(Level& level, const char* file, Renderer& render, const c
 			if(AI_SUCCESS == aiMat->GetTexture(aiTextureType_NORMALS, 0, &path, &mapping, &uvindex, &blend, &op, (aiTextureMapMode*) &mapmode))
 			{
 				LOG_DEBUG("Loading NORMAL texture: " << uvindex << " " << path.C_Str());
-				Texture* texture = level.loadTexture((basepath + path.C_Str()).c_str());
+				
+				Texture* texture;
+				if(path.C_Str()[0] != '/')
+					texture = level.loadTexture((basepath + path.C_Str()).c_str());
+				else
+					texture = level.loadTexture(path.C_Str());
+
 				if(mapmode == aiTextureMapMode_Clamp)
 				{
 					//texture->setUWrapMode(WRAP_CLAMP);
@@ -299,7 +327,13 @@ bool LevelLoader::load(Level& level, const char* file, Renderer& render, const c
 			if(AI_SUCCESS == aiMat->GetTexture(aiTextureType_HEIGHT, 0, &path, &mapping, &uvindex, &blend, &op, (aiTextureMapMode*) &mapmode))
 			{
 				LOG_DEBUG("Loading HEIGHT texture: " << uvindex << " " << path.C_Str());
-				Texture* texture = level.loadTexture((basepath + path.C_Str()).c_str());
+				
+				Texture* texture;
+				if(path.C_Str()[0] != '/')
+					texture = level.loadTexture((basepath + path.C_Str()).c_str());
+				else
+					texture = level.loadTexture(path.C_Str());
+
 				if(mapmode == aiTextureMapMode_Clamp)
 				{
 					//texture->setUWrapMode(WRAP_CLAMP);
@@ -336,7 +370,7 @@ bool LevelLoader::load(Level& level, const char* file, Renderer& render, const c
 			    (Vector3*) mesh->mTangents,
 			    (Vector3*) mesh->mBitangents,
 			    0, nullptr);
-		
+
 		auto& textureChannels = subMesh.getTextureChannels();
 		textureChannels.reserve(4);
 		
@@ -356,16 +390,29 @@ bool LevelLoader::load(Level& level, const char* file, Renderer& render, const c
 				textureChannels.push_back(std::move(coords));
 			}
 		}
-		
+
+		if(mesh->mPrimitiveTypes & aiPrimitiveType_TRIANGLE)
+		{
+			subMesh.setFormat(MESH_FORMAT::TRIANGLES);
+		}
+		else if(mesh->mPrimitiveTypes & aiPrimitiveType_LINE)
+		{
+			subMesh.setFormat(MESH_FORMAT::LINES);
+		}
+		else if(mesh->mPrimitiveTypes & aiPrimitiveType_POINT)
+		{
+			subMesh.setFormat(MESH_FORMAT::POINTS);
+		}
+
 		auto& indices = subMesh.getIndices();
 		indices.resize(mesh->mNumFaces*3);
-		for(size_t i = 0; i < mesh->mNumFaces; i++)
+		for(size_t j = 0; j < mesh->mNumFaces; j++)
 		{
-			assert(mesh->mFaces[i].mNumIndices == 3);
-			const size_t idx = i*3;
-			indices[idx] = mesh->mFaces[i].mIndices[0];
-			indices[idx+1] = mesh->mFaces[i].mIndices[1];
-			indices[idx+2] = mesh->mFaces[i].mIndices[2];
+			assert(mesh->mFaces[j].mNumIndices == 3);
+			const size_t idx = j*3;
+			indices[idx] = mesh->mFaces[j].mIndices[0];
+			indices[idx+1] = mesh->mFaces[j].mIndices[1];
+			indices[idx+2] = mesh->mFaces[j].mIndices[2];
 		}
 		
 		subMesh.setMaterial(materials[mesh->mMaterialIndex]);
@@ -392,9 +439,9 @@ bool LevelLoader::load(Level& level, const char* file, Renderer& render, const c
 		}
 		
 		light.attenuation = ailight->mAttenuationQuadratic;
-		light.brightness = 1.0;
 		light.diffuse = Vector3(ailight->mColorDiffuse.r, ailight->mColorDiffuse.g, ailight->mColorDiffuse.b);
 		light.specular = Vector3(ailight->mColorSpecular.r, ailight->mColorSpecular.g, ailight->mColorSpecular.b);
+		light.brightness = 1.0;
 	}
 	
 	std::unordered_map<std::string, std::pair<Matrix4x4, CameraBehavior>> cameras;

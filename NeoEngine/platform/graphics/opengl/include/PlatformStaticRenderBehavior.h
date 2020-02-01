@@ -7,6 +7,8 @@
 namespace Neo 
 {
 
+int meshFormatToOpenGL(MESH_FORMAT format);
+
 class MeshBehavior;
 class NEO_ENGINE_EXPORT PlatformStaticRenderBehavior : public Neo::Behavior
 {

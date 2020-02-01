@@ -109,7 +109,8 @@ void Log::log(int severity, const char * function, const char * filename, const 
 	{
 		logMutex.lock();
 		*(err) << sev <<" "<< m_instance->m_string << " in " << (function?function:"?")
-		//<< " in "<< (filename?filename:"?") // do we add filename in console ?
+		<< " in "<< (filename?filename:"?") // do we add filename in console ?
+		<< ":" << line_no
 		<< std::endl;
 		logMutex.unlock();
 	}
@@ -117,7 +118,8 @@ void Log::log(int severity, const char * function, const char * filename, const 
 	{
 		logMutex.lock();
 		*(out) << sev <<" "<< m_instance->m_string << " in " << (function?function:"?")
-		//<< " in "<< (filename?filename:"?") // do we add filename in console ?
+		<< " in "<< (filename?filename:"?") // do we add filename in console ?
+		<< ":" << line_no
 		<< std::endl;
 		logMutex.unlock();
 	}
@@ -127,7 +129,7 @@ void Log::log(int severity, const char * function, const char * filename, const 
 #endif
 
 	if(m_instance->m_logfstream.good())
-		m_instance->m_logfstream<<sev<<" "<<m_instance->m_string<< " in " << (function?function:"?") << " in "<< (filename?filename:"?") <<std::endl;
+		m_instance->m_logfstream<<sev<<" "<<m_instance->m_string<< " in " << (function?function:"?") << " in "<< (filename?filename:"?") << ":" << line_no <<std::endl;
 }
 
 Log* Log::get()

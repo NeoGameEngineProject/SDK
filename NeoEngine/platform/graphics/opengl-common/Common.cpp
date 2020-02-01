@@ -229,7 +229,7 @@ std::string Common::preprocess(const char* path)
 	if(!file)
 	{
 		LOG_ERROR("Could not open file: " << path);
-		return std::string();
+		throw std::runtime_error("Could not open file: " + std::string(path));
 	}
 
 	std::stringstream in(file); // TODO Make readTextFile STL aware!
@@ -256,7 +256,7 @@ std::string Common::preprocess(const char* path)
 			if(file.empty())
 			{
 				LOG_ERROR("Could not load include file: " << basePath << result[3].str());
-				return "";
+				throw std::runtime_error("Could not open file: " + basePath + result[3].str());
 			}
 			out << file;
 			continue;
@@ -299,7 +299,7 @@ void Common::gatherUniforms(const std::string& code, Shader& shader)
 	auto uniformIterBegin = std::sregex_iterator(code.begin(), code.end(), regex);
 	auto uniformIterEnd = std::sregex_iterator();
 	
-	LOG_DEBUG(shader.name.str() << ": Found " << std::distance(uniformIterBegin, uniformIterEnd) << " uniforms.");
+	// LOG_DEBUG(shader.name.str() << ": Found " << std::distance(uniformIterBegin, uniformIterEnd) << " uniforms.");
 	
 	for(; uniformIterBegin != uniformIterEnd; uniformIterBegin++)
 	{
@@ -330,14 +330,14 @@ void Common::setupMaterial(Material& material, const char* shaderName)
 	int shaderId = findShader(shaderName);
 	if(shaderId != -1)
 	{
-		LOG_DEBUG("Found shader in cache for " << shaderName);
+		// LOG_DEBUG("Found shader in cache for " << shaderName);
 		material.setShader(shaderId);
 		
 		// FIXME Duplicate code!
-		LOG_DEBUG("Cloning " << getShader(shaderId)->uniforms.size() << " properties");
+		// LOG_DEBUG("Cloning " << getShader(shaderId)->uniforms.size() << " properties");
 		for(auto& k : getShader(shaderId)->uniforms)
 		{
-			LOG_DEBUG("Shader property: " << k.first->getName());
+			// LOG_DEBUG("Shader property: " << k.first->getName());
 			auto* prop = material.getProperty(k.first->getName().c_str());
 			if(!prop)
 			{
@@ -346,7 +346,7 @@ void Common::setupMaterial(Material& material, const char* shaderName)
 			}
 			else
 			{
-				LOG_DEBUG("Property skipped.");
+				// LOG_DEBUG("Property skipped.");
 			}
 
 			// Set ID to zero to indicate it is uninitialized
@@ -398,10 +398,10 @@ void Common::setupMaterial(Material& material, const char* shaderName)
 	gatherUniforms(shader.fragmentSource, shader);
 	
 	// FIXME Duplicate code!
-	LOG_DEBUG("Created a new shader " << shaderName);
+	// LOG_DEBUG("Created a new shader " << shaderName);
 	for(auto& k : shader.uniforms)
 	{
-		LOG_DEBUG("Shader property: " << k.first->getName());
+		// LOG_DEBUG("Shader property: " << k.first->getName());
 		auto* prop = material.getProperty(k.first->getName().c_str());
 		if(!prop)
 		{
@@ -410,7 +410,7 @@ void Common::setupMaterial(Material& material, const char* shaderName)
 		}
 		else
 		{
-			LOG_DEBUG("Property skipped.");
+			// LOG_DEBUG("Property skipped.");
 		}
 
 		// Set ID to zero to indicate it is uninitialized

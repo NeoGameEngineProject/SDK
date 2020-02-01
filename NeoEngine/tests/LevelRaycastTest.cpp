@@ -16,7 +16,7 @@ TEST(LevelRaycast, CastNoHit)
 	EXPECT_EQ(object, ObjectHandle());
 }
 
-TEST(LevelRaycast, CastHit)
+TEST(LevelRaycast, DISABLED_CastHit)
 {
 	Level level;
 	ASSERT_TRUE(LevelLoader::load(level, "assets/test.dae"));

@@ -17,6 +17,17 @@
 namespace Neo
 {
 
+enum MESH_FORMAT
+{
+	TRIANGLES,
+	TRIANGLE_STRIP,
+	TRIANGLE_FAN,
+	POINTS,
+	LINES,
+	LINE_LOOP,
+	LINE_STRIP
+};
+
 struct MeshVertex
 {
 	Vector3 position, normal;
@@ -80,6 +91,9 @@ public:
 	
 	const char* getName() const { return m_name.str(); }
 	void setName(const char* name) { m_name = name; }
+
+	MESH_FORMAT getFormat() const { return m_format; }
+	void setFormat(MESH_FORMAT format) { m_format = format; }
 	
 private:
 	std::vector<unsigned int> m_indices;
@@ -90,6 +104,7 @@ private:
 	
 	Material m_material;
 	FixedString<128> m_name;
+	MESH_FORMAT m_format = TRIANGLES;
 };
 
 typedef Handle<Mesh, std::vector<Mesh>> MeshHandle;

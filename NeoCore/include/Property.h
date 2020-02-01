@@ -8,11 +8,13 @@
 #include <Vector2.h>
 #include <Vector3.h>
 #include <Vector4.h>
+#include <FixedString.h>
 
 #include <string>
 #include <cassert>
 #include <memory>
 #include <vector>
+#include <iostream>
 
 namespace Neo
 {
@@ -61,7 +63,7 @@ PROPERTY_TYPES typeOf()
 }
 
 class Object;
-class IProperty 
+class IProperty
 {
 	std::string m_name;
 	size_t m_size = 0;
@@ -107,6 +109,33 @@ public:
 		assert(sizeof(T) == m_size && "Assigned type is wrong!");
 		
 		get<T>() = value;
+	}
+
+	void deserialize(std::istream& in)
+	{
+		// FIXME: Use FixedString instead of std::string
+		Neo::FixedString<128> name;
+		name.deserialize(in);
+		m_name = name.str();
+
+		in.read((char*) &m_type, sizeof(m_type));
+		in.read((char*) &m_size, sizeof(m_size));
+	}
+
+	void deserializeData(std::istream& in)
+	{
+		in.read((char*) cdata(), m_size);
+	}
+
+	void serialize(std::ostream& out) const
+	{
+		FixedString<128> name(m_name);
+		name.serialize(out);
+
+		out.write((char*) &m_type, sizeof(m_type));
+		out.write((char*) &m_size, sizeof(m_size));
+
+		out.write((char*) cdata(), m_size);
 	}
 };
 
@@ -181,6 +210,38 @@ public:
 	}
 };
 
+static IProperty* createStaticProperty(PROPERTY_TYPES type, const char* name)
+{
+	switch(type)
+	{
+		default:
+		case UNKNOWN: return nullptr;
+
+		case INTEGER: return new StaticProperty<int>(name);
+		case UNSIGNED_INTEGER: return new StaticProperty<unsigned int>(name);
+		case FLOAT: return new StaticProperty<float>(name);
+		case VECTOR2: return new StaticProperty<Vector2>(name);
+		case VECTOR3: return new StaticProperty<Vector3>(name);
+		case VECTOR4: return new StaticProperty<Vector4>(name);
+		case MATRIX4x4: return nullptr; // return new StaticProperty<Matrix4x4>(name);
+		case COLOR: return new StaticProperty<Vector4>(name);
+		case STRING: return nullptr; // new StaticProperty<int>();
+		case PATH: return nullptr;
+		case BOOL: return new StaticProperty<bool>(name);
+	}
+}
+
+static IProperty* deserializeProperty(std::istream& in)
+{
+	StaticProperty<char> dummy("");
+	dummy.deserialize(in);
+
+	IProperty* prop = createStaticProperty(dummy.getType(), dummy.getName().c_str());
+	assert(prop);
+
+	prop->deserializeData(in);
+	return prop;
+}
 
 #define REGISTER_PROPERTY(field) registerProperty(#field, field)
 #define REGISTER_PROPERTY_TYPE(field, type) registerProperty(#field, field, type)
@@ -280,6 +341,28 @@ public:
 	}
 	
 	std::vector<std::unique_ptr<IProperty>>& getProperties() { return m_properties; }
+
+	void deserialize(std::istream& in)
+	{
+		uint32_t count;
+		in.read((char*) &count, sizeof(count));
+		
+		for(uint32_t i = 0; i < count; i++)
+		{
+			m_properties.emplace_back(deserializeProperty(in));
+		}
+	}
+
+	void serialize(std::ostream& out) const
+	{
+		uint32_t count = m_properties.size();
+		out.write((char*) &count, sizeof(count));
+
+		for(uint32_t i = 0; i < count; i++)
+		{
+			m_properties[i]->serialize(out);
+		}
+	}
 };
 
 }

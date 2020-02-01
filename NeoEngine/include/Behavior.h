@@ -64,16 +64,18 @@ class NEO_ENGINE_EXPORT Behavior
 {
 	///< Static registry
 	static std::vector<std::unique_ptr<Behavior>> s_registry;
-	static Behavior* findBehaviorInRegistry(const char* name);
 
 public:
 #ifndef SWIG
 	static std::unique_ptr<Behavior> create(const char* name);
 	
+	static Behavior* findBehaviorInRegistry(const char* name);
 	static void unregisterBehavior(const char* name);
 	static void unregisterBehavior(unsigned int index);
 	static unsigned int registerBehavior(std::unique_ptr<Behavior>&& behavior);
 	static const std::vector<std::unique_ptr<Behavior>>& registeredBehaviors();
+	static bool isBehaviorRegistered(const char* name) { return findBehaviorInRegistry(name) != nullptr; }
+
 #endif
 	
 private:

@@ -9,6 +9,23 @@
 
 using namespace Neo;
 
+int Neo::meshFormatToOpenGL(MESH_FORMAT format)
+{
+	switch(format)
+	{
+		case LINES: return GL_LINES;
+		case LINE_STRIP: return GL_LINE_STRIP;
+		case LINE_LOOP: return GL_LINE_LOOP;
+		case POINTS: return GL_POINTS;
+		case TRIANGLES: return GL_TRIANGLES;
+		case TRIANGLE_FAN: return GL_TRIANGLE_FAN;
+		case TRIANGLE_STRIP: return GL_TRIANGLE_STRIP;
+	}
+
+	return -1;
+} 
+
+
 void PlatformStaticRenderBehavior::begin(Neo::Platform& p, Neo::Renderer& render, Level&)
 {
 	PlatformRenderer* prender = reinterpret_cast<PlatformRenderer*>(&render);
@@ -133,7 +150,7 @@ void PlatformStaticRenderBehavior::draw(Neo::Renderer& render)
 		prender->enableMaterial(submesh->getMaterial(), MV, MVP, N);
 
 		glBindVertexArray(m_vaos[i]);
-		glDrawArrays(GL_TRIANGLES, 0, submesh->getIndices().size());
+		glDrawArrays(meshFormatToOpenGL(submesh->getFormat()), 0, submesh->getIndices().size());
 		
 		render.addDrawCall(submesh->getIndices().size() / 3);
 	}

@@ -10,7 +10,7 @@ class Level;
 class NEO_ENGINE_EXPORT LevelLoader
 {
 public:
-	static bool load(Level& level, const char* file, Renderer& render, const char* rootNode = nullptr);
+	static bool load(Level& level, const char* file, const char* rootNode = nullptr);
 };
 
 }

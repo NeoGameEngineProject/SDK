@@ -216,9 +216,9 @@ MeshHandle Level::loadMesh(const char* name)
 	return MeshHandle();
 }
 
-bool Level::load(const char* path, Renderer& render, const char* parentNode)
+bool Level::load(const char* path, const char* parentNode)
 {
-	return LevelLoader::load(*this, path, render, parentNode);
+	return LevelLoader::load(*this, path, parentNode);
 }
 
 void Level::updateVisibility(const CameraBehavior& camera)

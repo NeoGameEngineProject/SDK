@@ -87,6 +87,18 @@ public:
 	const char* getShaderName() const { return m_shaderName.str(); }
 	void setShaderName(const char* str) { m_shaderName = str; }
 
+	void deserialize(std::istream& in)
+	{
+		m_shaderName.deserialize(in);
+		PropertySystem::deserialize(in);
+	}
+
+	void serialize(std::ostream& out) const
+	{
+		m_shaderName.serialize(out);
+		PropertySystem::serialize(out);
+	}
+
 private:
 	int m_shader = -1;
 	FixedString<64> m_shaderName;
