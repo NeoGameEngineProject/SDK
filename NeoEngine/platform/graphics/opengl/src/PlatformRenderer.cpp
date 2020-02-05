@@ -346,6 +346,7 @@ void PlatformRenderer::enableMaterial(Neo::Material& material, const Neo::Matrix
 
 void PlatformRenderer::draw(Object* object)
 {
+	assert(object && "Can't draw null!");
 	m_opaqueObjects.push_back(object);
 }
 

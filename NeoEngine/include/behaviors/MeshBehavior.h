@@ -44,6 +44,9 @@ public:
 
 	void serialize(std::ostream& out) override;
 	void deserialize(Level& level, std::istream& out) override;
+
+	void serializeData(std::ostream& out) override;
+	void deserializeData(Level& level, std::istream& in) override;
 };
 
 }

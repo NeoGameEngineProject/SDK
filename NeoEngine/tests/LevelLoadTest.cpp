@@ -2,6 +2,7 @@
 
 #include <Level.h>
 #include <LevelLoader.h>
+#include <JsonScene.h>
 
 #include <behaviors/MeshBehavior.h>
 #include <behaviors/LightBehavior.h>
@@ -40,4 +41,37 @@ TEST(LoadLevel, SaveLoad)
 
 	Level level2;
 	ASSERT_TRUE(level2.loadBinary("test.nlv"));
+}
+
+TEST(LoadLevel, SaveLoadJson)
+{
+	Level level;
+	ASSERT_TRUE(LevelLoader::load(level, "assets/test.dae"));
+	ASSERT_TRUE(LevelLoader::load(level, "assets/test.dae", "Cube"));
+
+	JsonScene scene;
+
+	ASSERT_TRUE(scene.save(level, "test.jlv"));
+
+	Level level2;
+	ASSERT_TRUE(scene.load(level2, "test.jlv"));
+
+	ASSERT_TRUE(scene.save(level2, "test2.jlv"));
+}
+
+std::string encodeData(std::istream& in);
+void decodeData(std::stringstream& out, const std::string& str);
+
+TEST(LoadLevel, EncodeData)
+{
+	std::stringstream ss1, ss2;
+	unsigned int num = 0xDEADBEEF, num2 = 0;
+
+	ss1.write((char*) &num, sizeof(num));
+	std::string encoded = encodeData(ss1);
+
+	decodeData(ss2, encoded);
+	ss2.read((char*) &num2, sizeof(num2));
+
+	EXPECT_EQ(num, num2);
 }

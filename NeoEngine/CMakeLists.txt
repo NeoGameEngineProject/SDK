@@ -25,7 +25,9 @@ target_compile_definitions(NeoEngine PRIVATE -DNEO_ENGINE_DLL)
 target_include_directories(NeoEngine PUBLIC 
 	${NEO_PLATFORM_INCS}
 	${CMAKE_CURRENT_SOURCE_DIR}/include
-	include)
+	include
+	
+	PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/rapidjson)
 
 if(NOT WII)
 	set(DL_LIBS ${CMAKE_DL_LIBS})

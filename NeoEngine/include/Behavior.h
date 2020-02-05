@@ -202,6 +202,24 @@ public:
 	std::vector<IProperty*>& getProperties() { return m_properties; }
 	virtual void serialize(std::ostream&) {}
 	virtual void deserialize(Level&, std::istream&) {}
+
+	/**
+	 * @brief Serialize internal binary data, e.g. meshes etc.
+	 * 
+	 * Should not serialize properties!
+	 * 
+	 * @param out The out stream to write to.
+	 */
+	virtual void serializeData(std::ostream& out) {}
+
+	/**
+	 * @brief Read internal binary data, e.g. meshes etc.
+	 * 
+	 * Should not deserialize properties!
+	 * 
+	 * @param in The input stream to read from.
+	 */
+	virtual void deserializeData(Level& level, std::istream& in) {}
 };
 
 #ifndef SWIG

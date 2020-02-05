@@ -72,3 +72,35 @@ void MeshBehavior::deserialize(Level& level, std::istream& in)
 		m_submeshes.push_back(level.loadMesh(name.str()));
 	}
 }
+
+void MeshBehavior::serializeData(std::ostream& out)
+{
+	uint16_t numMeshes = m_submeshes.size();
+	out.write((char*) &numMeshes, sizeof(uint16_t));
+
+	for(auto& submesh : m_submeshes)
+	{
+		FixedString<128> str = submesh->getName();
+		str.serialize(out);
+		submesh->serialize(out);
+	}
+}
+
+void MeshBehavior::deserializeData(Level& level, std::istream& in)
+{
+	uint16_t smallValue;
+	in.read((char*) &smallValue, sizeof(uint16_t));
+
+	m_submeshes.reserve(smallValue);
+	for(uint16_t i = 0; i < smallValue; i++)
+	{
+		FixedString<128> name;
+		name.deserialize(in);
+
+		Mesh mesh;
+		mesh.setName(name.str());
+		mesh.deserialize(level, in);
+
+		m_submeshes.push_back(level.addMesh(std::move(mesh)));
+	}
+}

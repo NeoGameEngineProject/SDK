@@ -13,3 +13,6 @@ set(ZLIB_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/zlib-external/ ${CMAKE_CURRENT_
 
 	add_subdirectory(freetype2-external)
 #endif()
+
+set(RAPIDJSON_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/rapidjson-external/include PARENT_SCOPE)
+# add_subdirectory(rapidjson-external EXCLUDE_FROM_ALL)

@@ -40,3 +40,6 @@
 [submodule "NeoEngine/platform/bullet/bullet3-external"]
 	path = NeoEngine/platform/bullet/bullet3-external
 	url = https://github.com/bulletphysics/bullet3.git
+[submodule "NeoEngine/platform/3rdparty/rapidjson-external"]
+	path = NeoEngine/platform/3rdparty/rapidjson-external
+	url = https://github.com/Tencent/rapidjson.git

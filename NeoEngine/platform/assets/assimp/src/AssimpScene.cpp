@@ -1,4 +1,5 @@
-#include "LevelLoader.h"
+#include <AssimpScene.h>
+
 #include <Matrix4x4.h>
 
 #include <assimp/scene.h>
@@ -18,12 +19,11 @@
 #include <behaviors/MeshBehavior.h>
 #include <behaviors/CameraBehavior.h>
 #include <behaviors/StaticRenderBehavior.h>
-#include <Object.h>
-
-#include <Log.h>
+#include <behaviors/SceneLinkBehavior.h>
 
 using namespace Neo;
 
+// REGISTER_LEVEL_LOADER(AssimpScene)
 
 #define GET_FILE(ai) ((File*) (ai->UserData))
 static const int aiSeekTable[] = { SEEK_SET, SEEK_CUR, SEEK_END };
@@ -150,7 +150,7 @@ static void traverseAssimpScene(Level* level,
 		neoChild->addBehavior(std::move(meshBehavior));
 
 		// Make it renderable
-		// TODO Selet type of renderer!
+		// TODO Select type of renderer!
 		neoChild->addBehavior(std::make_unique<StaticRenderBehavior>());
 		
 		loadMatrix(neoChild->getTransform(), child->mTransformation);
@@ -161,20 +161,23 @@ static void traverseAssimpScene(Level* level,
 	}
 }
 
-bool LevelLoader::load(Level& level, const char* file, const char* rootNode)
+bool AssimpScene::load(Level& level, const std::string& file, ObjectHandle root)
 {
-	ObjectHandle root;
-	if(rootNode)
-		root = level.find(rootNode);
-	else
+	if(root.empty())
+	{
 		root = level.getRoot();
+	}
+	else
+	{
+		root->addBehavior<Neo::SceneLinkBehavior>()->setFilename(file);
+	}
 
 	aiFileIO iostruct;
 	iostruct.OpenProc = aiOpen;
 	iostruct.CloseProc = aiClose;
 	
 	// Import scene from the given file!
-	const aiScene* scene = aiImportFileEx(file, 0, &iostruct);
+	const aiScene* scene = aiImportFileEx(file.c_str(), 0, &iostruct);
 	if(!scene || !aiApplyPostProcessing(scene,
 		// aiProcess_JoinIdenticalVertices
 		aiProcess_SortByPType
@@ -469,4 +472,14 @@ bool LevelLoader::load(Level& level, const char* file, const char* rootNode)
 	aiReleaseImport(scene);
 	
 	return true;
+}
+
+bool AssimpScene::save(Level& level, const std::string& file, ObjectHandle root)
+{
+	return false;
+}
+
+bool AssimpScene::supportsExtension(const std::string& ext)
+{
+	return aiIsExtensionSupported(("." + ext).c_str());
 }

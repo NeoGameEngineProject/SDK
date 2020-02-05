@@ -461,7 +461,6 @@ bool saveObject(std::ostream& out, ObjectHandle object)
 	return retval;
 }
 
-
 bool loadObject(Level& level, std::istream& in, ObjectHandle parent)
 {
 	//auto object = level.addObject();
@@ -624,4 +623,3 @@ bool Level::deserialize(std::istream& in, ObjectHandle insertionPoint)
 	m_objects.reserve(header.objectCount);
 	return loadObject(*this, in, (insertionPoint.empty() ? getRoot() : insertionPoint));
 }
-

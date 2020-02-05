@@ -148,13 +148,13 @@ public:
 	Property(const char* name, T* data):
 		IProperty(name, typeOf<T>(), sizeof(T)), m_data(data)
 	{
-		static_assert(std::is_trivially_copyable<T>::value, "A property must be serializable!");
+		// static_assert(std::is_trivially_copyable<T>::value, "A property must be serializable!");
 	}
 	
 	Property(const char* name, T* data, PROPERTY_TYPES type):
 		IProperty(name, type, sizeof(T)), m_data(data)
 	{
-		static_assert(std::is_trivially_copyable<T>::value, "A property must be serializable!");
+		// static_assert(std::is_trivially_copyable<T>::value, "A property must be serializable!");
 	}
 
 	T* get() { return m_data; }
