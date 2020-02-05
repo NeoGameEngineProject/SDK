@@ -15,6 +15,8 @@
 #include <Log.h>
 #include <Level.h>
 
+#include <LevelLoader.h>
+
 using namespace Neo;
 using namespace rapidjson;
 
@@ -85,14 +87,14 @@ static void readMatrix(const Value& v, Matrix4x4& mtx)
 		mtx.entries[i] = values[i].GetDouble(); // Double because we can only write Doubles.
 }
 
-static BehaviorRef readBehavior(const Value& v, Level& l)
+static void readBehavior(const Value& v, Level& l, ObjectHandle parent)
 {
 	auto behavior = Behavior::create(v["name"].GetString());
 
 	if(!behavior)
 	{
 		LOG_ERROR("Unknown behavior was ignored: " << v["name"].GetString());
-		return nullptr;
+		return;
 	}
 
 	auto properties = v["properties"].GetArray();
@@ -139,7 +141,19 @@ static BehaviorRef readBehavior(const Value& v, Level& l)
 	decodeData(binData, v["data"].GetString());
 	behavior->deserializeData(l, binData);
 
-	return behavior;
+	if(!strcmp("SceneLink", behavior->getName()))
+	{
+		LevelLoader::load(l, behavior->getProperty("filename")->get<std::string>().c_str(), parent);
+
+		// Load transform from matrix
+		parent->updateFromMatrix();
+
+		// Update children with their relative transforms
+		parent->makeSubtreeDirty();
+		parent->updateMatrix();
+	}
+	else
+		parent->addBehavior(std::move(behavior));
 }
 
 static void readObject(const Value& v, Object* parent, Level& level)
@@ -150,7 +164,7 @@ static void readObject(const Value& v, Object* parent, Level& level)
 
 	auto behaviors = v["behaviors"].GetArray();
 	for(int i = 0; i < behaviors.Size(); i++)
-		newObject->addBehavior(readBehavior(behaviors[i], level));
+		readBehavior(behaviors[i], level, newObject);
 
 	auto children = v["children"].GetArray();
 	for(int i = 0; i < children.Size(); i++)
