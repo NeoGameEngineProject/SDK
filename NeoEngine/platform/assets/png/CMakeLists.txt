@@ -19,8 +19,3 @@ add_platform_module(
 
 install(DIRECTORY include/ DESTINATION include)
 
-install(TARGETS ${LIBPNG}
-		RUNTIME DESTINATION bin
-		LIBRARY DESTINATION bin
-		ARCHIVE DESTINATION lib)
-	
