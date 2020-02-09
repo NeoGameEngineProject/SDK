@@ -11,7 +11,7 @@ class NEO_ENGINE_EXPORT SceneLinkBehavior : public Behavior
 public:
 	SceneLinkBehavior()
 	{
-		REGISTER_PROPERTY(filename);
+		REGISTER_PROPERTY_TYPE(filename, PATH);
 	}
 
 	const char* getName() const override { return "SceneLink"; }
