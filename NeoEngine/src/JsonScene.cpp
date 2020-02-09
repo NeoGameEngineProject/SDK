@@ -185,9 +185,12 @@ bool JsonScene::load(Level& level, const std::string& file, ObjectHandle root)
 	Document doc;
 	doc.ParseStream(in);
 
+	if(root.empty())
+		root = level.getRoot();
+
 	auto scene = doc["scene"].GetArray();
 	for(int i = 0; i < scene.Size(); i++)
-		readObject(scene[i], level.getRoot().get(), level);
+		readObject(scene[i], root.get(), level);
 
 	return true;
 }
