@@ -20,6 +20,13 @@
 // Provide NanoVG
 #define NANOVG_GL3_IMPLEMENTATION
 #include <nanovg.h>
+
+// Make sure the symbols are exported from the DLL
+#if WIN32
+extern "C" __declspec(dllexport) NVGcontext* nvgCreateGL3(int);
+extern "C" __declspec(dllexport) void nvgDeleteGL3(NVGcontext*);
+#endif
+
 #include <nanovg_gl.h>
 
 using namespace Neo;
@@ -223,7 +230,7 @@ void PlatformRenderer::endFrame()
 void PlatformRenderer::initialize(unsigned int w, unsigned int h, void* ndt, void* nwh, void* ctx)
 {
 	m_startTime = getTime();
-	m_opaqueObjects.reserve(128);
+	m_opaqueObjects.reserve(512);
 	
 	glewExperimental = true;
 	auto err = glewInit();

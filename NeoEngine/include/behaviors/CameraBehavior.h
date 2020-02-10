@@ -14,7 +14,7 @@ namespace Neo
 class NEO_ENGINE_EXPORT CameraBehavior : public Behavior
 {
 	Matrix4x4 m_projectionMatrix, m_viewMatrix;
-	float fov = 60.0f, near = 0.1f, far = 1000.0f, m_width, m_height,
+	float fov = 60.0f, nearPlane = 0.1f, farPlane = 1000.0f, m_width, m_height,
 	// The position on the screen when using a custom viewport
 	m_screenX = 0, m_screenY = 0;
 	
@@ -29,8 +29,8 @@ public:
 	CameraBehavior()
 	{
 		REGISTER_PROPERTY(fov);
-		REGISTER_PROPERTY(near);
-		REGISTER_PROPERTY(far);
+		REGISTER_PROPERTY(nearPlane);
+		REGISTER_PROPERTY(farPlane);
 	}
 	
 	CameraBehavior(const CameraBehavior& l):
@@ -42,8 +42,8 @@ public:
 	CameraBehavior& operator=(const CameraBehavior& l)
 	{
 		fov = l.fov;
-		near = l.near;
-		far = l.far;
+		nearPlane = l.nearPlane;
+		farPlane = l.farPlane;
 		
 		m_projectionMatrix = l.m_projectionMatrix;
 		m_viewMatrix = l.m_viewMatrix;
@@ -75,11 +75,11 @@ public:
 	void setFov(float fov) { this->fov = fov; }
 	float getFov() const { return fov; }
 	
-	void setNear(float value) { near = value; }
-	float getNear() const { return near; }
+	void setNear(float value) { nearPlane = value; }
+	float getNear() const { return nearPlane; }
 	
-	void setFar(float value) { far = value; }
-	float getFar() const { return far; }
+	void setFar(float value) { farPlane = value; }
+	float getFar() const { return farPlane; }
 	
 	float getX() const { return m_screenX; }
 	float getY() const { return m_screenY; }

@@ -5,7 +5,7 @@
 
 namespace Neo
 {
-class AssimpScene : public SceneFile
+class NEO_ENGINE_EXPORT AssimpScene : public SceneFile
 {
 public:
 	bool load(Level& level, const std::string& file, ObjectHandle root = ObjectHandle()) override;

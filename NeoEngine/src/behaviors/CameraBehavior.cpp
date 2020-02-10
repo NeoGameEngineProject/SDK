@@ -74,7 +74,7 @@ void CameraBehavior::enable(float width, float height)
 	inverseScale.setScale(Vector3(1.0f/scale.x, 1.0f/scale.y, 1.0f/scale.z));
 	
 	m_viewMatrix = (parent->getTransform() * inverseScale).getInverse();
-	setPerspectiveView(fov, ratio, near, far);
+	setPerspectiveView(fov, ratio, nearPlane, farPlane);
 }
 
 Vector3 CameraBehavior::getProjectedPoint(const Vector3 & point) const

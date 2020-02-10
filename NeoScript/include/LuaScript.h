@@ -4,10 +4,12 @@
 #include <string>
 #include <lua.hpp>
 
+#include "NeoScript.h"
+
 namespace Neo 
 {
 
-class LuaScript
+class NEO_SCRIPT_EXPORT LuaScript
 {
 	lua_State* L = nullptr;
 public:

@@ -4,10 +4,12 @@
 #include <GameState.h>
 #include <LuaScript.h>
 
+#include "NeoScript.h"
+
 namespace Neo 
 {
 
-class LuaGameState : public Neo::GameState
+class NEO_SCRIPT_EXPORT LuaGameState : public Neo::GameState
 {
 	LuaScript m_script;
 	std::string m_file;

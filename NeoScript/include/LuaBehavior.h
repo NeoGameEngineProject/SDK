@@ -7,7 +7,7 @@
 namespace Neo 
 {
 
-class LuaBehavior : public Neo::Behavior
+class NEO_SCRIPT_EXPORT LuaBehavior : public Neo::Behavior
 {
 	FixedString<64> fileName;
 	FixedString<32> name;

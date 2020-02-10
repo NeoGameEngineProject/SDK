@@ -6,7 +6,7 @@
 namespace Neo
 {
 
-class JsonScene : public SceneFile
+class NEO_ENGINE_EXPORT JsonScene : public SceneFile
 {
 public:
 	bool load(Level& level, const std::string& file, ObjectHandle root = ObjectHandle()) override;

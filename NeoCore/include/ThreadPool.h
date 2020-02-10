@@ -7,9 +7,11 @@
 
 #include <queue/concurrentqueue.h>
 
+#include "NeoCore.h"
+
 namespace Neo
 {
-class ThreadPool
+class NEO_CORE_EXPORT ThreadPool
 {
 	static void pushJob(const std::function<void()>& job);
 

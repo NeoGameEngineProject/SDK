@@ -9,6 +9,7 @@ set(ASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT ON CACHE BOOL "" FORCE)
 # set(ASSIMP_BUILD_STEP_IMPORTER ON)
 set(ASSIMP_ENABLE_BOOST_WORKAROUND ON CACHE BOOL "" FORCE)
 set(ASSIMP_BUILD_ZLIB OFF CACHE BOOL "" FORCE)
+set(ASSIMP_BUILD_MINIZIP ON CACHE BOOL "" FORCE)
 
 # We already pull in zlib ourselves so no need to use the system one
 # or the assimp provided one.

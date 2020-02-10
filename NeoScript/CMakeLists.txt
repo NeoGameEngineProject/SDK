@@ -31,6 +31,13 @@ elseif(WIN32 AND CMAKE_CROSSCOMPILING)
 		BUILD_IN_SOURCE ON
 		GIT_REPOSITORY http://luajit.org/git/luajit-2.0.git
 	)
+
+	add_custom_command(TARGET luajit-build POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different
+			${CMAKE_CURRENT_SOURCE_DIR}/luajit-external/src/lua51.dll 
+			${CMAKE_BINARY_DIR}/bin
+	)
+
 endif()
 
 #if(CMAKE_POSITION_INDEPENDENT_CODE AND NOT APPLE)
