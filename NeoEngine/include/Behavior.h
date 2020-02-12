@@ -50,8 +50,21 @@ namespace Neo
 	FORCE_UNDEFINED_SYMBOL(classname##DllMainDestructor);
 
 #else
+#ifndef WIN32
 #warning "Using default implementation of runtime registration"
-#define REGISTER_BEHAVIOR(classname) namespace { classname g_obj; }
+#endif
+
+#define REGISTER_BEHAVIOR(classname) namespace {\
+	class register_##classname\
+	{\
+		public: \
+			register_##classname()\
+			{\
+				Neo::Behavior::registerBehavior(std::unique_ptr<classname>(new classname())); \
+			}\
+	};\
+	static register_##classname g_##classname##_init; \
+}
 #endif
 
 /**
@@ -176,15 +189,15 @@ public:
 	}
 	
 	template<typename T>
-	Property<T>* getProperty(const char* name) { return reinterpret_cast<Property<T>>(getProperty(name)).get(); }
+	Property<T>* getProperty(const char* name) { return reinterpret_cast<Property<T>*>(getProperty(name)); }
 	
 	template<typename T>
-	T* getProperty(const char* name) { return getProperty<T>(name)->get(); }
+	T* getPropertyValue(const char* name) { return getProperty<T>(name)->get(); }
 	
 	template<typename T>
 	void setProperty(const char* name, const T& value)
 	{
-		*getProperty<T>(name) = value;
+		*getPropertyValue<T>(name) = value;
 	}
 	
 	template<typename T>

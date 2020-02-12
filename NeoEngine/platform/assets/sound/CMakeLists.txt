@@ -15,7 +15,7 @@ if(NOT EMSCRIPTEN)
 		
 		add_subdirectory(openal-soft-external)
 		set(OPENAL_LIBRARY OpenAL)
-		set(OPENAL_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/openal-soft-external/include)
+		set(OPENAL_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/openal-soft-external/include/AL)
 		
 		install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/openal-soft-external/include/ DESTINATION include)
 	endif()

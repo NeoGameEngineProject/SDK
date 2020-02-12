@@ -3,7 +3,9 @@
 #include <Log.h>
 #include <thread>
 #include <vector>
-#include <unistd.h>
+
+#include <chrono>
+#include <thread>`
 
 using namespace Neo;
 
@@ -125,6 +127,6 @@ void ThreadPool::synchronize()
 		numJobs--;
 	}
 	
-	while(numJobs != 0) usleep(1);
+	while(numJobs != 0) std::this_thread::sleep_for(std::chrono::microseconds(1));
 #endif
 }

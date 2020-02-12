@@ -56,6 +56,24 @@ protected:
 			for(auto& p : sh.uniforms)
 				uniforms.emplace_back(std::unique_ptr<Neo::IProperty>(p.first->clone()), p.second);
 		}
+
+		Shader& operator=(const Shader& sh)
+		{
+			id = sh.id;
+			name = sh.name;
+			vertexSource = sh.vertexSource;
+			fragmentSource = sh.fragmentSource;
+			uModelView = sh.uModelView;
+			uNormal = sh.uNormal;
+			uTime = sh.uTime;
+			uNumLights = sh.uNumLights;
+			uboLights = sh.uboLights;
+
+			for (auto& p : sh.uniforms)
+				uniforms.emplace_back(std::unique_ptr<Neo::IProperty>(p.first->clone()), p.second);
+
+			return *this;
+		}
 		
 		int id = -1;
 		Neo::FixedString<64> name;

@@ -20,7 +20,7 @@ macro(preprocess_file input output)
 		else()
 			add_custom_command(OUTPUT ${output}
 				                COMMAND cpp -nostdinc -CC -P -E ${input} > ${output}.tmp
-								COMMAND PowerShell -Command "get-content ${output}.tmp | %{$_ -replace \"\\$\",\"\#\"} | out-file \"${output}\" -encoding ascii"
+								COMMAND PowerShell -Command "get-content ${output}.tmp | %{$_ -replace \"\\$\",\"\#\"} | out-file ${output} -encoding ascii"
 								WORKING_DIRECTORY ${_CWD}
 								DEPENDS ${input}
 								COMMENT "Preprocessing shader ${_NAME}" VERBATIM)
@@ -29,13 +29,14 @@ macro(preprocess_file input output)
 		set_source_files_properties(${output} PROPERTIES GENERATED TRUE)
 
 	elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-		add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${output}
-				COMMAND ${CMAKE_CXX_COMPILER} /C /X /EP ${input} > ${CMAKE_CURRENT_BINARY_DIR}/${output}
+		add_custom_command(OUTPUT ${output}
+				COMMAND ${CMAKE_CXX_COMPILER} /C /X /EP ${input} > ${output}
+				COMMAND PowerShell -Command "(get-content ${output}).replace('$', '#') | Set-Content ${output}" # out-file ${output} -encoding ascii"
 				WORKING_DIRECTORY ${_CWD}
 				DEPENDS ${input}
 				COMMENT "Preprocessing shader ${_NAME}")
 	else()
-		message(FATAL_ERROR "Unknown compiler, don't know to to invoke preprocessor!")
+		message(FATAL_ERROR "Unknown compiler, don't know how to invoke preprocessor!")
 	endif()
 
 endmacro()

@@ -13,6 +13,9 @@ file(GLOB NANOVG_HEADERS nanovg-external/src/*.h*)
 add_definitions(-DFONS_USE_FREETYPE)
 add_library(nanovg ${NANOVG_SOURCES})
 
+# Or else nanovg does not export anything
+set_target_properties(nanovg PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS ON)
+
 target_include_directories(nanovg PUBLIC
 	${FREETYPE_INCLUDE_DIRS}
 	nanovg-external/src/)
@@ -26,8 +29,13 @@ install(FILES ${NANOVG_HEADERS} DESTINATION include)
 set(BUILD_UTILS CACHE "" OFF FORCE)
 add_subdirectory(glew-external/build/cmake)
 
-set(GLEW_LIBRARIES glew_s)
-fix_install_includes(glew_s)
+if(NOT WIN32)
+	set(GLEW_LIBRARIES glew_s)
+	fix_install_includes(glew_s)
+else()
+	set(GLEW_LIBRARIES glew)
+	fix_install_includes(glew)
+endif()
 
 make_directory(${CMAKE_BINARY_DIR}/bin/assets/materials/builtin/)
 preprocess_files(SOURCES ${SHADERS} ${CMAKE_CURRENT_SOURCE_DIR}/shaders/ShaderLight.h INCLUDE_DIRECTORIES "")

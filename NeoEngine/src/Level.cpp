@@ -3,6 +3,7 @@
 #include <iostream>
 #include <cassert>
 #include <algorithm>
+#include <cctype>
 
 #include <Texture.h>
 #include <TextureLoader.h>
