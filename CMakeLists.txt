@@ -22,11 +22,11 @@ include(CopyFiles)
 include(ExternalProject)
 
 set(CMAKE_CXX_STANDARD 17)
-set(BUILD_SHARED_LIBS OFF)
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 set(SANITIZER "address" CACHE STRING "The sanitizer to use")
 
 if(NEO_BUILD_SHARED_LIBS)
-	set(BUILD_SHARED_LIBS ON)
+	set(BUILD_SHARED_LIBS ON CACHE BOOL "" FORCE)
 	set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 endif()
 
@@ -107,6 +107,10 @@ endif()
 
 if(NOT NO_DOCS)
 	add_subdirectory(Doc)
+endif()
+
+if(NOT NO_TOOLS)
+	add_subdirectory(NeoPublisher)
 endif()
 
 if(UNIX AND NOT APPLE)

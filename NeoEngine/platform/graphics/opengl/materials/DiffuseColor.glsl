@@ -11,7 +11,6 @@ void main()
 }
 
 #else
-$extension GL_ARB_shading_language_420pack : require
 
 uniform vec3 Diffuse;
 uniform vec3 Specular;
@@ -27,7 +26,7 @@ float rand(vec2 co, float rnd_scale)
 {
 	vec2 v1 = vec2(92.,80.);
 	vec2 v2 = vec2(41.,62.);
-	return fract(sin(dot(co.xy ,v1)) + cos(dot(co.xy ,v2)) * rnd_scale);
+	return fract(sin(dot(co.xy, v1)) + cos(dot(co.xy, v2)) * rnd_scale);
 }
 
 void main()

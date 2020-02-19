@@ -22,6 +22,7 @@ public:
 	static bool save(Level& level, const char* file, ObjectHandle rootNode);
 
 	static void registerLoader(SceneFile* ldr);
+	static bool supportsExtension(const char* ext);
 };
 
 #define REGISTER_LEVEL_LOADER(classname) namespace { \

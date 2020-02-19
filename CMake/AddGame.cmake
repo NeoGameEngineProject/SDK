@@ -35,11 +35,8 @@ macro(add_game name sources assetdir)
 			add_dependencies(build-package-${name} copy-shaders)
 		else()
 			add_custom_target(copy-shaders
-				COMMAND ${CMAKE_COMMAND} -E remove_directory ${assetdir}/glsl ## TODO Find real shader output!
-				COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/assets/glsl ${assetdir}/glsl ## TODO Find real shader output!
-
-				COMMAND ${CMAKE_COMMAND} -E remove_directory ${assetdir}/shaders/builtin
-				COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/assets/glsl/ ${assetdir}/shaders/builtin/
+				COMMAND ${CMAKE_COMMAND} -E remove_directory ${assetdir}/materials ## TODO Find real shader output!
+				COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/assets/materials ${assetdir}/materials
 				
 				WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 				COMMENT "Copying shaders"
@@ -82,10 +79,10 @@ macro(add_game name sources assetdir)
 			else()
 				add_custom_command(TARGET ${name} POST_BUILD
 					## Zip assets
-					COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/assets/glsl ${assetdir}/glsl ## TODO Find real shader output!
+					COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/assets/materials ${assetdir}/materials ## TODO Find real shader output!
 					
 					COMMAND ${CMAKE_COMMAND} -E tar "cf" "${CMAKE_CURRENT_BINARY_DIR}/data.neo" --format=zip ${assetdir}
-					COMMAND ${CMAKE_COMMAND} -E remove_directory  ${assetdir}/glsl
+					COMMAND ${CMAKE_COMMAND} -E remove_directory  ${assetdir}/materials
 
 					## Cat files
 					COMMAND ${CAT_EXEC} $<TARGET_FILE:${name}> "${CMAKE_CURRENT_BINARY_DIR}/data.neo" > ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${name}-full
@@ -113,9 +110,9 @@ macro(add_game name sources assetdir)
 			else()
 				add_custom_command(TARGET ${name} POST_BUILD
 					## Zip assets
-					COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/assets/glsl ${assetdir}/glsl ## TODO Find real shader output!
+					COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/assets/materials ${assetdir}/materials ## TODO Find real shader output!
 					COMMAND ${CMAKE_COMMAND} -E tar "cf" "${CMAKE_CURRENT_BINARY_DIR}/data.neo" --format=zip ${assetdir}
-					COMMAND ${CMAKE_COMMAND} -E remove_directory  ${assetdir}/glsl
+					COMMAND ${CMAKE_COMMAND} -E remove_directory  ${assetdir}/materials
 					
 					## Cat files
 					COMMAND copy /b $<TARGET_FILE:${name}>+"${CMAKE_CURRENT_BINARY_DIR}/data.neo" ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${name}-full.exe

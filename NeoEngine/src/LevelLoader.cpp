@@ -6,6 +6,17 @@ using namespace Neo;
 
 std::vector<SceneFile*> LevelLoader::s_loaders;
 
+bool LevelLoader::supportsExtension(const char* ext)
+{
+	for(auto* f : s_loaders)
+	{
+		if(f->supportsExtension(ext))
+			return true;
+	}
+
+	return false;
+}
+
 void LevelLoader::registerLoader(SceneFile* ldr)
 {
 	LOG_DEBUG("Registering loader: " << ldr->getName());

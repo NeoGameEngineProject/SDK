@@ -43,3 +43,6 @@
 [submodule "NeoEngine/platform/3rdparty/rapidjson-external"]
 	path = NeoEngine/platform/3rdparty/rapidjson-external
 	url = https://github.com/Tencent/rapidjson.git
+[submodule "NeoEngine/platform/3rdparty/libzip-external"]
+	path = NeoEngine/platform/3rdparty/libzip-external
+	url = https://github.com/nih-at/libzip.git

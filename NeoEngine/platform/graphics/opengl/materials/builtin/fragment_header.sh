@@ -1,9 +1,19 @@
 
 #include "ShaderLight.h"
+
+$extension GL_ARB_shading_language_420pack : enable
+
+$ifdef GL_ARB_shading_language_420pack
 layout (std140, binding = 0) uniform Lights
 {
 	ShaderLight lights;
 };
+$else
+layout (binding = 0) uniform Lights
+{
+	ShaderLight lights;
+};
+$endif
 
 in vec3 normal;
 in vec3 position;

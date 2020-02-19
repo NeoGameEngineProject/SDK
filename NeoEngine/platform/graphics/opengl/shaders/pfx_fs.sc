@@ -57,4 +57,5 @@ void main()
 	// gl_FragColor = toneMap(gl_FragColor, 2.5f);
 	// gl_FragColor.rgb = applyGamma(gl_FragColor.rgb);
 	gl_FragColor.rgb = bloom(gl_FragColor.rgb, 0.0095, 5.0f, 3);
+	gl_FragColor.a = 1.0f;
 }

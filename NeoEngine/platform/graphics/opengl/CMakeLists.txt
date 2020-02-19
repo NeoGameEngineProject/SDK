@@ -27,9 +27,9 @@ install(FILES ${NANOVG_HEADERS} DESTINATION include)
 
 ## GLEW
 set(BUILD_UTILS CACHE "" OFF FORCE)
-add_subdirectory(glew-external/build/cmake)
+add_subdirectory(glew-external/build/cmake EXCLUDE_FROM_ALL)
 
-if(NOT WIN32)
+if(NOT WIN32 AND NOT BUILD_SHARED_LIBS)
 	set(GLEW_LIBRARIES glew_s)
 	fix_install_includes(glew_s)
 else()

@@ -16,7 +16,6 @@ void main()
 }
 
 #else
-$extension GL_ARB_shading_language_420pack : require
 
 uniform vec3 Diffuse;
 uniform vec3 Specular;
