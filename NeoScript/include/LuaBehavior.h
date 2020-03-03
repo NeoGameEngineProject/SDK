@@ -21,6 +21,12 @@ public:
 	LuaBehavior(const char* file);
 	LuaBehavior() = default;
 	~LuaBehavior() = default;
+
+	LuaBehavior(const LuaBehavior& b)
+	{
+		fileName = b.fileName;
+		name = b.name;
+	}
 	
 	bool isEditorVisible() const override { return false; }
 	const char* getName() const override;

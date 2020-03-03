@@ -7,7 +7,8 @@ using namespace Neo;
 LuaScript::LuaScript()
 {
 	L = luaL_newstate();
-	
+
+	// LOG_DEBUG("LuaScript " << this << " " << L);
 	if(!L) return; // Error checking?
 
 	luaL_openlibs(L);
@@ -16,7 +17,25 @@ LuaScript::LuaScript()
 
 LuaScript::~LuaScript()
 {
-	lua_close(L);
+	// LOG_DEBUG("~LuaScript " << this << " " << L);
+	if(L)
+		lua_close(L);
+}
+
+std::string LuaScript::getGlobalString(const char* name)
+{
+	lua_getglobal(L, name);
+
+	if(lua_isnil(L, -1))
+	{
+		lua_pop(L, 1);
+		return "";
+	}
+
+	std::string str = lua_tostring(L, -1);
+	lua_pop(L, 1);
+	
+	return str;
 }
 
 bool LuaScript::hasFunction(const char* name)
@@ -68,6 +87,7 @@ bool LuaScript::doString(const std::string& source)
 
 bool LuaScript::doFile(const char* path)
 {
+	// TODO Use a binary version in case the module is pre-compiled!
 	char* source = readTextFile(path);
 	if(!source)
 		return false;

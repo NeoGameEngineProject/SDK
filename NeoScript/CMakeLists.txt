@@ -3,22 +3,29 @@ file(GLOB_RECURSE SOURCES src/*.c*)
 
 find_program(MAKE_EXE make)
 
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+	set(FLAGS ${CMAKE_C_FLAGS_DEBUG})
+else()
+	set(FLAGS ${CMAKE_C_FLAGS})
+endif()
+
 # Linux yay!
 if(NOT APPLE AND UNIX)
 	ExternalProject_Add(luajit-build
 		SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/luajit-external
 		CONFIGURE_COMMAND ""
 		INSTALL_COMMAND ""
-		BUILD_COMMAND sh -e ${CMAKE_CURRENT_SOURCE_DIR}/build-luajit-linux-shared.sh "${CMAKE_C_COMPILER}"
+		BUILD_COMMAND sh -e ${CMAKE_CURRENT_SOURCE_DIR}/build-luajit-linux-shared.sh "${CMAKE_C_COMPILER} ${FLAGS}"
 		BUILD_IN_SOURCE ON
 		GIT_REPOSITORY http://luajit.org/git/luajit-2.0.git
+		# GIT_TAG "v2.0.5"
 	)
 elseif(APPLE)
 	ExternalProject_Add(luajit-build
 		SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/luajit-external
 		CONFIGURE_COMMAND ""
 		INSTALL_COMMAND ""
-		BUILD_COMMAND sh -e ${CMAKE_CURRENT_SOURCE_DIR}/build-luajit-macos-shared.sh "cc"# "${CMAKE_C_COMPILER}"
+		BUILD_COMMAND sh -e ${CMAKE_CURRENT_SOURCE_DIR}/build-luajit-macos-shared.sh "cc ${FLAGS}"# "${CMAKE_C_COMPILER}"
 		BUILD_IN_SOURCE ON
 		GIT_REPOSITORY http://luajit.org/git/luajit-2.0.git
 	)
@@ -27,7 +34,7 @@ elseif(WIN32 AND CMAKE_CROSSCOMPILING)
 		SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/luajit-external
 		CONFIGURE_COMMAND ""
 		INSTALL_COMMAND ""
-		BUILD_COMMAND sh -e ${CMAKE_CURRENT_SOURCE_DIR}/build-luajit-win32-shared.sh "${CMAKE_C_COMPILER}"
+		BUILD_COMMAND sh -e ${CMAKE_CURRENT_SOURCE_DIR}/build-luajit-win32-shared.sh "${CMAKE_C_COMPILER} ${FLAGS}"
 		BUILD_IN_SOURCE ON
 		GIT_REPOSITORY http://luajit.org/git/luajit-2.0.git
 	)
@@ -42,7 +49,7 @@ elseif(WIN32 AND NOT CMAKE_CROSSCOMPILING)
 		SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/luajit-external
 		CONFIGURE_COMMAND ""
 		INSTALL_COMMAND ""
-		BUILD_COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/build-luajit-win32-msvc.bat "${CMAKE_C_COMPILER}"
+		BUILD_COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/build-luajit-win32-msvc.bat "${CMAKE_C_COMPILER} ${FLAGS}"
 		BUILD_IN_SOURCE ON
 		GIT_REPOSITORY http://luajit.org/git/luajit-2.0.git
 	)
@@ -82,8 +89,19 @@ if(WIN32)
 
 	endif()
 else()
-	add_library(luajit STATIC IMPORTED GLOBAL)
-	set_target_properties(luajit PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/luajit-external/src/libluajit.a)
+	if(FALSE AND BUILD_SHARED_LIBS)
+		add_library(luajit UNKNOWN IMPORTED GLOBAL)
+		set_target_properties(luajit PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/luajit-external/src/libluajit.so)
+
+		add_custom_command(TARGET luajit-build POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different
+			${CMAKE_CURRENT_SOURCE_DIR}/luajit-external/src/libluajit.so
+			${CMAKE_BINARY_DIR}/bin
+		)
+	else()
+		add_library(luajit STATIC IMPORTED GLOBAL)
+		set_target_properties(luajit PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/luajit-external/src/libluajit.a)
+	endif()
 endif()
 #endif()
 

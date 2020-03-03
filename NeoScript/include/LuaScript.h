@@ -16,6 +16,23 @@ public:
 	LuaScript();
 	~LuaScript();
 	
+	LuaScript(const LuaScript&) = delete;
+	LuaScript& operator=(const LuaScript&) = delete;
+
+	LuaScript(LuaScript&& s)
+	{
+		L = s.L;
+		s.L = nullptr;
+	}
+
+	LuaScript& operator=(LuaScript&& s)
+	{
+		L = s.L;
+		s.L = nullptr;
+
+		return *this;
+	}
+
 	bool doString(const std::string& source);
 	bool doFile(const char* path);
 	
@@ -24,6 +41,8 @@ public:
 	bool startCallFunction(const char* name);
 	bool endCallFunction(int numArgs);
 	
+	std::string getGlobalString(const char* name);
+
 	lua_State* getState() { return L; }
 };
 
