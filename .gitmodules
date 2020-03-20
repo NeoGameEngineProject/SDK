@@ -46,3 +46,9 @@
 [submodule "NeoEngine/platform/3rdparty/libzip-external"]
 	path = NeoEngine/platform/3rdparty/libzip-external
 	url = https://github.com/nih-at/libzip.git
+[submodule "NeoNet/enet-external"]
+	path = NeoNet/enet-external
+	url = https://github.com/lsalzman/enet.git
+[submodule "NeoEngine/platform/3rdparty/flatbuffers-external"]
+	path = NeoEngine/platform/3rdparty/flatbuffers-external
+	url = https://github.com/google/flatbuffers.git
