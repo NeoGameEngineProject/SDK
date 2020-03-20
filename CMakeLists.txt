@@ -78,6 +78,10 @@ add_subdirectory(NeoHTML)
 add_subdirectory(NeoStates)
 add_subdirectory(NeoScript)
 
+if(NOT NO_NET)
+	add_subdirectory(NeoNet)
+endif()
+
 if(NOT APPLE AND NOT NO_VR)
 	add_subdirectory(NeoVR)
 endif()
