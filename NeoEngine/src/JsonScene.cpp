@@ -1,5 +1,7 @@
 #include <JsonScene.h>
 
+#define RAPIDJSON_ASSERT(x) if(!(x)) throw std::runtime_error("RapidJSON: Assertion failed: " # x)
+
 #include <rapidjson/rapidjson.h>
 #include <rapidjson/writer.h>
 #include <rapidjson/prettywriter.h>
@@ -175,13 +177,9 @@ static void readObject(const Value& v, Object* parent, Level& level)
 	newObject->updateFromMatrix();
 }
 
-bool JsonScene::load(Level& level, const std::string& file, ObjectHandle root)
+bool JsonScene::load(Level& level, std::istream& file, ObjectHandle root)
 {
-	std::ifstream instream(file);
-	if(!instream)
-		throw std::runtime_error(std::string("Could not open file for reading: ") + file);
-
-	IStreamWrapper in(instream);
+	IStreamWrapper in(file);
 	Document doc;
 	doc.ParseStream(in);
 
@@ -334,13 +332,9 @@ static void writeObject(PrettyWriter<OStreamWrapper>& out, Object* object)
 	out.EndObject();
 }
 
-bool JsonScene::save(Level& level, const std::string& file, ObjectHandle root)
+bool JsonScene::save(Level& level, std::ostream& file, ObjectHandle root)
 {
-	std::ofstream outstream(file);
-	if(!outstream)
-		throw std::runtime_error(std::string("Could not open file for writing: ") + file);
-
-	OStreamWrapper out(outstream);
+	OStreamWrapper out(file);
 	PrettyWriter<OStreamWrapper> writer(out);
 
 	writer.StartObject();

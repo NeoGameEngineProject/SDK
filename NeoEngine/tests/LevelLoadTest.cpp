@@ -3,6 +3,8 @@
 #include <Level.h>
 #include <LevelLoader.h>
 #include <JsonScene.h>
+#include <BinaryScene.h>
+#include <AssimpScene.h>
 
 #include <behaviors/MeshBehavior.h>
 #include <behaviors/LightBehavior.h>
@@ -49,14 +51,17 @@ TEST(LoadLevel, SaveLoadJson)
 	ASSERT_TRUE(LevelLoader::load(level, "assets/test.dae"));
 	ASSERT_TRUE(LevelLoader::load(level, "assets/test.dae", "Cube"));
 
+	std::ofstream test("test.jlv"), test2("test2.jlv");
+	std::ifstream testIn("test.jlv");
+
 	JsonScene scene;
 
-	ASSERT_TRUE(scene.save(level, "test.jlv"));
+	ASSERT_TRUE(scene.save(level, test));
 
 	Level level2;
-	ASSERT_TRUE(scene.load(level2, "test.jlv"));
+	ASSERT_TRUE(scene.load(level2, testIn));
 
-	ASSERT_TRUE(scene.save(level2, "test2.jlv"));
+	ASSERT_TRUE(scene.save(level2, test2));
 }
 
 std::string encodeData(std::istream& in);
@@ -74,4 +79,24 @@ TEST(LoadLevel, EncodeData)
 	ss2.read((char*) &num2, sizeof(num2));
 
 	EXPECT_EQ(num, num2);
+}
+
+TEST(LoadLevel, SaveLoadBinary)
+{
+	Level level;
+	AssimpScene ascene;
+
+	ASSERT_TRUE(ascene.load(level, "assets/test.dae"));
+
+	std::ofstream test("test.blv", std::ios::out | std::ios::binary), test2("test2.blv", std::ios::out | std::ios::binary);
+	std::ifstream testIn("test.blv", std::ios::in | std::ios::binary);
+
+	BinaryScene scene;
+
+	ASSERT_TRUE(scene.save(level, test));
+
+	Level level2;
+	ASSERT_TRUE(scene.load(level2, testIn));
+
+	ASSERT_TRUE(scene.save(level2, test2));
 }

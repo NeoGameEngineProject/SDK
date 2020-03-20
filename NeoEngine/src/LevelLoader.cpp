@@ -69,3 +69,21 @@ std::string SceneFile::findExtension(const std::string& f)
 {
 	return f.substr(f.find_last_of('.') + 1);
 }
+
+bool SceneFile::load(Level& level, const std::string& file, ObjectHandle root)
+{
+	std::ifstream instream(file);
+	if(!instream)
+		throw std::runtime_error(std::string("Could not open file for reading: ") + file);
+
+	return load(level, instream, root);
+}
+
+bool SceneFile::save(Level& level, const std::string& file, ObjectHandle root)
+{
+	std::ofstream outstream(file);
+	if(!outstream)
+		throw std::runtime_error(std::string("Could not open file for writing: ") + file);
+
+	return save(level, outstream, root);
+}

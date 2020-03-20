@@ -4,6 +4,7 @@
 #include "NeoEngine.h"
 #include "Object.h"
 
+#include <iostream>
 #include <string>
 
 namespace Neo 
@@ -40,8 +41,11 @@ classname##_register g_obj;\
 class NEO_ENGINE_EXPORT SceneFile
 {
 public:
-	virtual bool load(Level& level, const std::string& file, ObjectHandle root = ObjectHandle()) = 0;
-	virtual bool save(Level& level, const std::string& file, ObjectHandle root = ObjectHandle()) = 0;
+	virtual bool load(Level& level, const std::string& file, ObjectHandle root = ObjectHandle());
+	virtual bool save(Level& level, const std::string& file, ObjectHandle root = ObjectHandle());
+
+	virtual bool load(Level& level, std::istream& file, ObjectHandle root = ObjectHandle()) = 0;
+	virtual bool save(Level& level, std::ostream& file, ObjectHandle root = ObjectHandle()) = 0;
 
 	virtual bool supportsExtension(const std::string& ext) = 0;
 	virtual const char* getName() const = 0;

@@ -33,3 +33,5 @@ add_subdirectory(libzip-external EXCLUDE_FROM_ALL)
 
 set(RAPIDJSON_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/rapidjson-external/include PARENT_SCOPE)
 # add_subdirectory(rapidjson-external EXCLUDE_FROM_ALL)
+
+add_subdirectory(flatbuffers-external EXCLUDE_FROM_ALL)
