@@ -8,13 +8,13 @@ using namespace Neo;
 
 SDLWindow::SDLWindow(unsigned int w, unsigned int h) : Window(w, h)
 {
-	SDL_SetHint(SDL_HINT_VIDEO_HIGHDPI_DISABLED, "0"); 
+	SDL_SetHint(SDL_HINT_VIDEO_HIGHDPI_DISABLED, "1"); 
 
 	m_win = SDL_CreateWindow("Neo Game Engine", 
 				 SDL_WINDOWPOS_CENTERED, 
 				 SDL_WINDOWPOS_CENTERED, 
 				 w, h, 
-				SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI);
+				SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
 	
 	if(m_win == nullptr)
 	{
