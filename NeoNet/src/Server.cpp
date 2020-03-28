@@ -90,6 +90,8 @@ void Server::handleEvents(unsigned int msec)
 
 			m_connectedPeers.push_back(event.peer);
 			event.peer->data = (void*) (&m_connectedPeers.back()); // References of an std::list will stay the same on push_back etc.!
+
+			onConnect(event);
 			break;
 		
 		case ENET_EVENT_TYPE_RECEIVE:
@@ -109,27 +111,14 @@ void Server::handleEvents(unsigned int msec)
 
 			LOG_INFO((size_t) event.peer->data << " disconnected.");
 			m_connectedPeers.erase(std::remove(m_connectedPeers.begin(), m_connectedPeers.end(), event.peer->data));
+
+			onDisconnect(event);
 			event.peer->data = nullptr;
 		}
 	}
 }
 
 void Server::sendFullSnapshot(const Level& l)
-{
-
-}
-
-void Server::onConnect()
-{
-
-}
-
-void Server::onDisconnect()
-{
-
-}
-
-void Server::onUpdate()
 {
 
 }

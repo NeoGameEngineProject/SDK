@@ -24,9 +24,8 @@ public:
 	void handleEvents(unsigned int msec = 1000);
 	void sendFullSnapshot(const Level& l);
 
-	virtual void onConnect();
-	virtual void onDisconnect();
-	virtual void onUpdate();
+	virtual void onConnect(const ENetEvent&) {}
+	virtual void onDisconnect(const ENetEvent&) {}
 
 	std::list<ENetPeer*>& getPeers() { return m_connectedPeers; }
 
