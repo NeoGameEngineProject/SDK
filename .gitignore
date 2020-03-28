@@ -1,4 +1,5 @@
-./build
+build
+build-*
 *~
 *.kdev4
 ./NeoScript/luajit-external
