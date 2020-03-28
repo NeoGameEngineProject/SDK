@@ -3,7 +3,6 @@ file(GLOB_RECURSE SOURCES src/*.c*)
 
 add_subdirectory(enet-external)
 
-
 add_library(NeoNet ${SOURCES} ${HEADERS})
 target_link_libraries(NeoNet PUBLIC NeoEngine enet)
 
@@ -26,3 +25,4 @@ install(TARGETS NeoNet enet
 		ARCHIVE DESTINATION lib)
 
 install(EXPORT FindNeoNet DESTINATION ${NEO_CMAKE_EXPORT})
+install(DIRECTORY include/ DESTINATION include)

@@ -32,10 +32,11 @@ set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/include/master.css.inc P
 
 fix_install_includes(NeoHTML)
 
-install(TARGETS NeoHTML
+install(TARGETS NeoHTML litehtml
 		EXPORT FindNeoHTML
 		RUNTIME DESTINATION bin
 		LIBRARY DESTINATION lib
 		ARCHIVE DESTINATION lib)
 
 install(EXPORT FindNeoHTML DESTINATION ${NEO_CMAKE_EXPORT})
+install(DIRECTORY include/ DESTINATION include)

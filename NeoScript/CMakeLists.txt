@@ -18,7 +18,6 @@ if(NOT APPLE AND UNIX)
 		BUILD_COMMAND sh -e ${CMAKE_CURRENT_SOURCE_DIR}/build-luajit-linux-shared.sh "${CMAKE_C_COMPILER} ${FLAGS}"
 		BUILD_IN_SOURCE ON
 		GIT_REPOSITORY http://luajit.org/git/luajit-2.0.git
-		# GIT_TAG "v2.0.5"
 	)
 elseif(APPLE)
 	ExternalProject_Add(luajit-build

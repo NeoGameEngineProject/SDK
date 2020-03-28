@@ -73,7 +73,7 @@ get_target_property(INCS NeoEngine INCLUDE_DIRECTORIES)
 
 if(NOT CMAKE_CROSSCOMPILING)
 	add_custom_target(neoengine-schema
-		COMMAND $<TARGET_FILE:flatc> --binary --cpp -o ${CMAKE_CURRENT_BINARY_DIR} --cpp-std "c++11" ${CMAKE_CURRENT_SOURCE_DIR}/schemas/NeoEngine.fbs
+		COMMAND $<TARGET_FILE:flatc> --filename-suffix Flatbuffer --binary --cpp -o ${CMAKE_CURRENT_SOURCE_DIR}/include --cpp-std "c++11" ${CMAKE_CURRENT_SOURCE_DIR}/schemas/NeoEngine.fbs
 		SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/schemas/NeoEngine.fbs
 		DEPENDS flatc
 	)

@@ -9,6 +9,7 @@ set(BUILD_EXTRAS OFF CACHE BOOL "" FORCE)
 set(BUILD_CPU_DEMOS OFF CACHE BOOL "" FORCE)
 set(USE_GLUT OFF CACHE BOOL "" FORCE)
 set(BUILD_UNIT_TESTS OFF CACHE BOOL "" FORCE)
+set(INSTALL_LIBS ON CACHE BOOL "" FORCE)
 
 if(WIN32)
 	set(MSVC_INCREMENTAL_DEFAULT OFF CACHE BOOL "" FORCE)
@@ -32,5 +33,5 @@ add_platform_module(
 		$<INSTALL_INTERFACE:include/bullet/>
 		
 	LIBRARIES BulletDynamics BulletCollision LinearMath Bullet3Common)
-	
+
 install(DIRECTORY include/ DESTINATION include)

@@ -15,6 +15,10 @@ elseif(EMSCRIPTEN)
 	
 	add_subdirectory(assets/physfs)
 else()
+
+	# For freetype etc.
+	set(DISABLE_FORCE_DEBUG_POSTFIX TRUE)
+
 	# if(WIN32)
 	add_subdirectory(3rdparty)
 	# endif()
@@ -34,7 +38,7 @@ else()
 	add_subdirectory(assets/assimp)
 	add_subdirectory(assets/png)
 	add_subdirectory(assets/sound)
-	add_subdirectory(assets/physfs)	
+	add_subdirectory(assets/physfs)
 	add_subdirectory(bullet)
 	
 	# add_subdirectory(assets/zipvfs)

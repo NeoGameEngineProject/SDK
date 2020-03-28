@@ -20,3 +20,5 @@ add_platform_module(
 		${CMAKE_CURRENT_SOURCE_DIR}/assimp-external/include
 		${CMAKE_CURRENT_BINARY_DIR}/assimp-external/include
 	LIBRARIES assimp)
+
+install(DIRECTORY include/ DESTINATION include)

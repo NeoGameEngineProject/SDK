@@ -31,6 +31,9 @@ if(NOT SDL2_FOUND)
 	set(SDL2_INCLUDE_DIR
 		${CMAKE_CURRENT_BINARY_DIR}/sdl2-external/include
 		${CMAKE_CURRENT_SOURCE_DIR}/sdl2-external/include)
+
+	install(TARGETS ${SDL2_LIBRARY} DESTINATION lib)
+	install(DIRECTORY sdl2-external/include/ DESTINATION include/SDL2)
 endif()
 
 add_platform_module(

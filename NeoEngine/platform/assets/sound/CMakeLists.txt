@@ -2,8 +2,7 @@ file(GLOB SOURCES src/*.c*)
 file(GLOB INCLUDES include/*.h)
 
 if(NOT EMSCRIPTEN)
-	
-	if(NOT APPLE)
+	if(NOT APPLE AND NOT NO_SYSTEM_AL)
 		find_package(OpenAL)
 	endif()
 
@@ -27,7 +26,7 @@ if(NOT EMSCRIPTEN)
 else()
 	add_platform_module(
 		SOURCES ${SOURCES} ${INCLUDES}
-		INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/openal-soft-external/include
+		INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/openal-soft-external/include $<INSTALL_INTERFACE:include/AL/>
 		LIBRARIES "")
 endif()
 
