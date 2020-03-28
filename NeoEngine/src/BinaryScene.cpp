@@ -13,13 +13,13 @@
 #include <Vector4.h>
 #include <Property.h>
 
-#include <NeoEngine_generated.h>
+#include <NeoEngineFlatbuffer.h>
 
 using namespace Neo;
 using namespace flatbuffers;
 
 
-static void readBehavior(const FlatBuffer::Behavior* v, Level& l, ObjectHandle parent)
+static void readBehavior(const FlatBuffer::Behavior* v, Level& l, ObjectHandle parent, const std::string& workingDirectory)
 {
 	auto behavior = Behavior::create(v->name()->str().c_str());
 
@@ -73,7 +73,7 @@ static void readBehavior(const FlatBuffer::Behavior* v, Level& l, ObjectHandle p
 
 	if(!strcmp("SceneLink", behavior->getName()))
 	{
-		LevelLoader::load(l, behavior->getProperty("filename")->get<std::string>().c_str(), parent);
+		LevelLoader::load(l, workingDirectory + behavior->getProperty("filename")->get<std::string>().c_str(), parent);
 
 		// Load transform from matrix
 		parent->updateFromMatrix();
@@ -86,23 +86,23 @@ static void readBehavior(const FlatBuffer::Behavior* v, Level& l, ObjectHandle p
 		parent->addBehavior(std::move(behavior));
 }
 
-static void readObject(const FlatBuffer::Object* v, Object* parent, Level& level)
+static void readObject(const FlatBuffer::Object* v, Object* parent, Level& level, const std::string& workingDirectory)
 {
 	auto newObject = level.addObject(v->name()->str().c_str());
 	memcpy(newObject->getTransform().entries, v->transform()->entries(), 16*sizeof(float));
 
 	for(auto* b : *v->behaviors())
-		readBehavior(b, level, newObject);
+		readBehavior(b, level, newObject, workingDirectory);
 
 	for(auto* c : *v->children())
-		readObject(c, newObject.get(), level);
+		readObject(c, newObject.get(), level, workingDirectory);
 
 	parent->addChild(newObject);
 	newObject->setParent(parent->getSelf());
 	newObject->updateFromMatrix();
 }
 
-bool BinaryScene::load(Level& level, std::istream& file, ObjectHandle root)
+bool BinaryScene::load(Level& level, std::istream& file, const std::string& workingDirectory, ObjectHandle root)
 {
 	std::vector<unsigned char> data;
 
@@ -118,7 +118,7 @@ bool BinaryScene::load(Level& level, std::istream& file, ObjectHandle root)
 
 	for(auto* o : *fbLevel->objects())
 	{
-		readObject(o, root.get(), level);
+		readObject(o, root.get(), level, workingDirectory);
 	}
 
 	return true;
@@ -221,7 +221,7 @@ static Offset<FlatBuffer::Object> createObject(FlatBufferBuilder& fbb, Object* o
 	return ob.Finish();
 }
 
-bool BinaryScene::save(Level& level, std::ostream& file, ObjectHandle root)
+bool BinaryScene::save(Level& level, std::ostream& file, const std::string& workingDirectory, ObjectHandle root)
 {
 	flatbuffers::FlatBufferBuilder fbb;
 

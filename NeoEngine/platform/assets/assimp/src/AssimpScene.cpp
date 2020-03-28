@@ -161,7 +161,7 @@ static void traverseAssimpScene(Level* level,
 	}
 }
 
-bool AssimpScene::load(Level& level, const std::string& file, ObjectHandle root)
+bool AssimpScene::loadFile(Level& level, const std::string& file, ObjectHandle root)
 {
 	if(root.empty())
 	{
@@ -474,7 +474,7 @@ bool AssimpScene::load(Level& level, const std::string& file, ObjectHandle root)
 	return true;
 }
 
-bool AssimpScene::save(Level& level, const std::string& file, ObjectHandle root)
+bool AssimpScene::saveFile(Level& level, const std::string& file, ObjectHandle root)
 {
 	return false;
 }

@@ -18,6 +18,10 @@ class NEO_ENGINE_EXPORT LevelLoader
 public:
 	static bool load(Level& level, const char* file, const char* rootNode = nullptr);
 	static bool load(Level& level, const char* file, ObjectHandle rootNode);
+	static bool load(Level& level, const std::string& file, ObjectHandle rootNode)
+	{
+		return load(level, file.c_str(), rootNode);
+	}
 
 	static bool save(Level& level, const char* file, const char* rootNode = nullptr);
 	static bool save(Level& level, const char* file, ObjectHandle rootNode);
@@ -41,16 +45,17 @@ classname##_register g_obj;\
 class NEO_ENGINE_EXPORT SceneFile
 {
 public:
-	virtual bool load(Level& level, const std::string& file, ObjectHandle root = ObjectHandle());
-	virtual bool save(Level& level, const std::string& file, ObjectHandle root = ObjectHandle());
+	virtual bool loadFile(Level& level, const std::string& file, ObjectHandle root = ObjectHandle());
+	virtual bool saveFile(Level& level, const std::string& file, ObjectHandle root = ObjectHandle());
 
-	virtual bool load(Level& level, std::istream& file, ObjectHandle root = ObjectHandle()) = 0;
-	virtual bool save(Level& level, std::ostream& file, ObjectHandle root = ObjectHandle()) = 0;
+	virtual bool load(Level& level, std::istream& file, const std::string& workingDirectory = "", ObjectHandle root = ObjectHandle()) = 0;
+	virtual bool save(Level& level, std::ostream& file, const std::string& workingDirectory = "", ObjectHandle root = ObjectHandle()) = 0;
 
 	virtual bool supportsExtension(const std::string& ext) = 0;
 	virtual const char* getName() const = 0;
 
 	static std::string findExtension(const std::string& f);
+	static std::string findPath(const std::string& f);
 };
 
 }

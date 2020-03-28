@@ -89,7 +89,7 @@ static void readMatrix(const Value& v, Matrix4x4& mtx)
 		mtx.entries[i] = values[i].GetDouble(); // Double because we can only write Doubles.
 }
 
-static void readBehavior(const Value& v, Level& l, ObjectHandle parent)
+static void readBehavior(const Value& v, Level& l, ObjectHandle parent, const std::string& workingDirectory)
 {
 	auto behavior = Behavior::create(v["name"].GetString());
 
@@ -145,7 +145,7 @@ static void readBehavior(const Value& v, Level& l, ObjectHandle parent)
 
 	if(!strcmp("SceneLink", behavior->getName()))
 	{
-		LevelLoader::load(l, behavior->getProperty("filename")->get<std::string>().c_str(), parent);
+		LevelLoader::load(l, workingDirectory + behavior->getProperty("filename")->get<std::string>().c_str(), parent);
 
 		// Load transform from matrix
 		parent->updateFromMatrix();
@@ -158,7 +158,7 @@ static void readBehavior(const Value& v, Level& l, ObjectHandle parent)
 		parent->addBehavior(std::move(behavior));
 }
 
-static void readObject(const Value& v, Object* parent, Level& level)
+static void readObject(const Value& v, Object* parent, Level& level, const std::string& workingDirectory)
 {
 	auto newObject = level.addObject(v["name"].GetString());
 	
@@ -166,18 +166,18 @@ static void readObject(const Value& v, Object* parent, Level& level)
 
 	auto behaviors = v["behaviors"].GetArray();
 	for(int i = 0; i < behaviors.Size(); i++)
-		readBehavior(behaviors[i], level, newObject);
+		readBehavior(behaviors[i], level, newObject, workingDirectory);
 
 	auto children = v["children"].GetArray();
 	for(int i = 0; i < children.Size(); i++)
-		readObject(children[i], newObject.get(), level);
+		readObject(children[i], newObject.get(), level, workingDirectory);
 
 	parent->addChild(newObject);
 	newObject->setParent(parent->getSelf());
 	newObject->updateFromMatrix();
 }
 
-bool JsonScene::load(Level& level, std::istream& file, ObjectHandle root)
+bool JsonScene::load(Level& level, std::istream& file, const std::string& workingDirectory, ObjectHandle root)
 {
 	IStreamWrapper in(file);
 	Document doc;
@@ -188,7 +188,7 @@ bool JsonScene::load(Level& level, std::istream& file, ObjectHandle root)
 
 	auto scene = doc["scene"].GetArray();
 	for(int i = 0; i < scene.Size(); i++)
-		readObject(scene[i], root.get(), level);
+		readObject(scene[i], root.get(), level, workingDirectory);
 
 	return true;
 }
@@ -332,7 +332,7 @@ static void writeObject(PrettyWriter<OStreamWrapper>& out, Object* object)
 	out.EndObject();
 }
 
-bool JsonScene::save(Level& level, std::ostream& file, ObjectHandle root)
+bool JsonScene::save(Level& level, std::ostream& file, const std::string& workingDirectory, ObjectHandle root)
 {
 	OStreamWrapper out(file);
 	PrettyWriter<OStreamWrapper> writer(out);

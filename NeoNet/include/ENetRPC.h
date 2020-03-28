@@ -5,7 +5,7 @@
 #include <sstream>
 
 #include <Property.h>
-#include <NeoEngine_generated.h>
+#include <NeoEngineFlatbuffer.h>
 
 namespace Neo
 {

@@ -28,7 +28,7 @@ bool LevelLoader::load(Level& level, const char* file, ObjectHandle rootNode)
 	const auto ext = SceneFile::findExtension(file);
 	for(auto* f : s_loaders)
 	{
-		if(f->supportsExtension(ext) && f->load(level, file, rootNode))
+		if(f->supportsExtension(ext) && f->loadFile(level, file, rootNode))
 			return true;
 	}
 
@@ -49,7 +49,7 @@ bool LevelLoader::save(Level& level, const char* file, ObjectHandle rootNode)
 {
 	for(auto* f : s_loaders)
 	{
-		if(f->supportsExtension(SceneFile::findExtension(file)) && f->save(level, file, rootNode))
+		if(f->supportsExtension(SceneFile::findExtension(file)) && f->saveFile(level, file, rootNode))
 			return true;
 	}
 
@@ -70,20 +70,25 @@ std::string SceneFile::findExtension(const std::string& f)
 	return f.substr(f.find_last_of('.') + 1);
 }
 
-bool SceneFile::load(Level& level, const std::string& file, ObjectHandle root)
+std::string SceneFile::findPath(const std::string& f)
+{
+	return f.substr(0, f.find_last_of('/') + 1);
+}
+
+bool SceneFile::loadFile(Level& level, const std::string& file, ObjectHandle root)
 {
 	std::ifstream instream(file);
 	if(!instream)
 		throw std::runtime_error(std::string("Could not open file for reading: ") + file);
 
-	return load(level, instream, root);
+	return load(level, instream, findPath(file), root);
 }
 
-bool SceneFile::save(Level& level, const std::string& file, ObjectHandle root)
+bool SceneFile::saveFile(Level& level, const std::string& file, ObjectHandle root)
 {
 	std::ofstream outstream(file);
 	if(!outstream)
 		throw std::runtime_error(std::string("Could not open file for writing: ") + file);
 
-	return save(level, outstream, root);
+	return save(level, outstream, findPath(file), root);
 }

@@ -86,7 +86,7 @@ TEST(LoadLevel, SaveLoadBinary)
 	Level level;
 	AssimpScene ascene;
 
-	ASSERT_TRUE(ascene.load(level, "assets/test.dae"));
+	ASSERT_TRUE(ascene.loadFile(level, "assets/test.dae"));
 
 	std::ofstream test("test.blv", std::ios::out | std::ios::binary), test2("test2.blv", std::ios::out | std::ios::binary);
 	std::ifstream testIn("test.blv", std::ios::in | std::ios::binary);

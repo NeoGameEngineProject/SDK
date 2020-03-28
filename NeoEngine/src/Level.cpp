@@ -136,16 +136,19 @@ void Level::update(Platform& p, float dt)
 #endif
 }
 
-void Level::draw(Renderer& r) 
+void Level::draw(Renderer& r, bool clear)
 {
 	assert(m_currentCamera);
-	draw(r, *m_currentCamera);
+	draw(r, *m_currentCamera, clear);
 }
 
-void Level::draw(Renderer& r, CameraBehavior& camera)
+void Level::draw(Renderer& r, CameraBehavior& camera, bool clear)
 {
 	r.beginFrame(*this, camera);
 	
+	if(clear)
+		r.clear(57.0f/255.0f, 57.0f/255.0f, 57.0f/255.0f, true);
+
 	const auto frustum = camera.getFrustum();
 	const auto sphere = frustum.getSphere();
 	const auto box = frustum.getBoundingBox(camera);
@@ -617,6 +620,7 @@ bool Level::deserialize(std::istream& in, ObjectHandle insertionPoint)
 	// Read meshes
 	uint32_t numMeshes;
 	in.read((char*) &numMeshes, sizeof(numMeshes));
+
 	m_meshes.resize(numMeshes);
 	for(auto& mesh : m_meshes)
 		mesh.deserialize(*this, in);
