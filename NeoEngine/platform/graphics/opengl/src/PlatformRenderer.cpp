@@ -158,12 +158,12 @@ void PlatformRenderer::updateLights(MeshBehavior* mesh)
 
 void PlatformRenderer::clear(float r, float g, float b, bool depth)
 {
-	glBindFramebuffer(GL_FRAMEBUFFER, m_pfxFBO);
+//	glBindFramebuffer(GL_FRAMEBUFFER, m_pfxFBO);
 
 	glClearColor(r, g, b, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | (depth ? GL_DEPTH_BUFFER_BIT : 0));
 	
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+//	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 unsigned long long PlatformRenderer::getTime()
@@ -181,10 +181,11 @@ void PlatformRenderer::endFrame()
 	// Sort lists
 	// FIXME Render opaque and transparent objects separately
 	// FIXME Sort by shader
-	std::sort(m_opaqueObjects.begin(), m_opaqueObjects.end(), [this](Object* o1, Object* o2) {
-		const auto camPos = getCurrentCamera()->getParent()->getGlobalPosition();
-		return (o1->getGlobalPosition() - camPos).getLength() >= (o2->getGlobalPosition() - camPos).getLength();
-	});
+
+//	std::sort(m_opaqueObjects.begin(), m_opaqueObjects.end(), [this](Object* o1, Object* o2) {
+//		const auto camPos = getCurrentCamera()->getParent()->getGlobalPosition();
+//		return (o1->getGlobalPosition() - camPos).getLength() >= (o2->getGlobalPosition() - camPos).getLength();
+//	});
 	
 	// Draw sorted lists
 	for(auto* o : m_opaqueObjects)
@@ -223,14 +224,15 @@ void PlatformRenderer::endFrame()
 	glBindVertexArray(m_pfxVAO);
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 6);
 	glBindVertexArray(0);
-	
+
+	glBindFramebuffer(GL_FRAMEBUFFER, m_currentFBO);
 	m_currentCamera = nullptr;
 }
 
 void PlatformRenderer::initialize(unsigned int w, unsigned int h, void* ndt, void* nwh, void* ctx)
 {
 	m_startTime = getTime();
-	m_opaqueObjects.reserve(512);
+	//m_opaqueObjects.reserve(512);
 	
 	glewExperimental = true;
 	auto err = glewInit();
