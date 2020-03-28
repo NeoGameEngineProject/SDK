@@ -8,7 +8,7 @@ using namespace Neo;
 
 void PlatformPhysicsContext::begin()
 {
-	LOG_INFO("Initializing Bullet3.");
+	LOG_DEBUG("Initializing Bullet3.");
 	m_broadphase = new btDbvtBroadphase();
 	m_collisionConfig = new btDefaultCollisionConfiguration();
 	m_collisionDispatcher = new btCollisionDispatcher(m_collisionConfig);
@@ -60,7 +60,7 @@ void PlatformPhysicsContext::update(float dt)
 
 void PlatformPhysicsContext::end()
 {
-	LOG_INFO("Cleaning Bullet3 up.");
+	LOG_DEBUG("Cleaning Bullet3 up.");
 	delete m_broadphase;
 	delete m_collisionConfig;
 	delete m_solver;
