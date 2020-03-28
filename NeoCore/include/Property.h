@@ -367,4 +367,17 @@ public:
 
 }
 
+inline std::ostream& operator<<(std::ostream& stream, const Neo::IProperty& prop)
+{
+	prop.serialize(stream);
+	return stream;
+}
+
+inline std::istream& operator>>(std::istream& stream, Neo::IProperty& prop)
+{
+	prop.deserialize(stream);
+	prop.deserializeData(stream);
+	return stream;
+}
+
 #endif
