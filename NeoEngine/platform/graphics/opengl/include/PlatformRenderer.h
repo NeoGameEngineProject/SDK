@@ -32,7 +32,7 @@ class NEO_ENGINE_EXPORT PlatformRenderer : public Common
 	CameraBehavior* m_currentCamera = nullptr;
 	unsigned int m_uboLights;
 	
-	unsigned int m_currentFBO = -1, m_pfxFBO = -1, m_pfxTexture = -1, m_pfxDepthTexture = -1, m_pfxVAO = -1, m_pfxVBO = -1, m_pfxUFrustum = -1, m_pfxTime = -1;
+	unsigned int m_currentFBO = 0, m_pfxFBO = -1, m_pfxTexture = -1, m_pfxDepthTexture = -1, m_pfxVAO = -1, m_pfxVBO = -1, m_pfxUFrustum = -1, m_pfxTime = -1;
 	unsigned int m_pfxShader = -1;
 	unsigned long long m_startTime = 0;
 
