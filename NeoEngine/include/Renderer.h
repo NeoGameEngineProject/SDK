@@ -47,12 +47,14 @@ public:
 	 * 
 	 * @param w The window width.
 	 * @param h The window height.
+	 * @param backbuffer A platform specific backbuffer. The default FBO number for OpenGL.
 	 * @param ndt A platform specific window pointer.
 	 * @param nwh A platform specific window pointer.
 	 * @param ctx A platform specific graphics context (e.g. OpenGL context)
 	 */
-	virtual void initialize(unsigned int w, unsigned int h, void* ndt, void* nwh, void* ctx) = 0;
-	
+	virtual void initialize(unsigned int w, unsigned int h, void* backbuffer, void* ndt, void* nwh, void* ctx) = 0;
+	virtual void setBackbuffer(void* bb) {}
+
 	/**
 	 * @param Ends the frame and swaps the buffers.
 	 */
