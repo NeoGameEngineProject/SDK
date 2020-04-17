@@ -35,9 +35,11 @@ enum PROPERTY_TYPES
 	BOOL
 };
 
-template<typename T>
+template<typename TRAW>
 PROPERTY_TYPES typeOf()
 {
+	using T = typename std::decay<TRAW>::type;
+
 	if(std::is_same<T, int>::value)
 		return INTEGER;
 	else if(std::is_same<T, unsigned int>::value)
