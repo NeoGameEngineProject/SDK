@@ -3,12 +3,16 @@
 
 using namespace Neo;
 
-std::vector<std::unique_ptr<Behavior>> Behavior::s_registry;
+std::vector<std::unique_ptr<Behavior>>* getRegistry()
+{
+	static std::vector<std::unique_ptr<Behavior>> s_registry;
+	return &s_registry;
+}
 
 Behavior* Behavior::findBehaviorInRegistry(const char* name)
 {
 	Behavior* target = nullptr;
-	for(auto& b : Behavior::s_registry)
+	for(auto& b : *getRegistry())
 		if(!strcmp(b->getName(), name))
 		{
 			target = b.get();
@@ -19,6 +23,8 @@ Behavior* Behavior::findBehaviorInRegistry(const char* name)
 
 std::unique_ptr<Behavior> Behavior::create(const char* name)
 {
+	LOG_DEBUG("Behavior registry at: " << getRegistry());
+	
 	auto target = findBehaviorInRegistry(name);
 	if(!target)
 	{
@@ -31,6 +37,8 @@ std::unique_ptr<Behavior> Behavior::create(const char* name)
 
 unsigned int Behavior::registerBehavior(std::unique_ptr<Behavior>&& behavior)
 {
+	LOG_DEBUG("Behavior registry at: " << getRegistry());
+
 	Behavior* target = findBehaviorInRegistry(behavior->getName());
 	if(target)
 	{
@@ -39,35 +47,39 @@ unsigned int Behavior::registerBehavior(std::unique_ptr<Behavior>&& behavior)
 	}
 	
 	LOG_INFO("Registering behavior:\t" << behavior->getName());
-	s_registry.push_back(std::move(behavior));
-	return s_registry.size() - 1;
+	getRegistry()->push_back(std::move(behavior));
+	return getRegistry()->size() - 1;
 }
 
 void Behavior::unregisterBehavior(const char* name)
 {
-	for(auto& b : s_registry)
+	LOG_DEBUG("Behavior registry at: " << getRegistry());
+	
+	for(auto& b : *getRegistry())
 	{
 		if(!strcmp(b->getName(), name))
 		{
 			LOG_INFO("Unregistering behavior:\t" << name);
-			s_registry.erase(s_registry.begin());
+			getRegistry()->erase(getRegistry()->begin());
 		}
 	}
 }
 
 void Behavior::unregisterBehavior(unsigned int index)
 {
+	LOG_DEBUG("Behavior registry at: " << getRegistry());
+	
 	// Invalid entry, e.g. the register failed
 	if(index == -1)
 		return;
 	
-	assert(index < s_registry.size());
-	s_registry.erase(s_registry.begin() + index);
+	assert(index < getRegistry()->size());
+	getRegistry()->erase(getRegistry()->begin() + index);
 }
 
 const std::vector<std::unique_ptr<Behavior>>& Behavior::registeredBehaviors()
 {
-	return s_registry;
+	return *getRegistry();
 }
 
 std::unique_ptr<Behavior> Behavior::clone() const

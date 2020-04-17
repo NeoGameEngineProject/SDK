@@ -75,9 +75,6 @@ namespace Neo
  */
 class NEO_ENGINE_EXPORT Behavior
 {
-	///< Static registry
-	static std::vector<std::unique_ptr<Behavior>> s_registry;
-
 public:
 #ifndef SWIG
 	static std::unique_ptr<Behavior> create(const char* name);
