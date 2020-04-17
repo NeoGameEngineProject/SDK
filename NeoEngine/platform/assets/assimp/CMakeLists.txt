@@ -14,6 +14,13 @@ set(ASSIMP_BUILD_MINIZIP ON CACHE BOOL "" FORCE)
 add_definitions(-DASSIMP_BUILD_BOOST_WORKAROUND)
 add_subdirectory(assimp-external)
 
+set_target_properties(assimp
+	PROPERTIES
+	ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+	LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+	RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+)
+
 add_platform_module(
 	SOURCES ${SOURCES} ${INCLUDES}
 	INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/include
@@ -22,3 +29,11 @@ add_platform_module(
 	LIBRARIES assimp)
 
 install(DIRECTORY include/ DESTINATION include)
+
+install(TARGETS assimp IrrXML
+		EXPORT FindAssimp
+		RUNTIME DESTINATION bin
+		LIBRARY DESTINATION lib
+		ARCHIVE DESTINATION lib)
+	
+install(EXPORT FindAssimp DESTINATION ${NEO_CMAKE_EXPORT})

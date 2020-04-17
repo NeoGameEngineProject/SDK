@@ -1,21 +1,19 @@
 file(GLOB SOURCES src/*.c*)
 file(GLOB INCLUDES include/*.h)
 
-set(PNG_BUILD_ZLIB ON)
+#set(PNG_BUILD_ZLIB ON)
 
-add_subdirectory(libpng-external EXCLUDE_FROM_ALL)
+#add_subdirectory(libpng-external EXCLUDE_FROM_ALL)
 
-set(LIBPNG png_static)
-if(BUILD_SHARED_LIBS)
-	set(LIBPNG png)
-endif()
+#set(LIBPNG png_static)
+#if(BUILD_SHARED_LIBS)
+#	set(LIBPNG png)
+#endif()
 
 add_platform_module(
 	SOURCES ${SOURCES} ${INCLUDES}
 	INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/include
-		${CMAKE_CURRENT_SOURCE_DIR}/libpng-external/
-		${CMAKE_CURRENT_BINARY_DIR}/libpng-external/
-	LIBRARIES ${LIBPNG})
+				${PNG_INCLUDE_DIR}
+	LIBRARIES ${PNG_LIBRARY})
 
 install(DIRECTORY include/ DESTINATION include)
-

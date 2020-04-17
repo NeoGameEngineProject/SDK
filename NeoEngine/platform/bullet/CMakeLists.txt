@@ -35,3 +35,11 @@ add_platform_module(
 	LIBRARIES BulletDynamics BulletCollision LinearMath Bullet3Common)
 
 install(DIRECTORY include/ DESTINATION include)
+
+install(TARGETS BulletDynamics BulletCollision LinearMath Bullet3Common
+		EXPORT FindBullet
+		RUNTIME DESTINATION bin
+		LIBRARY DESTINATION lib
+		ARCHIVE DESTINATION lib)
+	
+install(EXPORT FindBullet DESTINATION ${NEO_CMAKE_EXPORT})

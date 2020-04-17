@@ -52,3 +52,9 @@
 [submodule "NeoEngine/platform/3rdparty/flatbuffers-external"]
 	path = NeoEngine/platform/3rdparty/flatbuffers-external
 	url = https://github.com/google/flatbuffers.git
+[submodule "NeoEngine/platform/graphics/opengl/imgui-external"]
+	path = NeoEngine/platform/graphics/opengl/imgui-external
+	url = https://github.com/ocornut/imgui.git
+[submodule "NeoEngine/platform/3rdparty/libpng-external"]
+	path = NeoEngine/platform/3rdparty/libpng-external
+	url = https://git.code.sf.net/p/libpng/code
