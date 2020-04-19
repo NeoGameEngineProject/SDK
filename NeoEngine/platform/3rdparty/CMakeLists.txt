@@ -33,7 +33,7 @@ add_subdirectory(libzip-external EXCLUDE_FROM_ALL)
 
 ## TODO: Move all 3rdparty modules into top level directory so they can be used everywhere!
 add_platform_module(
-	SOURCES " "
+	SOURCES ""
 	INCLUDES ${CMAKE_CURRENT_BINARY_DIR}/libzip-external ${CMAKE_CURRENT_SOURCE_DIR}/libzip-external/lib
 	LIBRARIES zip)
 
