@@ -28,7 +28,7 @@ class Common : public Neo::Renderer
 				.end();
 		}
 		
-		bgfx::VertexDecl vertexStruct;
+		bgfx::VertexLayout vertexStruct;
 	} m_bgfxVertStruct;
 	
 	struct BGFXTexCoordStruct
@@ -42,7 +42,7 @@ class Common : public Neo::Renderer
 				.end();
 		}
 		
-		bgfx::VertexDecl vertexStruct;
+		bgfx::VertexLayout vertexStruct;
 	};
 
 	BGFXTexCoordStruct m_texCoordStructs[4] = {
@@ -57,8 +57,8 @@ class Common : public Neo::Renderer
 	
 public:
 	unsigned int loadShader(const char* path);
-	bgfx::VertexDecl getVertexStruct() const { return m_bgfxVertStruct.vertexStruct; }
-	bgfx::VertexDecl getTexCoordStruct() const { return m_texCoordStructs[0].vertexStruct; }
+	bgfx::VertexLayout getVertexStruct() const { return m_bgfxVertStruct.vertexStruct; }
+	bgfx::VertexLayout getTexCoordStruct() const { return m_texCoordStructs[0].vertexStruct; }
 
 	bgfx::ProgramHandle getShader(size_t idx) 
 	{

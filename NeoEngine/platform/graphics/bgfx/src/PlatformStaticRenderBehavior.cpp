@@ -5,7 +5,7 @@
 
 using namespace Neo;
 
-void PlatformStaticRenderBehavior::begin(Neo::Platform& p, Neo::Renderer& render)
+void PlatformStaticRenderBehavior::begin(Neo::Platform& p, Neo::Renderer& render, Level& level)
 {
 	PlatformRenderer* bgfxRender = reinterpret_cast<PlatformRenderer*>(&render);
 	m_mesh = getParent()->getBehavior<MeshBehavior>();
@@ -46,7 +46,7 @@ void PlatformStaticRenderBehavior::begin(Neo::Platform& p, Neo::Renderer& render
 	m_uMaterialSpecular = bgfx::createUniform("u_specular", bgfx::UniformType::Vec4);
 	m_uMaterialEmit = bgfx::createUniform("u_emit", bgfx::UniformType::Vec4);
 	
-	m_uDiffuseTexture = bgfx::createUniform("diffuseTexture", bgfx::UniformType::Int1);
+	m_uDiffuseTexture = bgfx::createUniform("diffuseTexture", bgfx::UniformType::Sampler);
 	m_uTextureConfig = bgfx::createUniform("textureConfig", bgfx::UniformType::Vec4);
 }
 
@@ -67,14 +67,14 @@ void PlatformStaticRenderBehavior::draw(Neo::Renderer& render)
 		auto& material = subMeshes[i]->getMaterial();
 		
 		Vector4 tmp;
-		tmp = Vector4(material.diffuse);
+		tmp = Vector4(material.diffuseColor);
 		tmp.w = material.opacity;
 		bgfx::setUniform(m_uMaterialDiffuse, &tmp);
 		
-		tmp = Vector4(material.specular);
+		tmp = Vector4(material.specularColor);
 		bgfx::setUniform(m_uMaterialSpecular, &tmp);
 		
-		tmp = Vector4(material.emit);
+		tmp = Vector4(material.emitColor);
 		bgfx::setUniform(m_uMaterialEmit, &tmp);
 		
 		tmp.x = subMeshes[i]->getTextureChannels().size();

@@ -133,32 +133,42 @@ void PlatformRenderer::endFrame()
 	m_currentCamera = nullptr;
 }
 
-void PlatformRenderer::initialize(unsigned int w, unsigned int h, void* ndt, void* nwh, void* ctx)
+void PlatformRenderer::initialize(unsigned int w, unsigned int h, void* backbuffer, void* ndt, void* nwh, void* ctx)
 {
 	m_width = w;
 	m_height = h;
 	
-	bgfx::Init init;
-	
-#ifdef __EMSCRIPTEN__
-	init.type = bgfx::RendererType::OpenGLES;
-#else
-	init.type = bgfx::RendererType::OpenGL;
-#endif
-	
-	init.resolution.width  = w;
-	init.resolution.height = h;
-	init.resolution.reset  = BGFX_RESET_VSYNC;
-	
-	bgfx::PlatformData pd;
+	// Init only once!
+	static bool s_initialized = false;
+	if(!s_initialized)
+	{
+		bgfx::Init init;
+		
+	#ifdef __EMSCRIPTEN__
+		init.type = bgfx::RendererType::OpenGLES;
+	#else
+		init.type = bgfx::RendererType::OpenGL;
+	#endif
+		
+		init.resolution.width  = w;
+		init.resolution.height = h;
+		init.resolution.reset  = BGFX_RESET_NONE;
+		init.vendorId = BGFX_PCI_ID_NONE;
 
-	pd.ndt = ndt;
-	pd.nwh = nwh;
-	pd.context = ctx;
-	pd.backBuffer = nullptr;
-	pd.backBufferDS = nullptr;
-	bgfx::setPlatformData(pd);
-	bgfx::init(init);
+		bgfx::PlatformData pd;
+
+		pd.nwh = nwh;
+		pd.backBuffer = backbuffer;
+
+		//pd.ndt = ndt;
+		//pd.context = ctx;
+		//pd.backBufferDS = nullptr;
+
+		bgfx::setPlatformData(pd);
+		bgfx::init(init);
+
+		s_initialized = true;
+	}
 	
 	bgfx::setViewMode(0, bgfx::ViewMode::DepthDescending);
 	
@@ -191,7 +201,7 @@ void PlatformRenderer::gatherLights(Array<LightBehavior*>& lights, MeshBehavior*
 	for(size_t i = 0; i < lights.count && lights[i] != nullptr && count < max; i++)
 	{
 		auto parent = lights[i]->getParent();
-		float distance = (mesh->getParent()->getPosition() - parent->getPosition()).getLength() - mesh->getBoundingBox().diameter / 2.0f;
+		float distance = (mesh->getParent()->getPosition() - parent->getPosition()).getLength() - mesh->getBoundingBox().getDiameter() / 2.0f;
 		float radius = sqrt(1.0f / (lights[i]->attenuation * 0.15f)); // 0.15 = Minimum brightness
 		
 		if(distance <= radius)
@@ -200,4 +210,24 @@ void PlatformRenderer::gatherLights(Array<LightBehavior*>& lights, MeshBehavior*
 			count++;
 		}
 	}
+}
+
+void PlatformRenderer::setViewport(unsigned int x, unsigned int y, unsigned int w, unsigned int h)
+{
+
+}
+
+void PlatformRenderer::compileShaders()
+{
+
+}
+
+void PlatformRenderer::draw(Object* object)
+{
+
+}
+
+void PlatformRenderer::setupMaterial(Neo::Material& material, const char* shaderName)
+{
+
 }

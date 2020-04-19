@@ -21,9 +21,10 @@ class PlatformStaticRenderBehavior : public Neo::Behavior
 	bgfx::UniformHandle m_uMaterialDiffuse, m_uMaterialSpecular, m_uMaterialShininess, m_uMaterialOpacity, m_uMaterialEmit;
 	bgfx::UniformHandle m_uDiffuseTexture;
 	bgfx::UniformHandle m_uTextureConfig;
+
 public:
 	const char* getName() const override { return "PlatformStaticRender"; }
-	void begin(Neo::Platform & p, Neo::Renderer & render) override;
+	void begin(Neo::Platform& p, Neo::Renderer& render, Level& level) override;
 	void end() override;
 	
 	void draw(Neo::Renderer& render) override;

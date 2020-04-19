@@ -34,15 +34,20 @@ class PlatformRenderer : public BGFX::Common
 	CameraBehavior* m_currentCamera = nullptr;
 	
 public:
+	
+	void updateLights(MeshBehavior* mesh);
+	void gatherLights(Array<LightBehavior*>& lights, MeshBehavior* mesh, unsigned short* buffer, unsigned short max, unsigned short& count);
+
+	void initialize(unsigned int w, unsigned int h, void* backbuffer, void* ndt, void* nwh, void* ctx) override;
 	void beginFrame(Level& level, CameraBehavior& cam) override;
 	void beginFrame(Neo::CameraBehavior & camera) override;
 	void clear(float r, float g, float b, bool depth) override;
 	void endFrame() override;
-	void initialize(unsigned int w, unsigned int h, void* ndt, void* nwh, void* ctx) override;
 	void swapBuffers() override;
-	
-	void updateLights(MeshBehavior* mesh);
-	void gatherLights(Array<LightBehavior*>& lights, MeshBehavior* mesh, unsigned short* buffer, unsigned short max, unsigned short& count);
+	void setViewport(unsigned int x, unsigned int y, unsigned int w, unsigned int h) override;
+	void compileShaders() override;
+	void draw(Object* object);
+	void setupMaterial(Neo::Material& material, const char* shaderName);
 };
 
 }
