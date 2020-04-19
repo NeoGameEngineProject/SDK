@@ -6,7 +6,7 @@ add_library(NeoPublisher STATIC
 	${HEADERS}
 )
 
-target_link_libraries(NeoPublisher PUBLIC zip PRIVATE NeoEngine)
+target_link_libraries(NeoPublisher PRIVATE NeoEngine)
 target_include_directories(NeoPublisher PUBLIC include)
 
 add_executable(publisher main.cpp)

@@ -10,6 +10,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <sstream>
 
 using namespace Neo;
 namespace fs = std::filesystem;

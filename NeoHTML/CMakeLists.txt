@@ -5,7 +5,18 @@ if(WIN32)
 	add_definitions(-DLITEHTML_UTF8)
 endif()
 
-add_subdirectory(litehtml-external)
+if(WIN32)
+	set(BUILD_SHARED_LIBS FALSE)
+endif()
+
+add_subdirectory(litehtml-external EXCLUDE_FROM_ALL)
+
+if(WIN32)
+	set(BUILD_SHARED_LIBS TRUE)
+endif()
+
+set_property(TARGET gumbo PROPERTY WINDOWS_EXPORT_ALL_SYMBOLS ON)
+set_property(TARGET litehtml PROPERTY WINDOWS_EXPORT_ALL_SYMBOLS ON)
 
 if(CMAKE_COMPILER_IS_GNUCC)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fpermissive")
@@ -32,11 +43,21 @@ set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/include/master.css.inc P
 
 fix_install_includes(NeoHTML)
 
-install(TARGETS NeoHTML litehtml
-		EXPORT FindNeoHTML
-		RUNTIME DESTINATION bin
-		LIBRARY DESTINATION lib
-		ARCHIVE DESTINATION lib)
+if(WIN32)
+	install(TARGETS NeoHTML
+			EXPORT FindNeoHTML
+			RUNTIME DESTINATION bin
+			LIBRARY DESTINATION lib
+			ARCHIVE DESTINATION lib)
+
+	install(DIRECTORY litehtml-external/include/ DESTINATION include/litehtml)
+else()
+	install(TARGETS NeoHTML
+			EXPORT FindNeoHTML
+			RUNTIME DESTINATION bin
+			LIBRARY DESTINATION lib
+			ARCHIVE DESTINATION lib)
+endif()
 
 install(EXPORT FindNeoHTML DESTINATION ${NEO_CMAKE_EXPORT})
 install(DIRECTORY include/ DESTINATION include)

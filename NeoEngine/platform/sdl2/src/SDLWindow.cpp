@@ -120,7 +120,7 @@ void SDLWindow::setRenderer(std::unique_ptr<Renderer>&& renderer)
 #endif // __EMSCRIPTEN__
 
 	activateRendering();
-	Window::setRenderer(std::move(renderer), ndt, nwh, m_context);
+	Window::setRenderer(std::move(renderer), nullptr, ndt, nwh, m_context);
 }
 
 float SDLWindow::getDPI()

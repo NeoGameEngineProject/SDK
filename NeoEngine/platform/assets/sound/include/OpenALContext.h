@@ -4,8 +4,13 @@
 #include <unordered_map>
 #include <SoundContext.h>
 
+#ifndef WIN32
 #include <AL/al.h>
 #include <AL/alc.h>
+#else
+#include <al.h>
+#include <alc.h>
+#endif
 
 namespace Neo 
 {

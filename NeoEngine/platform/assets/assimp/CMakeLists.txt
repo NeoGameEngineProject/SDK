@@ -12,7 +12,7 @@ set(ASSIMP_BUILD_ZLIB OFF CACHE BOOL "" FORCE)
 set(ASSIMP_BUILD_MINIZIP ON CACHE BOOL "" FORCE)
 
 add_definitions(-DASSIMP_BUILD_BOOST_WORKAROUND)
-add_subdirectory(assimp-external)
+add_subdirectory(assimp-external EXCLUDE_FROM_ALL)
 
 set_target_properties(assimp
 	PROPERTIES
@@ -30,10 +30,11 @@ add_platform_module(
 
 install(DIRECTORY include/ DESTINATION include)
 
-install(TARGETS assimp IrrXML
-		EXPORT FindAssimp
-		RUNTIME DESTINATION bin
-		LIBRARY DESTINATION lib
-		ARCHIVE DESTINATION lib)
+#install(TARGETS assimp IrrXML
+#		EXPORT FindAssimp
+#		RUNTIME DESTINATION bin
+#		LIBRARY DESTINATION lib
+#		ARCHIVE DESTINATION lib
+#		COMPONENT engine)
 	
-install(EXPORT FindAssimp DESTINATION ${NEO_CMAKE_EXPORT})
+#install(EXPORT FindAssimp DESTINATION ${NEO_CMAKE_EXPORT})

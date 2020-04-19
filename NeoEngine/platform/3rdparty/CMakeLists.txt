@@ -1,4 +1,5 @@
 
+set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
 add_subdirectory(zlib-external EXCLUDE_FROM_ALL)
 
 set(ZLIB_FOUND TRUE CACHE BOOL "" FORCE)
@@ -20,14 +21,21 @@ endif()
 
 set(ZLIB_FOUND ${ZLIB_FOUND}PARENT_SCOPE)
 set(ZLIB_LIBRARY ${ZLIB_LIBRARY} PARENT_SCOPE)
+set(ZLIB_LIBRARIES ${ZLIB_LIBRARY} PARENT_SCOPE)
 set(ZLIB_INCLUDE_DIR ${ZLIB_INCLUDE_DIR} PARENT_SCOPE)
 
 set(LIBZIP_FOUND TRUE PARENT_SCOPE)
 set(LIBZIP_LIBRARY zip PARENT_SCOPE)
-set(LIBZIP_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include libzip-external/lib PARENT_SCOPE)
+set(LIBZIP_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/libzip-external ${CMAKE_CURRENT_SOURCE_DIR}/libzip-external/lib PARENT_SCOPE)
 set(SKIP_INSTALL_ALL FALSE)
 
-add_subdirectory(libzip-external)
+add_subdirectory(libzip-external EXCLUDE_FROM_ALL)
+
+## TODO: Move all 3rdparty modules into top level directory so they can be used everywhere!
+add_platform_module(
+	SOURCES " "
+	INCLUDES ${CMAKE_CURRENT_BINARY_DIR}/libzip-external ${CMAKE_CURRENT_SOURCE_DIR}/libzip-external/lib
+	LIBRARIES zip)
 
 set(RAPIDJSON_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/rapidjson-external/include PARENT_SCOPE)
 # add_subdirectory(rapidjson-external EXCLUDE_FROM_ALL)
@@ -64,6 +72,7 @@ add_subdirectory(libpng-external EXCLUDE_FROM_ALL)
 
 set(PNG_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libpng-external/ ${CMAKE_CURRENT_BINARY_DIR}/libpng-external/ CACHE STRING "" FORCE)
 set(PNG_FOUND TRUE CACHE BOOL "" FORCE)
+set(PNG_PNG_INCLUDE_DIR ${PNG_INCLUDE_DIR})
 
 set(PNG_FOUND ${PNG_FOUND} PARENT_SCOPE)
 set(PNG_LIBRARY ${PNG_LIBRARY} PARENT_SCOPE)

@@ -138,8 +138,8 @@ target_include_directories(NeoScript PRIVATE ${CMAKE_SWIG_OUTDIR})
 target_link_libraries(NeoScript PUBLIC NeoLua NeoEngine luajit)
 target_link_directories(NeoScript PUBLIC $<INSTALL_INTERFACE:lib>)
 
-add_executable(NeoLuaPlayer NeoLua/main.cpp)
-target_link_libraries(NeoLuaPlayer PUBLIC NeoScript)
+#add_executable(NeoLuaPlayer NeoLua/main.cpp)
+#target_link_libraries(NeoLuaPlayer PUBLIC NeoScript)
 
 if(NOT NO_TESTS)
 	file(GLOB TEST_SOURCES tests/*.c*)
@@ -147,11 +147,11 @@ if(NOT NO_TESTS)
 	target_link_libraries(NeoScriptTest ${GTEST_LIBRARIES} NeoScript NeoCore)
 endif()
 
-install(FILES $<TARGET_FILE:luajit> DESTINATION lib)
-install(TARGETS NeoLuaPlayer NeoLua NeoScript
-		EXPORT FindNeoScript
-		RUNTIME DESTINATION bin
-		LIBRARY DESTINATION lib
-		ARCHIVE DESTINATION lib)
+#install(FILES $<TARGET_FILE:luajit> DESTINATION lib)
+#install(TARGETS NeoLuaPlayer NeoLua NeoScript
+#		EXPORT FindNeoScript
+#		RUNTIME DESTINATION bin
+#		LIBRARY DESTINATION lib
+#		ARCHIVE DESTINATION lib)
 	
-install(EXPORT FindNeoScript DESTINATION ${NEO_CMAKE_EXPORT})
+#install(EXPORT FindNeoScript DESTINATION ${NEO_CMAKE_EXPORT})

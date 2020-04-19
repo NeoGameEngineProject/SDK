@@ -25,9 +25,22 @@ target_link_libraries(nanovg PUBLIC ${FREETYPE_LIBRARIES})
 fix_install_includes(nanovg)
 install(FILES ${NANOVG_HEADERS} DESTINATION include)
 
+# imgui, yeah!
+file(GLOB IMGUI_SOURCES imgui-external/*.c*)
+file(GLOB IMGUIZMO_SOURCES ImGuizmo/*.c*)
+
+file(GLOB IMGUI_HEADERS imgui-external/*.h)
+file(GLOB IMGUIZMO_HEADERS ImGuizmo/*.h)
+
+add_library(imgui STATIC ${IMGUI_SOURCES} ${IMGUIZMO_SOURCES})
+target_include_directories(imgui PUBLIC imgui-external ImGuizmo glew-external/include)
+fix_install_includes(imgui)
+
+install(FILES ${IMGUI_HEADERS} ${IMGUIZMO_HEADERS} DESTINATION include)
+
 ## GLEW
 set(BUILD_UTILS CACHE "" OFF FORCE)
-add_subdirectory(glew-external/build/cmake EXCLUDE_FROM_ALL)
+add_subdirectory(glew-external/build/cmake)
 
 if(NOT WIN32 AND NOT BUILD_SHARED_LIBS)
 	set(GLEW_LIBRARIES glew_s)
@@ -49,7 +62,7 @@ add_platform_module(
 			${INCLUDE_DIR} 
 			${CMAKE_CURRENT_SOURCE_DIR}/../opengl-common 
 			${CMAKE_CURRENT_SOURCE_DIR}/glew-external/include
-	LIBRARIES nanovg ${GLEW_LIBRARIES})
+	LIBRARIES nanovg imgui ${GLEW_LIBRARIES})
 
 install(FILES ../opengl-common/Common.h DESTINATION include)
 install(DIRECTORY include/ DESTINATION include)
@@ -60,3 +73,29 @@ include(CopyFiles)
 
 copy_files("materials/*" "${CMAKE_BINARY_DIR}/bin/assets/" "Materials")
 # copy_files("materials/builtin/*" "${CMAKE_BINARY_DIR}/bin/assets/" "BuiltinShaders")
+
+#install(TARGETS nanovg
+#		EXPORT FindNanovg
+#		RUNTIME DESTINATION bin
+#		LIBRARY DESTINATION lib
+#		ARCHIVE DESTINATION lib)
+#	
+#install(EXPORT FindNanovg DESTINATION ${NEO_CMAKE_EXPORT})
+
+#install(TARGETS imgui
+#		EXPORT FindImgui
+#		RUNTIME DESTINATION bin
+#		LIBRARY DESTINATION lib
+#		ARCHIVE DESTINATION lib)
+#	
+#install(EXPORT FindImgui DESTINATION ${NEO_CMAKE_EXPORT})
+
+#install(TARGETS ${GLEW_LIBRARIES}
+#		EXPORT FindGLEW
+#		RUNTIME DESTINATION bin
+#		LIBRARY DESTINATION lib
+#		ARCHIVE DESTINATION lib)
+	
+#install(EXPORT FindGLEW DESTINATION ${NEO_CMAKE_EXPORT})
+
+

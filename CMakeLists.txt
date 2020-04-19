@@ -1,5 +1,12 @@
+
+cmake_policy(SET CMP0091 NEW)
+
 project(Neo C CXX)
 cmake_minimum_required(VERSION 3.10)
+
+if(WIN32 AND NOT NEO_BUILD_SHARED_LIBS)
+	set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+endif()
 
 set(CMAKE_MODULE_PATH 
 	${CMAKE_CURRENT_SOURCE_DIR}/CMake
@@ -26,6 +33,8 @@ include(ExternalProject)
 set(CMAKE_CXX_STANDARD 17)
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 set(SANITIZER "address" CACHE STRING "The sanitizer to use")
+
+add_definitions(-D_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING)
 
 if(NEO_BUILD_SHARED_LIBS)
 	set(BUILD_SHARED_LIBS ON CACHE BOOL "" FORCE)
