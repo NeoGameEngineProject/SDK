@@ -22,6 +22,7 @@ class HTMLElement
 {
 	HTMLView* m_view = nullptr;
 	std::shared_ptr<litehtml::element> m_element;
+
 public:
 	HTMLElement(HTMLView* view, const std::shared_ptr<litehtml::element>& element): 
 		m_element(element),
@@ -31,7 +32,7 @@ public:
 	
 	std::string getValue() const;
 	void setValue(const char* str);
-	
+
 	void setStyle(const char* name, const char* value);
 	bool empty() const { return m_view == nullptr || m_element == nullptr; }
 };
@@ -43,7 +44,8 @@ class HTMLView : public litehtml::document_container
 	NVGcontext* m_nv = nullptr;
 	std::shared_ptr<litehtml::document> m_document = nullptr;
 	litehtml::context m_context;
-	
+	bool m_drawBackground = false;
+
 	struct Font
 	{
 		int handle = -1;
@@ -53,8 +55,10 @@ class HTMLView : public litehtml::document_container
 	
 	float m_dpi = 96;
 	unsigned int m_width = 0, m_height = 0, m_posX = 0, m_posY = 0;
+
 	bool m_needsRender = true;
-	
+	std::string m_requestedUrl;
+
 	struct Image
 	{
 		Image() = default;
@@ -84,6 +88,15 @@ public:
 		return HTMLElement(this, ptr);
 	}
 	
+	void setBackgroundEnabled(bool v) { m_drawBackground = v; }
+	bool isBackgroundEnabled() const { return m_drawBackground; }
+
+	void requestLoad(const char* file)
+	{
+		m_requestedUrl = file;
+		m_needsRender = true;
+	}
+
 	bool loadDocument(const char* file);
 	void draw(Renderer& render);
 	void update(Platform& p, float dt);

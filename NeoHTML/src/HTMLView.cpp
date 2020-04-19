@@ -6,6 +6,7 @@
 #include <Renderer.h>
 #include <TextureLoader.h>
 #include <Platform.h>
+#include <Log.h>
 
 #include <iostream>
 #include <cmath>
@@ -90,10 +91,15 @@ void HTMLView::end()
 
 bool HTMLView::loadDocument(const char* file)
 {
+	LOG_DEBUG("Loading HTML " << file);
+
 	char* text = readTextFile(file);
 	if(!text)
+	{
+		LOG_ERROR("Could not load HTML file: " << file);
 		return false;
-	
+	}
+
 	m_basePath = file;
 	auto lastSlash = m_basePath.find_last_of('/');
 	if(lastSlash != std::string::npos)
@@ -105,8 +111,11 @@ bool HTMLView::loadDocument(const char* file)
 	delete text;
 	
 	if(!m_document)
+	{
+		LOG_ERROR("Could not create HTML document: " << file);
 		return false;
-	
+	}
+
 	renderPage();
 	return true;
 }
@@ -145,6 +154,18 @@ void HTMLView::update(Platform& p, float dt)
 	auto pos = mouse.getPosition();
 	litehtml::position::vector redraw_boxes;
 
+	if(!m_requestedUrl.empty())
+	{
+		loadDocument(m_requestedUrl.c_str());
+		m_requestedUrl.clear();
+	}
+
+	if(m_needsRender)
+	{
+		m_document->render(m_width);
+		m_needsRender = false;
+	}
+
 	if(mouse.getDirection().getLength() > 0.0f)
 	{
 		m_document->on_mouse_over(pos.x, pos.y, pos.x, pos.y, redraw_boxes);
@@ -157,12 +178,6 @@ void HTMLView::update(Platform& p, float dt)
 	else if(mouse.onKeyUp(MOUSE_BUTTON_LEFT))
 	{
 		m_document->on_lbutton_up(pos.x, pos.y, pos.x, pos.y, redraw_boxes);
-	}
-	
-	if(m_needsRender)
-	{
-		m_document->render(m_width);
-		m_needsRender = false;
 	}
 }
 
@@ -291,7 +306,7 @@ void HTMLView::get_image_size(const litehtml::tchar_t* src, const litehtml::tcha
 
 void HTMLView::draw_background(litehtml::uint_ptr hdc, const litehtml::background_paint& bg) 
 {
-	if(bg.is_root)
+	if(!m_drawBackground && bg.is_root)
 		return;
 	
 	auto pair = m_images.find(bg.image);
@@ -507,14 +522,17 @@ void HTMLView::link(const std::shared_ptr<litehtml::document>& doc, const liteht
 void HTMLView::on_anchor_click(const litehtml::tchar_t* url, const litehtml::element::ptr& el) 
 {
 	auto id = el->get_attr("id");
-	if(!id)
-		return;
-	
-	auto cb = m_callbacks.find(id);
-	if(cb == m_callbacks.end())
-		return;
-	
-	cb->second(url);
+	if(id)
+	{
+		auto cb = m_callbacks.find(id);
+		if(cb != m_callbacks.end())
+		{
+			cb->second(url);
+			return;
+		}
+	}
+
+	requestLoad((m_basePath + url).c_str());
 }
 
 void HTMLView::set_cursor(const litehtml::tchar_t* cursor) {}
@@ -575,5 +593,3 @@ void HTMLView::get_media_features(litehtml::media_features& media) const
 }
 
 void HTMLView::get_language(litehtml::tstring& language, litehtml::tstring & culture) const {}
-	
-	
