@@ -58,28 +58,37 @@ Vertex s_vertices[] = {
 	Vertex{Vector3(1.0f, 1.0f, 1.0f), Vector2(0.0f, 0.0f)},
 	Vertex{Vector3(1.0f, -1.0f, 1.0f), Vector2(1.0f, 0.0f)},
 };
-
 }
 
 void PlatformSkyboxBehavior::begin(Neo::Platform&, Neo::Renderer& render, Level& level)
 {
 	PlatformRenderer* prender = reinterpret_cast<PlatformRenderer*>(&render);
 	const std::string base(TextureBase.str());
-	static const char* postfixes[] = {"up.png", "down.png", "left.png", "right.png", "front.png", "back.png"};
-	
+	static const char* postfixes[] = {"right.png", "left.png", "up.png", "down.png", "front.png", "back.png"};
+
+	glGenTextures(1, &m_cubeMap);
+	assert(m_cubeMap != -1);
+
+	glBindTexture(GL_TEXTURE_CUBE_MAP, m_cubeMap);
+
 	for(unsigned short i = 0; i < 6; i++)
 	{
 		m_textures[i] = level.loadTexture((base + postfixes[i]).c_str());
-		prender->createTexture(m_textures[i]);
-		
-		glBindTexture(GL_TEXTURE_2D, m_textures[i]->getID());
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+		// TODO Support different formats!
+		glTexImage2D(
+			GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+			0, GL_RGB, m_textures[i]->getWidth(), m_textures[i]->getHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, m_textures[i]->getData());
 	}
-	
-	glBindTexture(GL_TEXTURE_2D, 0);
-	
-	m_shader = prender->loadShader("assets/glsl/skybox");
+
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+
+	m_shader = prender->loadShader("assets/materials/builtin/skybox");
 	assert(m_shader != -1);
 	
 	glGenVertexArrays(1, &m_vao);
@@ -105,7 +114,7 @@ void PlatformSkyboxBehavior::begin(Neo::Platform&, Neo::Renderer& render, Level&
 	m_uViewProjection = glGetUniformLocation(m_shader, "ViewProjection");
 	assert(m_uViewProjection != -1);
 	
-	glUniform1i(glGetUniformLocation(m_shader, "Texture"), 0);
+	glUniform1i(glGetUniformLocation(m_shader, "Skybox"), 0);
 	
 	glUseProgram(0);
 	glBindVertexArray(0);
@@ -116,7 +125,6 @@ void PlatformSkyboxBehavior::drawSky(PlatformRenderer* prender)
 	auto* camera = prender->getCurrentCamera();
 	auto VP = camera->getProjectionMatrix();
 	const auto rotation = camera->getViewMatrix().getRotation();
-	
 	VP.rotate(rotation.getAxis(), rotation.getAngle());
 	
 	glUseProgram(m_shader);
@@ -126,13 +134,13 @@ void PlatformSkyboxBehavior::drawSky(PlatformRenderer* prender)
 	
 	glDisable(GL_CULL_FACE);
 	glDisable(GL_BLEND);
-	glDisable(GL_DEPTH_TEST);
 	glDepthMask(GL_FALSE);
 	
 	glActiveTexture(GL_TEXTURE0);
+
+	glBindTexture(GL_TEXTURE_CUBE_MAP, m_cubeMap);
 	for(unsigned short i = 0; i < 6; i++)
 	{
-		glBindTexture(GL_TEXTURE_2D, m_textures[i]->getID());
 		glDrawArrays(GL_TRIANGLES, i*6, 6);
 	}
 	

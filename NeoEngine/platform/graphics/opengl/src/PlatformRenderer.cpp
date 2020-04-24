@@ -36,10 +36,6 @@ void PlatformRenderer::beginFrame(Neo::CameraBehavior& camera)
 	resetStatistics();
 	camera.enable(m_width, m_height);
 
-	auto* skybox = camera.getParent()->getBehavior<SkyboxBehavior>();
-	if(skybox)
-		skybox->drawSky(this);
-	
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
 	glDisable(GL_BLEND);
@@ -202,6 +198,13 @@ void PlatformRenderer::endFrame()
 	
 	m_opaqueObjects.clear();
 	
+	// Draw Skybox
+	auto* skybox = m_currentCamera->getParent()->getBehavior<SkyboxBehavior>();
+	if(skybox)
+	{
+		skybox->drawSky(this);
+	}
+
 	// Finish frame 
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 	glBindFramebuffer(GL_FRAMEBUFFER, m_currentFBO);
