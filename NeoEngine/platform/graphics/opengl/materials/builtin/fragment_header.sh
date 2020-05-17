@@ -17,6 +17,7 @@ $endif
 
 in vec3 normal;
 in vec3 position;
+in vec3 modelPosition;
 in vec2 texcoord;
 in vec3 tangent;
 in vec3 bitangent;
@@ -38,3 +39,5 @@ uniform int HasHeight = 0; // HIDDEN
 
 uniform int NumTextures; // HIDDEN
 uniform int NumLights; // HIDDEN
+
+uniform samplerCube Skybox; // HIDDEN

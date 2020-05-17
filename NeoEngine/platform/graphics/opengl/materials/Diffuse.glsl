@@ -38,7 +38,7 @@ void main()
 	gl_FragColor = texture(DiffuseTexture, texcoord);
 	
 	gl_FragColor.rgb = removeGamma(gl_FragColor.rgb);
-	vec3 accumulator = Emit.rgb; // = Ambient + Emissive;
+	vec3 accumulator = Emit.rgb + gl_FragColor.rgb * removeGamma(SkyboxDiffuse(modelNormal)); // = Ambient + Emissive;
 
 	for(int i = 0; i < NumLights; i++)
 	{

@@ -1,10 +1,10 @@
 $version 400
 
-uniform sampler2D Texture;
+uniform samplerCube Skybox;
 
-in vec2 texcoord;
+in vec3 position;
 
 void main()
 {
-	gl_FragColor = texture(Texture, texcoord);
+	gl_FragColor = texture(Skybox, position);
 }

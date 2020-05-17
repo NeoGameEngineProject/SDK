@@ -12,6 +12,7 @@ out vec3 position;
 out vec2 texcoord;
 out vec3 tangent;
 out vec3 bitangent;
+out vec3 modelPosition;
 
 uniform mat4 ModelViewProjectionMatrix; // HIDDEN
 uniform mat4 ModelViewMatrix; // HIDDEN

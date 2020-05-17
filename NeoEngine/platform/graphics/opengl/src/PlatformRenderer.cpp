@@ -36,6 +36,8 @@ void PlatformRenderer::beginFrame(Neo::CameraBehavior& camera)
 	resetStatistics();
 	camera.enable(m_width, m_height);
 
+	m_currentSkybox = camera.getParent()->getBehavior<SkyboxBehavior>();
+
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
 	glDisable(GL_BLEND);
@@ -199,10 +201,9 @@ void PlatformRenderer::endFrame()
 	m_opaqueObjects.clear();
 	
 	// Draw Skybox
-	auto* skybox = m_currentCamera->getParent()->getBehavior<SkyboxBehavior>();
-	if(skybox)
+	if(m_currentSkybox)
 	{
-		skybox->drawSky(this);
+		m_currentSkybox->drawSky(this);
 	}
 
 	// Finish frame 
@@ -348,15 +349,23 @@ void PlatformRenderer::compileShaders()
 		const auto bindingPoint = 2;
 		glBindBufferBase(GL_UNIFORM_BUFFER, bindingPoint, m_uboLights);
 		glUniformBlockBinding(shader.id, uboBind, bindingPoint);
+
+		// Set skybox uniform
+		glUniform1i(glGetUniformLocation(shader.id, "Skybox"), 31);
 	}
 }
 
-void PlatformRenderer::enableMaterial(Neo::Material& material, const Neo::Matrix4x4& ModelView, const Neo::Matrix4x4& ModelViewProjection, const Neo::Matrix4x4& Normal)
+void PlatformRenderer::enableMaterial(Neo::Material& material, const Neo::Vector3& cameraPosition, const Neo::Matrix4x4& Model, const Neo::Matrix4x4& ModelView, const Neo::Matrix4x4& ModelViewProjection, const Neo::Matrix4x4& Normal)
 {
-	Common::enableMaterial(material, ModelView, ModelViewProjection, Normal);
+	Common::enableMaterial(material, cameraPosition, Model, ModelView, ModelViewProjection, Normal);
 	
 	auto* shader = getShader(material.getShader());
 	glUniform1i(shader->uNumLights, m_visibleLightCount);
+
+	if(m_currentSkybox)
+	{
+		m_currentSkybox->bindSkybox(31);
+	}
 }
 
 void PlatformRenderer::draw(Object* object)

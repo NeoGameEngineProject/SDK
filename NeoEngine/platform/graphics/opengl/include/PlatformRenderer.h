@@ -16,6 +16,7 @@ struct AABB;
 class MeshBehavior;
 class Material;
 class AABBRenderer;
+class SkyboxBehavior;
 
 class NEO_ENGINE_EXPORT PlatformRenderer : public Common
 {
@@ -29,6 +30,7 @@ class NEO_ENGINE_EXPORT PlatformRenderer : public Common
 	size_t m_maxVisibleLights = 256;
 	static const unsigned int MAX_LIGHTS_PER_OBJECT = 8;
 
+	SkyboxBehavior* m_currentSkybox = nullptr;
 	CameraBehavior* m_currentCamera = nullptr;
 	unsigned int m_uboLights;
 	
@@ -56,7 +58,7 @@ public:
 	void updateLights(MeshBehavior* mesh);
 	void gatherLights(Array<LightBehavior*>& lights, MeshBehavior* mesh, unsigned short* buffer, unsigned short max, unsigned short& count);
 
-	void enableMaterial(Neo::Material& material, const Neo::Matrix4x4& ModelView, const Neo::Matrix4x4& ModelViewProjection, const Neo::Matrix4x4& Normal) override;
+	void enableMaterial(Neo::Material& material, const Vector3& cameraPosition, const Neo::Matrix4x4& Model, const Neo::Matrix4x4& ModelView, const Neo::Matrix4x4& ModelViewProjection, const Neo::Matrix4x4& Normal) override;
 	
 	void draw(Object* object);
 	

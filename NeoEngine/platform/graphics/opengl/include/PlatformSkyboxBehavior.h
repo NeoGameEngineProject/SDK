@@ -12,6 +12,8 @@ class NEO_ENGINE_EXPORT PlatformSkyboxBehavior : public Neo::Behavior
 public:
 	void drawSky(PlatformRenderer* prender);
 	void begin(Neo::Platform&, Neo::Renderer&, Level&) override;
+
+	int bindSkybox(int sampler = 31);
 	
 private:
 	Texture* m_textures[6] = {nullptr};

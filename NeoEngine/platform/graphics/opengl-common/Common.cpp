@@ -430,11 +430,13 @@ void Common::compileShaders()
 			shader->id = loadShader(shader->vertexSource.c_str(), shader->fragmentSource.c_str());
 			
 			glUseProgram(shader->id);
+			shader->uModel = glGetUniformLocation(shader->id, "ModelMatrix");
 			shader->uModelView = glGetUniformLocation(shader->id, "ModelViewMatrix");
 			shader->uModelViewProj = glGetUniformLocation(shader->id, "ModelViewProjectionMatrix");
 			shader->uNormal = glGetUniformLocation(shader->id, "NormalMatrix");
 			shader->uTime = glGetUniformLocation(shader->id, "Time");
 			shader->uNumLights = glGetUniformLocation(shader->id, "NumLights");
+			shader->uCameraPosition = glGetUniformLocation(shader->id, "CameraPosition");
 			
 			glUniform1i(glGetUniformLocation(shader->id, "DiffuseTexture"), Material::DIFFUSE);
 			glUniform1i(glGetUniformLocation(shader->id, "NormalTexture"), Material::NORMAL);
@@ -468,10 +470,10 @@ void Common::enableMaterialTransform(Neo::Material& material, const Neo::Matrix4
 	auto MVP = proj * MV;
 	auto N = MV.getInversetranspose();
 	
-	enableMaterial(material, MV, MVP, N);
+	enableMaterial(material, -view.getTranslationPart(), transform, MV, MVP, N);
 }
 
-void Common::enableMaterial(Neo::Material& material, const Neo::Matrix4x4& ModelView, const Neo::Matrix4x4& ModelViewProjection, const Neo::Matrix4x4& Normal)
+void Common::enableMaterial(Neo::Material& material, const Vector3& cameraPosition, const Neo::Matrix4x4& Model, const Neo::Matrix4x4& ModelView, const Neo::Matrix4x4& ModelViewProjection, const Neo::Matrix4x4& Normal)
 {
 	useShader(material.getShader());
 	Shader* shader = getShader(material.getShader());
@@ -511,9 +513,11 @@ void Common::enableMaterial(Neo::Material& material, const Neo::Matrix4x4& Model
 	}
 	
 	assert(shader->uModelView != -1);
+	glUniformMatrix4fv(shader->uModel, 1, GL_FALSE, Model.entries);
 	glUniformMatrix4fv(shader->uModelView, 1, GL_FALSE, ModelView.entries);
 	glUniformMatrix4fv(shader->uModelViewProj, 1, GL_FALSE, ModelViewProjection.entries);
 	glUniformMatrix4fv(shader->uNormal, 1, GL_FALSE, Normal.entries);
+	glUniform3fv(shader->uCameraPosition, 1, cameraPosition);
 	
 #if 0
 	for(unsigned short i = 0; i < shader->uniforms.size(); i++)

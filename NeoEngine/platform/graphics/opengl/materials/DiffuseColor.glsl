@@ -8,6 +8,9 @@ void main()
 	gl_Position = ModelViewProjectionMatrix * vec4(Position, 1.0);
 	position = (ModelViewMatrix * vec4(Position, 1.0)).xyz;
 	normal = mat3(NormalMatrix) * Normal;
+
+	modelPosition = (ModelMatrix * vec4(Position, 1.0)).xyz;
+	modelNormal = mat3(ModelMatrix) * Normal;
 }
 
 #else
@@ -36,9 +39,9 @@ void main()
 	vec3 v = normalize(-position);
 	
 	gl_FragColor = vec4(Diffuse, Opacity);
-	
 	gl_FragColor.rgb = removeGamma(gl_FragColor.rgb);
-	vec3 accumulator = Emit.rgb; // = Ambient + Emissive;
+
+	vec3 accumulator = Emit.rgb + gl_FragColor.rgb * removeGamma(SkyboxDiffuse(modelNormal)); // = Ambient + Emissive;
 
 	for(int i = 0; i < NumLights; i++)
 	{
@@ -50,6 +53,9 @@ void main()
 										lights.specularAttenuation[i],
 										lights.directionAngle[i]);
 	}
+
+	
+	//accumulator += 0.25f*SkyboxReflection((1.0f + Roughness) * 5.0);
 
 	// Add random part to prevent color banding
 	gl_FragColor.rgb = applyGamma(accumulator) + 0.025f*rand(position.xz*1000.0f, 1000.0f);

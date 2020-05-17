@@ -140,14 +140,17 @@ void PlatformStaticRenderBehavior::draw(Neo::Renderer& render)
 	// prender->useShader(0);
 	prender->updateLights(m_mesh);
 
-	auto MV = prender->getCurrentCamera()->getViewMatrix() * getParent()->getTransform();
+	const auto M = getParent()->getTransform();
+	auto MV = prender->getCurrentCamera()->getViewMatrix() * M;
 	auto MVP = prender->getCurrentCamera()->getProjectionMatrix() * MV;
 	auto N = MV.getInversetranspose();
 	
+	const auto camPos = prender->getCurrentCamera()->getParent()->getGlobalPosition();
+
 	for(size_t i = 0; i < m_vaos.count; i++)
 	{
 		auto& submesh = m_mesh->getMeshes()[i];
-		prender->enableMaterial(submesh->getMaterial(), MV, MVP, N);
+		prender->enableMaterial(submesh->getMaterial(), camPos, M, MV, MVP, N);
 
 		glBindVertexArray(m_vaos[i]);
 		glDrawArrays(meshFormatToOpenGL(submesh->getFormat()), 0, submesh->getIndices().size());

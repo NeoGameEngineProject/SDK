@@ -30,7 +30,7 @@ public:
 	void setupMaterial(Neo::Material& material, const char* shaderName);
 
 	void useShader(unsigned int id);
-	virtual void enableMaterial(Neo::Material& material, const Neo::Matrix4x4& ModelView, const Neo::Matrix4x4& ModelViewProjection, const Neo::Matrix4x4& Normal);
+	virtual void enableMaterial(Neo::Material& material, const Neo::Vector3& cameraPosition, const Neo::Matrix4x4& Model, const Neo::Matrix4x4& ModelView, const Neo::Matrix4x4& ModelViewProjection, const Neo::Matrix4x4& Normal);
 	void enableMaterialTransform(Neo::Material& material, const Neo::Matrix4x4& transform, const Neo::Matrix4x4& view, const Neo::Matrix4x4& proj);
 
 protected:
@@ -51,7 +51,8 @@ protected:
 			uNormal(sh.uNormal),
 			uTime(sh.uTime),
 			uNumLights(sh.uNumLights),
-			uboLights(sh.uboLights)
+			uboLights(sh.uboLights),
+			uModel(sh.uModel)
 		{
 			for(auto& p : sh.uniforms)
 				uniforms.emplace_back(std::unique_ptr<Neo::IProperty>(p.first->clone()), p.second);
@@ -68,6 +69,7 @@ protected:
 			uTime = sh.uTime;
 			uNumLights = sh.uNumLights;
 			uboLights = sh.uboLights;
+			uModel = sh.uModel;
 
 			for (auto& p : sh.uniforms)
 				uniforms.emplace_back(std::unique_ptr<Neo::IProperty>(p.first->clone()), p.second);
@@ -92,7 +94,7 @@ protected:
 		std::string vertexSource, fragmentSource;
 		
 		// Builtin default uniforms
-		int uModelView = -1, uModelViewProj = -1, uNormal = -1, uTime = -1;
+		int uModelView = -1, uModelViewProj = -1, uNormal = -1, uTime = -1, uModel = -1, uCameraPosition = -1;
 		int uNumLights = -1, uboLights = -1;
 		unsigned int uTextureFlags[8];
 	};

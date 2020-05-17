@@ -82,10 +82,11 @@ void PlatformSkyboxBehavior::begin(Neo::Platform&, Neo::Renderer& render, Level&
 	}
 
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+	glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 
 	m_shader = prender->loadShader("assets/materials/builtin/skybox");
@@ -136,9 +137,8 @@ void PlatformSkyboxBehavior::drawSky(PlatformRenderer* prender)
 	glDisable(GL_BLEND);
 	glDepthMask(GL_FALSE);
 	
-	glActiveTexture(GL_TEXTURE0);
-
-	glBindTexture(GL_TEXTURE_CUBE_MAP, m_cubeMap);
+	bindSkybox(0);
+	
 	for(unsigned short i = 0; i < 6; i++)
 	{
 		glDrawArrays(GL_TRIANGLES, i*6, 6);
@@ -150,4 +150,12 @@ void PlatformSkyboxBehavior::drawSky(PlatformRenderer* prender)
 	
 	glUseProgram(0);
 	glBindVertexArray(0);
+}
+
+int PlatformSkyboxBehavior::bindSkybox(int sampler)
+{
+	glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+	glActiveTexture(GL_TEXTURE0 + sampler);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, m_cubeMap);
+	return sampler;
 }
