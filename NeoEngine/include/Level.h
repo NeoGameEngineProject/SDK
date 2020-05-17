@@ -251,9 +251,8 @@ public:
 	 * @return \b true if something was hit, \b false otherwise
 	 */
 	bool castRay(const Vector3& origin, const Vector3& direction, float distance = 1000.0f, Vector3* hitPoint = nullptr, ObjectHandle* hitObject = nullptr);
-
 	void rebuildOctree();
-	
+
 	bool saveBinary(const char* file, ObjectHandle root);
 	bool saveBinary(const char* file) { return saveBinary(file, getRoot()); }
 	bool loadBinary(const char* file, ObjectHandle insertionPoint = ObjectHandle());

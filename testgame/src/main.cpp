@@ -7,6 +7,7 @@
 #include <behaviors/CameraBehavior.h>
 #include <behaviors/SoundBehavior.h>
 #include <behaviors/RigidbodyPhysicsBehavior.h>
+#include <behaviors/SkyboxBehavior.h>
 
 #include <InputContext.h>
 
@@ -18,6 +19,8 @@
 #include <WinMain.hpp>
 #include <Log.h>
 #include <behaviors/MeshBehavior.h>
+
+#include <AssimpScene.h>
 
 class TestGame : public Neo::GameState
 {
@@ -34,7 +37,8 @@ public:
 	{
 		vr.initialize();
 
-		if(!level.load("assets/test.dae"))
+		Neo::AssimpScene ascene;
+		if(!ascene.loadFile(level, "assets/test.dae"))
 		{
 			std::cerr << "Could not load level!" << std::endl;
 			exit(1);
@@ -44,6 +48,8 @@ public:
 		camera = level.find("Camera");
 		cameraBehavior = camera->getBehavior<Neo::CameraBehavior>();
 		
+		auto* skybox = camera->addBehavior<Neo::SkyboxBehavior>();
+
 		testCube = level.find("Test");
 		
 		level.find("Plane")->addBehavior<Neo::RigidbodyPhysicsBehavior>()->setMass(0);
@@ -132,8 +138,8 @@ public:
 		}
 		else
 		{
-			r.clear(57.0f/255.0f, 57.0f/255.0f, 57.0f/255.0f, true);
-			level.draw(r);
+			// r.clear(57.0f/255.0f, 57.0f/255.0f, 57.0f/255.0f, true);
+			level.draw(r, true);
 			htmlView.draw(r);
 			r.swapBuffers();
 		}
@@ -189,7 +195,7 @@ public:
 
 extern "C" int main(int argc, char** argv)
 {
-	Neo::Game game(2*1024, 2*768, "Neo Test Game");
+	Neo::Game game(1024, 768, "Neo Test Game");
 
 	auto testGame = std::make_unique<TestGame>();
 	//auto splash = new Neo::States::SplashScreen(std::move(testGame), 2, 1, { "assets/Splash1.png", "assets/Splash2.png" });

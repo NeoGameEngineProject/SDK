@@ -45,11 +45,12 @@ enum PROPERTY_TYPES : int8_t {
   PROPERTY_TYPES_STRING = 9,
   PROPERTY_TYPES_PATH = 10,
   PROPERTY_TYPES_BOOL = 11,
+  PROPERTY_TYPES_LIST = 12,
   PROPERTY_TYPES_MIN = PROPERTY_TYPES_UNKNOWN,
-  PROPERTY_TYPES_MAX = PROPERTY_TYPES_BOOL
+  PROPERTY_TYPES_MAX = PROPERTY_TYPES_LIST
 };
 
-inline const PROPERTY_TYPES (&EnumValuesPROPERTY_TYPES())[12] {
+inline const PROPERTY_TYPES (&EnumValuesPROPERTY_TYPES())[13] {
   static const PROPERTY_TYPES values[] = {
     PROPERTY_TYPES_UNKNOWN,
     PROPERTY_TYPES_INTEGER,
@@ -62,13 +63,14 @@ inline const PROPERTY_TYPES (&EnumValuesPROPERTY_TYPES())[12] {
     PROPERTY_TYPES_COLOR,
     PROPERTY_TYPES_STRING,
     PROPERTY_TYPES_PATH,
-    PROPERTY_TYPES_BOOL
+    PROPERTY_TYPES_BOOL,
+    PROPERTY_TYPES_LIST
   };
   return values;
 }
 
 inline const char * const *EnumNamesPROPERTY_TYPES() {
-  static const char * const names[13] = {
+  static const char * const names[14] = {
     "UNKNOWN",
     "INTEGER",
     "UNSIGNED_INTEGER",
@@ -81,13 +83,14 @@ inline const char * const *EnumNamesPROPERTY_TYPES() {
     "STRING",
     "PATH",
     "BOOL",
+    "LIST",
     nullptr
   };
   return names;
 }
 
 inline const char *EnumNamePROPERTY_TYPES(PROPERTY_TYPES e) {
-  if (flatbuffers::IsOutRange(e, PROPERTY_TYPES_UNKNOWN, PROPERTY_TYPES_BOOL)) return "";
+  if (flatbuffers::IsOutRange(e, PROPERTY_TYPES_UNKNOWN, PROPERTY_TYPES_LIST)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamesPROPERTY_TYPES()[index];
 }
@@ -239,7 +242,6 @@ struct PropertyBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  PropertyBuilder &operator=(const PropertyBuilder &);
   flatbuffers::Offset<Property> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<Property>(end);
@@ -323,7 +325,6 @@ struct BehaviorBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  BehaviorBuilder &operator=(const BehaviorBuilder &);
   flatbuffers::Offset<Behavior> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<Behavior>(end);
@@ -413,7 +414,6 @@ struct ObjectBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  ObjectBuilder &operator=(const ObjectBuilder &);
   flatbuffers::Offset<Object> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<Object>(end);
@@ -480,7 +480,6 @@ struct LevelBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  LevelBuilder &operator=(const LevelBuilder &);
   flatbuffers::Offset<Level> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<Level>(end);
@@ -542,7 +541,6 @@ struct RPCCallBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  RPCCallBuilder &operator=(const RPCCallBuilder &);
   flatbuffers::Offset<RPCCall> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<RPCCall>(end);

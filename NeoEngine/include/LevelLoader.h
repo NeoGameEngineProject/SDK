@@ -18,7 +18,7 @@ class NEO_ENGINE_EXPORT LevelLoader
 public:
 	static bool load(Level& level, const char* file, const char* rootNode = nullptr);
 	static bool load(Level& level, const char* file, ObjectHandle rootNode);
-	static bool load(Level& level, const std::string& file, ObjectHandle rootNode)
+	static bool load(Level& level, const std::string& file, ObjectHandle rootNode = ObjectHandle())
 	{
 		return load(level, file.c_str(), rootNode);
 	}
