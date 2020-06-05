@@ -13,14 +13,14 @@ macro(preprocess_file input output)
 
 		if(NOT WIN32 OR CMAKE_CROSSCOMPILING)
 			add_custom_command(OUTPUT ${output}
-				                COMMAND cpp -nostdinc -CC -P -E ${input} | sed "s/\\$/\#/g" > ${output}
+				                COMMAND cpp -nostdinc -CC -P -E ${input} > ${output}
 								WORKING_DIRECTORY ${_CWD}
 								DEPENDS ${input}
 								COMMENT "Preprocessing shader ${_NAME}" VERBATIM)
 		else()
 			add_custom_command(OUTPUT ${output}
 				                COMMAND cpp -nostdinc -CC -P -E ${input} > ${output}.tmp
-								COMMAND PowerShell -Command "get-content ${output}.tmp | %{$_ -replace \"\\$\",\"\#\"} | out-file ${output} -encoding ascii"
+								COMMAND PowerShell -Command "get-content ${output}.tmp | out-file ${output} -encoding ascii"
 								WORKING_DIRECTORY ${_CWD}
 								DEPENDS ${input}
 								COMMENT "Preprocessing shader ${_NAME}" VERBATIM)
@@ -31,7 +31,7 @@ macro(preprocess_file input output)
 	elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 		add_custom_command(OUTPUT ${output}
 				COMMAND ${CMAKE_CXX_COMPILER} /C /X /EP ${input} > ${output}
-				COMMAND PowerShell -Command "(get-content ${output}).replace('$', '#') | Set-Content ${output}" # out-file ${output} -encoding ascii"
+				# COMMAND PowerShell -Command "(get-content ${output}).replace('$', '#') | Set-Content ${output}" # out-file ${output} -encoding ascii"
 				WORKING_DIRECTORY ${_CWD}
 				DEPENDS ${input}
 				COMMENT "Preprocessing shader ${_NAME}")
