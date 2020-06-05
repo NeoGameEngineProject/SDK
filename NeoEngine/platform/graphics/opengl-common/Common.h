@@ -27,7 +27,7 @@ public:
 	int loadShader(const char* vert, const char* frag);
 
 	int createTexture(Neo::Texture* tex);
-	void setupMaterial(Neo::Material& material, const char* shaderName);
+	void setupMaterial(Neo::Material& material, const char* shaderName) override;
 
 	void useShader(unsigned int id);
 	virtual void enableMaterial(Neo::Material& material, const Neo::Vector3& cameraPosition, const Neo::Matrix4x4& Model, const Neo::Matrix4x4& ModelView, const Neo::Matrix4x4& ModelViewProjection, const Neo::Matrix4x4& Normal);

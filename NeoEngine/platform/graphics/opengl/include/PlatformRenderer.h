@@ -60,7 +60,7 @@ public:
 
 	void enableMaterial(Neo::Material& material, const Vector3& cameraPosition, const Neo::Matrix4x4& Model, const Neo::Matrix4x4& ModelView, const Neo::Matrix4x4& ModelViewProjection, const Neo::Matrix4x4& Normal) override;
 	
-	void draw(Object* object);
+	void draw(Object* object) override;
 	
 	void setBackbuffer(void* fbo) override { m_currentFBO = (long int) fbo; }
 };

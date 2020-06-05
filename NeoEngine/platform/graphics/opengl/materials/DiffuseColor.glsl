@@ -11,6 +11,7 @@ void main()
 
 	modelPosition = (ModelMatrix * vec4(Position, 1.0)).xyz;
 	modelNormal = mat3(ModelMatrix) * Normal;
+	texcoord = vec2(0.0);
 }
 
 #else

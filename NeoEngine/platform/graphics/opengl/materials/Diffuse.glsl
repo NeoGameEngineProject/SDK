@@ -8,6 +8,10 @@ void main()
 	gl_Position = ModelViewProjectionMatrix * vec4(Position, 1.0);
 	position = (ModelViewMatrix * vec4(Position, 1.0)).xyz;
 	normal = mat3(NormalMatrix) * Normal;
+
+	modelPosition = (ModelMatrix * vec4(Position, 1.0)).xyz;
+	modelNormal = mat3(ModelMatrix) * Normal;
+	texcoord = vec2(0.0);
 }
 
 #else

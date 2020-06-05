@@ -23,6 +23,8 @@
 #include <regex>
 #include <unordered_map>
 
+#include "Preprocessor.h"
+
 using namespace Neo;
 
 namespace
@@ -162,23 +164,25 @@ done:
 int Common::loadShader(const char* path)
 {
 	std::string fullpath = path;
+	Preprocessor pp;
 
-	const auto vertShaderData = preprocess((fullpath + "_vs.glsl").c_str());
+	auto vertShaderData = pp.processFile(fullpath + "_vs.glsl");
 	if (vertShaderData.empty())
 	{
 		LOG_ERROR("Could not load shader " << path << "_vs.glsl");
 		return -1;
 	}
-
 		
-	const auto fragShaderData = preprocess((fullpath + "_fs.glsl").c_str());
+	auto fragShaderData = pp.processFile(fullpath + "_fs.glsl");
 	if(fragShaderData.empty())
 	{
 		LOG_ERROR("Could not load shader " << path << "_fs.glsl");
 		return -1;
 	}
 
-	
+	std::replace(fragShaderData.begin(), fragShaderData.end(), '$', '#');
+	std::replace(vertShaderData.begin(), vertShaderData.end(), '$', '#');
+
 	int program = loadShader(vertShaderData.c_str(), fragShaderData.c_str());
 	if(program != -1)
 	{
@@ -225,6 +229,10 @@ int Common::createTexture(Texture* tex)
 
 std::string Common::preprocess(const char* path)
 {
+	Preprocessor proc;
+	return proc.processFile(path);
+
+#if 0
 	char* file = readTextFile(path);
 	if(!file)
 	{
@@ -266,6 +274,7 @@ std::string Common::preprocess(const char* path)
 	}
 	
 	return out.str();
+#endif
 }
 
 int Common::findShader(const char* name)

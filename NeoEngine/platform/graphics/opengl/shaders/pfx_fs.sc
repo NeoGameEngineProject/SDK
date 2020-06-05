@@ -1,5 +1,9 @@
 $version 400
 
+layout(location = 0) out vec4 glFragColor;
+$define gl_FragColor glFragColor
+$define texture2D texture
+
 in vec2 texcoord;
 
 uniform sampler2D Color;

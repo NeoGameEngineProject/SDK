@@ -1,6 +1,9 @@
 
 #include "ShaderLight.h"
 
+layout(location = 0) out vec4 glFragColor;
+$define gl_FragColor glFragColor
+
 // $extension GL_ARB_shading_language_420pack : enable
 
 // ifdef GL_ARB_shading_language_420pack

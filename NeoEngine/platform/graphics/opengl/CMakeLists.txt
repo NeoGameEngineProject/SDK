@@ -58,6 +58,8 @@ add_platform_module(
 	SOURCES ${SOURCES} ${INCLUDES}
 			${CMAKE_CURRENT_SOURCE_DIR}/../opengl-common/Common.cpp
 			${CMAKE_CURRENT_SOURCE_DIR}/../opengl-common/Common.h
+			${CMAKE_CURRENT_SOURCE_DIR}/../opengl-common/Preprocessor.cpp
+			${CMAKE_CURRENT_SOURCE_DIR}/../opengl-common/Preprocessor.h
 	INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/include 
 			${INCLUDE_DIR} 
 			${CMAKE_CURRENT_SOURCE_DIR}/../opengl-common 
