@@ -96,6 +96,8 @@ int Common::loadShader(const char* vert, const char* frag)
 {
 	GLuint vertexShader = -1, fragmentShader = -1;
 
+	// LOG_DEBUG("Loading shader:\n" << vert << "\n\n" << frag);
+
 	{
 		vertexShader = glCreateShader(GL_VERTEX_SHADER);
 		if(!vertexShader)
@@ -197,9 +199,24 @@ int Common::createTexture(Texture* tex)
 	if(tex->getID() != -1)
 		return tex->getID();
 	
-	auto format = GL_RGBA;
-	if(tex->getComponents() == 3)
-		format = GL_RGB;
+	int format = 0;
+	switch(tex->getComponents())
+	{
+		case 1: format = GL_RED; break;
+		case 2: format = GL_RG; break;
+		case 3: format = GL_RGB; break;
+		default:
+		case 4: format = GL_RGBA; break;
+	}
+
+	int componentType = 0;
+	switch(tex->getComponentSize())
+	{
+		default: LOG_WARNING("Unknown component size: " << tex->getComponentSize());
+		case 1: componentType = GL_UNSIGNED_BYTE; break;
+		case 2: componentType = GL_UNSIGNED_SHORT; break;
+		case 4: componentType = GL_UNSIGNED_INT; break;
+	}
 
 	unsigned int texture = -1;
 	glGenTextures(1, &texture);
@@ -216,7 +233,7 @@ int Common::createTexture(Texture* tex)
 	glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &aniso);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY, aniso); 
 	
-	glTexImage2D(GL_TEXTURE_2D, 0, format, tex->getWidth(), tex->getHeight(), 0, format, GL_UNSIGNED_BYTE, tex->getData());
+	glTexImage2D(GL_TEXTURE_2D, 0, format, tex->getWidth(), tex->getHeight(), 0, format, componentType, tex->getData());
 	glGenerateMipmap(GL_TEXTURE_2D);
 
 	glBindTexture(GL_TEXTURE_2D, 0);
@@ -438,6 +455,8 @@ void Common::compileShaders()
 			LOG_DEBUG("Building shader " << shader->name.str());
 			shader->id = loadShader(shader->vertexSource.c_str(), shader->fragmentSource.c_str());
 			
+			assert(shader->id != -1);
+
 			glUseProgram(shader->id);
 			shader->uModel = glGetUniformLocation(shader->id, "ModelMatrix");
 			shader->uModelView = glGetUniformLocation(shader->id, "ModelViewMatrix");
@@ -456,9 +475,7 @@ void Common::compileShaders()
 			shader->uTextureFlags[1] = glGetUniformLocation(shader->id, "HasNormal");
 			shader->uTextureFlags[2] = glGetUniformLocation(shader->id, "HasSpecular");
 			shader->uTextureFlags[3] = glGetUniformLocation(shader->id, "HasHeight");
-			
-			assert(shader->uModelView != -1);
-			
+
 			for(auto& prop : shader->uniforms)
 			{
 				prop.second = glGetUniformLocation(shader->id, prop.first->getName().c_str());
@@ -521,12 +538,11 @@ void Common::enableMaterial(Neo::Material& material, const Vector3& cameraPositi
 		break;
 	}
 	
-	assert(shader->uModelView != -1);
-	glUniformMatrix4fv(shader->uModel, 1, GL_FALSE, Model.entries);
-	glUniformMatrix4fv(shader->uModelView, 1, GL_FALSE, ModelView.entries);
-	glUniformMatrix4fv(shader->uModelViewProj, 1, GL_FALSE, ModelViewProjection.entries);
-	glUniformMatrix4fv(shader->uNormal, 1, GL_FALSE, Normal.entries);
-	glUniform3fv(shader->uCameraPosition, 1, cameraPosition);
+	if(shader->uModel != -1) glUniformMatrix4fv(shader->uModel, 1, GL_FALSE, Model.entries);
+	if(shader->uModelView != -1) glUniformMatrix4fv(shader->uModelView, 1, GL_FALSE, ModelView.entries);
+	if(shader->uModelViewProj != -1) glUniformMatrix4fv(shader->uModelViewProj, 1, GL_FALSE, ModelViewProjection.entries);
+	if(shader->uNormal != -1) glUniformMatrix4fv(shader->uNormal, 1, GL_FALSE, Normal.entries);
+	if(shader->uCameraPosition != -1) glUniform3fv(shader->uCameraPosition, 1, cameraPosition);
 	
 #if 0
 	for(unsigned short i = 0; i < shader->uniforms.size(); i++)
@@ -550,7 +566,7 @@ void Common::enableMaterial(Neo::Material& material, const Vector3& cameraPositi
 		int uniform = prop->getUserId();
 		if(uniform == -1) // Not found
 			continue;
-		if(uniform == 0) // Not initialized
+		else if(uniform == 0) // Not initialized
 		{
 			uniform = glGetUniformLocation(shader->id, prop->getName().c_str());
 			prop->setUserId(uniform);
@@ -576,13 +592,13 @@ void Common::enableMaterial(Neo::Material& material, const Vector3& cameraPositi
 		{
 			glActiveTexture(GL_TEXTURE0 + i);
 			glBindTexture(GL_TEXTURE_2D, material.textures[i]->getID());
-			glUniform1i(shader->uTextureFlags[i], 1);
+			//glUniform1i(shader->uTextureFlags[i], 1);
 		}
 		else
 		{
 			glActiveTexture(GL_TEXTURE0 + i);
 			glBindTexture(GL_TEXTURE_2D, 0);
-			glUniform1i(shader->uTextureFlags[i], 0);
+			//glUniform1i(shader->uTextureFlags[i], 0);
 		}
 	}
 

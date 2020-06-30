@@ -35,6 +35,7 @@ else()
 		add_subdirectory(graphics/bgfx)
 	endif()
 	
+	add_subdirectory(assets/tinygltf)
 	add_subdirectory(assets/assimp)
 	add_subdirectory(assets/png)
 	add_subdirectory(assets/sound)

@@ -8,6 +8,7 @@
 #include <assimp/postprocess.h>
 #include <assimp/cimport.h>
 #include <assimp/cfileio.h>
+#include <assimp/pbrmaterial.h>
 
 #include <assimp/cexport.h>
 
@@ -20,6 +21,8 @@
 #include <behaviors/CameraBehavior.h>
 #include <behaviors/StaticRenderBehavior.h>
 #include <behaviors/SceneLinkBehavior.h>
+
+#include <TextureLoader.h>
 
 using namespace Neo;
 
@@ -86,6 +89,67 @@ static void loadMatrix(Matrix4x4& neoMat, aiMatrix4x4& aiMat)
 {
 	neoMat = Matrix4x4((float*) &aiMat);
 	neoMat.transpose();
+}
+
+static Texture* findTexture(Level& level, const aiScene* scene, const std::string& basepath, const aiString& path, const std::string& materialName)
+{
+	auto* embedded = scene->GetEmbeddedTexture(path.C_Str());
+	if(path.C_Str()[0] != '/' && !embedded)
+		return level.loadTexture((basepath + path.C_Str()).c_str());
+	else if(embedded)
+		return level.loadTexture((materialName + path.C_Str()).c_str());
+	else
+		return level.loadTexture(path.C_Str());
+}
+
+constexpr static Neo::Material::TEXTURE_TYPE texTypeFromAssimp(aiTextureType type)
+{
+	using TYPE = Neo::Material::TEXTURE_TYPE;
+	switch(type)
+	{
+		case aiTextureType_BASE_COLOR: return TYPE::ALBEDO;
+		case aiTextureType_DIFFUSE_ROUGHNESS: return TYPE::ROUGHNESS;
+		case aiTextureType_METALNESS: return TYPE::METALNESS;
+
+		case aiTextureType_NORMALS: return TYPE::NORMAL;
+		case aiTextureType_DISPLACEMENT: return TYPE::HEIGHT;
+		
+		case aiTextureType_DIFFUSE: return TYPE::DIFFUSE;
+		case aiTextureType_SPECULAR: return TYPE::SPECULAR;
+	}
+
+	return TYPE::TEXTURE_MAX;
+}
+
+static Texture* createTexture(aiTextureType type, Level& level, const aiScene* scene, const aiMaterial* aiMat, const std::string& basepath, const std::string& materialName)
+{
+	aiString path;
+	aiTextureMapping mapping;
+	unsigned int uvindex = 0;
+	float blend = 0.0f;
+	aiTextureOp op;
+
+	// FIXME: Bug in Assimp: They use 64bit integers to save the aiTextureMapMode
+	// but enums are always 32bit leading to a stack corruption!
+	//aiTextureMapMode mapmode;
+	long long mapmode = 0;
+
+	if(AI_SUCCESS == aiMat->GetTexture(type, 0, &path, &mapping, &uvindex, &blend, &op, (aiTextureMapMode*) &mapmode))
+	{
+		LOG_DEBUG("Loading texture: " << basepath << path.C_Str());
+		
+		Texture* texture = findTexture(level, scene, basepath, path, materialName);
+		assert(texture);
+		if(mapmode == aiTextureMapMode_Clamp)
+		{
+			//texture->setUWrapMode(WRAP_CLAMP);
+			//texture->setVWrapMode(WRAP_CLAMP);
+		}
+		
+		return texture;
+	}
+
+	return nullptr;
 }
 
 static void traverseAssimpScene(Level* level,
@@ -192,7 +256,7 @@ bool AssimpScene::loadFile(Level& level, const std::string& file, ObjectHandle r
 		return false;
 	}
 	
-	assert(!scene->HasTextures() && "No embedded textures please!");
+	// assert(!scene->HasTextures() && "No embedded textures please!");
 	
 	std::string basepath(file);
 #ifndef WIN32
@@ -213,6 +277,7 @@ bool AssimpScene::loadFile(Level& level, const std::string& file, ObjectHandle r
 		auto aiMat = scene->mMaterials[i];
 		materials.emplace_back();
 		Material& material = materials.back();
+		std::string materialName = aiMat->GetName().C_Str();
 	
 		int blendMode;
 		if(AI_SUCCESS == aiGetMaterialInteger(aiMat, AI_MATKEY_BLEND_FUNC, &blendMode))
@@ -236,18 +301,69 @@ bool AssimpScene::loadFile(Level& level, const std::string& file, ObjectHandle r
 			material.setProperty("Emit", Vector3(color.r, 
 							color.g,
 							color.b));
-	
-		auto* prop = material.getProperty("Diffuse");
-		if(AI_SUCCESS == aiGetMaterialFloat(aiMat, AI_MATKEY_OPACITY, &material.getProperty("Opacity")->get<float>()))
-		{}
-		
-		if(AI_SUCCESS == aiGetMaterialFloat(aiMat, AI_MATKEY_SHININESS, &material.getProperty("Shininess")->get<float>()))
+
+		if(AI_SUCCESS == aiGetMaterialFloat(aiMat, AI_MATKEY_OPACITY, &material.getProperty("Opacity")->get<float>())) {}
+
+		// auto* prop = material.getProperty("Diffuse");
+		std::string shaderPrefix = "glTF";
+		bool isPBR = true;
+		float value;
+		if(AI_SUCCESS == aiGetMaterialFloat(aiMat, AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_ROUGHNESS_FACTOR, &value))
 		{
-			material.getProperty("Shininess")->get<float>() *= 0.025; // Need to quarter values since Assimp multiplies with 4 for some reason.
+			material.registerProperty<float>("Roughness");
+			material.setProperty("Roughness", value);
+		}
+		else
+		{
+			isPBR = false;
+			shaderPrefix = "";
+			if(AI_SUCCESS == aiGetMaterialFloat(aiMat, AI_MATKEY_SHININESS, &material.getProperty("Shininess")->get<float>()))
+			{
+				material.getProperty("Shininess")->get<float>() *= 0.025; // Need to quarter values since Assimp multiplies with 4 for some reason.
+			}
+		}
+
+		if(AI_SUCCESS == aiGetMaterialFloat(aiMat, AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_METALLIC_FACTOR, &value))
+		{
+			material.registerProperty<float>("Metalness");
+			material.setProperty("Metalness", value);
 		}
 	
 		// Textures
 		{
+			if(scene->HasTextures())
+			{
+				LOG_DEBUG("Loading embedded textures for material " << materialName);
+				for(int i = 0; i < scene->mNumTextures; i++)
+				{
+					auto* aiTex = scene->mTextures[i];
+					Texture tex;
+
+					if(aiTex->mHeight == 0)
+					{
+						LOG_DEBUG("Compressed texture");
+						if(aiTex->CheckFormat("png"))
+						{
+							LOG_DEBUG("Found PNG texture!");
+							TextureLoader::load(tex, "png", (unsigned char*) aiTex->pcData, aiTex->mWidth);
+						}
+						else
+						{
+							LOG_ERROR("Unsupported texture!");
+							continue;
+						}
+					}
+					else
+					{
+						// TODO Check channel count!
+						tex.create<unsigned char>(aiTex->mWidth, aiTex->mHeight, 3);
+						memcpy(tex.getData(), aiTex->pcData, tex.getStorageSize());
+					}
+
+					level.loadTexture((materialName + '*' + std::to_string(i)).c_str(), std::move(tex));
+				}
+			}
+
 			aiString path;
 			aiTextureMapping mapping;
 			unsigned int uvindex = 0;
@@ -260,106 +376,38 @@ bool AssimpScene::loadFile(Level& level, const std::string& file, ObjectHandle r
 			long long mapmode = 0;
 	
 			// Default: Diffuse shading with a single color
-			material.setShaderName("DiffuseColor");
+			material.textures[Material::NORMAL] = createTexture(aiTextureType_NORMALS, level, scene, aiMat, basepath, materialName);
+			material.textures[Material::HEIGHT] = createTexture(aiTextureType_DISPLACEMENT, level, scene, aiMat, basepath, materialName);
 
-			if(AI_SUCCESS == aiMat->GetTexture(aiTextureType_DIFFUSE, 0, &path, &mapping, &uvindex, &blend, &op, (aiTextureMapMode*) &mapmode))
+			std::string shaderName;
+			if(isPBR) // Even though PBR support is quite poor right now.
 			{
-				LOG_DEBUG("Loading DIFFUSE texture: " << uvindex << " " << basepath << path.C_Str());
-				
-				Texture* texture;
-				if(path.C_Str()[0] != '/')
-					texture = level.loadTexture((basepath + path.C_Str()).c_str());
-				else
-					texture = level.loadTexture(path.C_Str());
-				
-				if(mapmode == aiTextureMapMode_Clamp)
-				{
-					//texture->setUWrapMode(WRAP_CLAMP);
-					//texture->setVWrapMode(WRAP_CLAMP);
-				}
-				
-				assert(uvindex < 8 && material.textures[Material::DIFFUSE] == nullptr);
-				material.textures[Material::DIFFUSE] = texture;
-				material.setShaderName("Diffuse");
+				bool albedo = material.textures[Material::ALBEDO] = createTexture(aiTextureType_DIFFUSE, level, scene, aiMat, basepath, materialName);
+				bool roughness = material.textures[Material::ROUGHNESS] = createTexture(aiTextureType_DIFFUSE_ROUGHNESS, level, scene, aiMat, basepath, materialName);
+				bool metalness = material.textures[Material::METALNESS] = createTexture(aiTextureType_METALNESS, level, scene, aiMat, basepath, materialName);
 
-				//material.addTexturePass(texture, TEX_COMBINE_MODULATE, uvindex);
+				shaderName = "pbr";
+				if(albedo) shaderName += "Albedo";
+				else shaderName += "Color";
+				
+				if(roughness) shaderName += "Roughness";
+				if(metalness) shaderName += "Metalness";
 			}
-		
-			if(AI_SUCCESS == aiMat->GetTexture(aiTextureType_SPECULAR, 0, &path, &mapping, &uvindex, &blend, &op, (aiTextureMapMode*) &mapmode))
+			else
 			{
-				LOG_DEBUG("Loading SPECULAR texture: " << uvindex << " " << path.C_Str());
-				
-				Texture* texture;
-				if(path.C_Str()[0] != '/')
-					texture = level.loadTexture((basepath + path.C_Str()).c_str());
-				else
-					texture = level.loadTexture(path.C_Str());
+				bool diffuse = material.textures[Material::DIFFUSE] = createTexture(aiTextureType_DIFFUSE, level, scene, aiMat, basepath, materialName);
+				bool specular = material.textures[Material::SPECULAR] = createTexture(aiTextureType_SPECULAR, level, scene, aiMat, basepath, materialName);
 
-				if(mapmode == aiTextureMapMode_Clamp)
-				{
-					//texture->setUWrapMode(WRAP_CLAMP);
-					//texture->setVWrapMode(WRAP_CLAMP);
-				}
-				
-				assert(uvindex < 8 && material.textures[Material::SPECULAR] == nullptr);
-				material.textures[Material::SPECULAR] = texture;
-				material.setShaderName("DiffuseSpecular");
-			}
-		
-			if(AI_SUCCESS == aiMat->GetTexture(aiTextureType_NORMALS, 0, &path, &mapping, &uvindex, &blend, &op, (aiTextureMapMode*) &mapmode))
-			{
-				LOG_DEBUG("Loading NORMAL texture: " << uvindex << " " << path.C_Str());
-				
-				Texture* texture;
-				if(path.C_Str()[0] != '/')
-					texture = level.loadTexture((basepath + path.C_Str()).c_str());
-				else
-					texture = level.loadTexture(path.C_Str());
+				if(diffuse) shaderName += "Diffuse";
+				else shaderName += "Color";
 
-				if(mapmode == aiTextureMapMode_Clamp)
-				{
-					//texture->setUWrapMode(WRAP_CLAMP);
-					//texture->setVWrapMode(WRAP_CLAMP);
-				}
-				
-				assert(uvindex < 8 && material.textures[Material::NORMAL] == nullptr);
-				material.textures[Material::NORMAL] = texture;
-				material.setShaderName("DiffuseSpecularNormal");
+				if(specular) shaderName += "Specular";
 			}
-			
-			if(AI_SUCCESS == aiMat->GetTexture(aiTextureType_HEIGHT, 0, &path, &mapping, &uvindex, &blend, &op, (aiTextureMapMode*) &mapmode))
-			{
-				LOG_DEBUG("Loading HEIGHT texture: " << uvindex << " " << path.C_Str());
-				
-				Texture* texture;
-				if(path.C_Str()[0] != '/')
-					texture = level.loadTexture((basepath + path.C_Str()).c_str());
-				else
-					texture = level.loadTexture(path.C_Str());
 
-				if(mapmode == aiTextureMapMode_Clamp)
-				{
-					//texture->setUWrapMode(WRAP_CLAMP);
-					//texture->setVWrapMode(WRAP_CLAMP);
-				}
-				
-				assert(uvindex < 8 && material.textures[Material::HEIGHT] == nullptr);
-				material.textures[Material::HEIGHT] = texture;
-				material.setShaderName("DiffuseSpecularBump");
-			}
-		
-		/*	if(AI_SUCCESS == aiMat->GetTexture(aiTextureType_EMISSIVE, 0, &path, &mapping, &uvindex, &blend, &op, (aiTextureMapMode*) &mapmode))
-			{
-				Texture* texture = level.loadTexture((basepath + path.C_Str()).c_str());
-				if(mapmode == aiTextureMapMode_Clamp)
-				{
-					//texture->setUWrapMode(WRAP_CLAMP);
-					//texture->setVWrapMode(WRAP_CLAMP);
-				}
-				
-				assert(uvindex < 4 && material.textures[uvindex] == nullptr);
-				material.textures[uvindex] = texture;
-			}*/
+			if(material.textures[Material::NORMAL]) shaderName += "Normal";
+			if(material.textures[Material::HEIGHT]) shaderName += "Height";
+
+			material.setShaderName(shaderName);
 		}
 	}
 	

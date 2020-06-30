@@ -56,10 +56,7 @@ void main()
 	}
 
 	
-	//accumulator += 0.25f*SkyboxReflection((1.0f + Roughness) * 5.0);
-
-	// Add random part to prevent color banding
-	gl_FragColor.rgb = applyGamma(accumulator) + 0.025f*rand(position.xz*1000.0f, 1000.0f);
+	gl_FragColor.rgb = applyGamma(accumulator);
 }
 
 #endif

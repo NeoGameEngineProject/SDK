@@ -32,6 +32,7 @@ public:
 	
 	void setMipMap(bool v) { m_mipmap = v; }
 	bool hasMipMap() const { return m_mipmap; }
+	unsigned int getComponentSize() const { return m_componentSize; }
 	unsigned int getComponents() const { return m_components; }
 	unsigned int getWidth() const { return m_width; }
 	unsigned int getHeight() const { return m_height; }
@@ -51,7 +52,7 @@ public:
 		m_height = height;
 		
 		m_data.alloc(width * height * m_componentSize * components);
-		return m_data.data;
+		return (componentType*) m_data.data;
 	}
 	
 	size_t getStorageSize() const { return m_width * m_height * m_componentSize * m_components; }

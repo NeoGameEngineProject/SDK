@@ -70,12 +70,21 @@ public:
 
 	enum TEXTURE_TYPE
 	{
+		// Specularity Textures
 		DIFFUSE = 0,
-		NORMAL = 1,
 		SPECULAR = 2,
-		HEIGHT = 3,
 		
-		TEXTURE_MAX = 4
+		// PBR Textures
+		ALBEDO = 0,
+		ROUGHNESS = 2,
+		METALNESS = 3,
+
+		// Normals are useful everywhere
+		NORMAL = 1,
+
+		// Special textures
+		HEIGHT = 4,
+		TEXTURE_MAX = 5
 	};
 	
 	Texture* textures[8] {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
@@ -86,6 +95,7 @@ public:
 	
 	const char* getShaderName() const { return m_shaderName.str(); }
 	void setShaderName(const char* str) { m_shaderName = str; }
+	void setShaderName(const std::string& str) { m_shaderName = str.c_str(); }
 
 	void deserialize(std::istream& in)
 	{

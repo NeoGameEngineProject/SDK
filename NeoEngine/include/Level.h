@@ -41,6 +41,8 @@ class NEO_ENGINE_EXPORT Level
 	
 	typedef Octree<ObjectHandle, OCTREE_NODE_SIZE> LevelOctree;
 	LevelOctree m_octree;
+	bool m_enableCulling = true;
+
 	std::vector<Object> m_objects;
 	Array<char> m_scratchpad;
 	
@@ -78,6 +80,9 @@ public:
 	CameraBehavior* getCurrentCamera() { return m_currentCamera; }
 	void setCurrentCamera(CameraBehavior* cam) { m_currentCamera = cam; }
 	
+	void setEnableCulling(bool v) { m_enableCulling = v; }
+	bool isCullingEnabled() const { return m_enableCulling; }
+
 	/**
 	 * @brief Makes the given name unique in this level.
 	 * @param name [inout] The name to make unique.
@@ -163,6 +168,8 @@ public:
 	 * @return The texture pointer.
 	 */
 	Texture* loadTexture(const char* name);
+	Texture* loadTexture(const char* name, Texture&& origin);
+
 	SoundHandle loadSound(const char* name);
 	
 	MeshHandle loadMesh(const char* name);

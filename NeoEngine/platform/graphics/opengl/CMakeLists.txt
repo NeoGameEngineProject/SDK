@@ -1,6 +1,6 @@
 file(GLOB SOURCES src/*.c*)
 file(GLOB INCLUDES include/*.h)
-file(GLOB_RECURSE SHADERS shaders/*)
+file(GLOB_RECURSE SHADERS materials/builtin/*.s*)
 
 ## OpenGL
 set(OpenGL_GL_PREFERENCE GLVND)
@@ -51,7 +51,7 @@ else()
 endif()
 
 make_directory(${CMAKE_BINARY_DIR}/bin/assets/materials/builtin/)
-preprocess_files(SOURCES ${SHADERS} ${CMAKE_CURRENT_SOURCE_DIR}/shaders/ShaderLight.h INCLUDE_DIRECTORIES "")
+preprocess_files(SOURCES ${SHADERS} ${CMAKE_CURRENT_SOURCE_DIR}/materials/builtin/ShaderLight.h INCLUDE_DIRECTORIES "")
 add_custom_target(build-shaders SOURCES ${PROCESSED_SHADERS} COMMENT "Building shaders")
 
 add_platform_module(

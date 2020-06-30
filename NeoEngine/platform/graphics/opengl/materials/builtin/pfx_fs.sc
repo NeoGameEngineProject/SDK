@@ -45,6 +45,9 @@ float calculateLuminosity(vec3 color)
 
 void main()
 {
+	gl_FragColor.rgb = texture(Color, texcoord).rgb;
+	gl_FragColor.a = 1.0f;
+	return;
 	float depth = texture(Depth, texcoord).x;
 	float linearDepth = linearizeDepth(depth, Frustum.x, Frustum.y);
 	float invDepth = 1.0f - linearDepth;

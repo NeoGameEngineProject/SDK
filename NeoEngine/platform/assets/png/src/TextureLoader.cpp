@@ -27,6 +27,7 @@
 #include <Texture.h>
 #include <FileTools.h>
 #include <iostream>
+#include <Log.h>
 
 #include <png.h>
 
@@ -44,7 +45,7 @@ bool TextureLoader::load(Texture& image, const char* filename)
 	File* file = M_fopen(filename, "rb");
 	if (!file)
 	{
-		std::cerr << "ERROR Load PNG: Unable to open " << filename << std::endl;;
+		LOG_ERROR("Could not load PNG: Unable to open " << filename);
 		return false;
 	}
 
@@ -95,7 +96,7 @@ bool TextureLoader::load(Texture& image, const char* filename)
 		components = 4;
 		break;
 		default:
-			std::cerr << "ERROR Load PNG: Unsupported color space in " << filename << std::endl;
+			LOG_ERROR("Could not load PNG: Unsupported color space in " << filename);
 		return false;
 	}
 
@@ -110,5 +111,82 @@ bool TextureLoader::load(Texture& image, const char* filename)
 	png_destroy_read_struct(&png_ptr, &info_ptr, (png_infopp)NULL);
 
 	M_fclose(file);
+	return true;
+}
+
+bool TextureLoader::load(Texture& tex, const char* type, const unsigned char* data, unsigned int sz)
+{
+	if(strcmp("png", type) || sz < 8)
+		return false;
+	
+	if(png_sig_cmp(data, 0, 8))
+		return false;
+
+
+	png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+	if (!png_ptr)
+		return false;
+
+	png_infop info_ptr = png_create_info_struct(png_ptr);
+	if (!info_ptr)
+	{
+		png_destroy_read_struct(&png_ptr, (png_infopp)NULL, (png_infopp)NULL);
+		return false;
+	}
+
+	if (setjmp(png_jmpbuf(png_ptr)))
+	{
+		png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
+		return false;
+	}
+
+	struct Userdata
+	{
+		const unsigned char* ptr;
+		size_t sz;
+		size_t read;
+	} userdata { data, sz, 0 };
+
+	png_set_read_fn(png_ptr, (void*) &userdata, [](png_structp png_ptr, png_bytep data, png_size_t length) {
+		auto* udata = (Userdata*) png_get_io_ptr(png_ptr);
+		if(udata->read + length > udata->sz)
+		{
+			LOG_ERROR("libpng tries to read after the end of the buffer!");
+			return;
+		}
+	
+		memcpy(data, udata->ptr + udata->read, length);
+		udata->read += length;
+	});
+	
+	png_read_png(png_ptr, info_ptr, PNG_TRANSFORM_STRIP_16 | PNG_TRANSFORM_PACKING | PNG_TRANSFORM_EXPAND, NULL);
+
+	png_uint_32 width, height;
+	int bit_depth, color_type, interlace_type;
+	png_get_IHDR(png_ptr, info_ptr, &width, &height, &bit_depth, &color_type, &interlace_type, NULL, NULL);
+
+	unsigned int components;
+	switch(color_type)
+	{
+		case PNG_COLOR_TYPE_RGB:
+		components = 3;
+		break;
+		case PNG_COLOR_TYPE_RGBA:
+		components = 4;
+		break;
+		default:
+			LOG_ERROR("Could not load PNG: Unsupported color space!");
+		return false;
+	}
+
+	unsigned char* out = tex.create<unsigned char>(width, height, components);
+	
+	unsigned int row_bytes = png_get_rowbytes(png_ptr, info_ptr);
+	png_bytepp row_pointers = png_get_rows(png_ptr, info_ptr);
+
+	for (unsigned int i = 0; i < height; i++)
+		memcpy(out + (row_bytes * i), row_pointers[i], row_bytes);
+
+	png_destroy_read_struct(&png_ptr, &info_ptr, (png_infopp) NULL);
 	return true;
 }

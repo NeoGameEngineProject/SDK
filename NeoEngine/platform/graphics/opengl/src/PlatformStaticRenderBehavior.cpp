@@ -87,12 +87,6 @@ void PlatformStaticRenderBehavior::begin(Neo::Platform& p, Neo::Renderer& render
 			currentAttrib += 2;
 		}
 		
-		glBindBuffer(GL_ARRAY_BUFFER, m_indexBuffers[i]);
-		glBufferData(GL_ARRAY_BUFFER,
-					 submesh->getIndices().size()*sizeof(unsigned int),
-					 submesh->getIndices().data(),
-					 GL_STATIC_DRAW);
-
 		auto numChannels = submesh->getTextureChannels().size();
 		m_texcoordBuffers[i].alloc(numChannels);
 		glGenBuffers(numChannels, m_texcoordBuffers[i].data);
@@ -107,9 +101,17 @@ void PlatformStaticRenderBehavior::begin(Neo::Platform& p, Neo::Renderer& render
 						 channel.data,
 						 GL_STATIC_DRAW);
 
+			LOG_DEBUG("Texture channel " << j << " at attrib " << currentAttrib);
 			glEnableVertexAttribArray(currentAttrib);
 			glVertexAttribPointer(currentAttrib++, 2, GL_FLOAT, GL_FALSE, 0, nullptr); // texcoord
 		}
+
+		const auto& indices = submesh->getIndices();
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indexBuffers[i]);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+					 indices.size()*sizeof(unsigned int),
+					 indices.data(),
+					 GL_STATIC_DRAW);
 		
 		auto& material = submesh->getMaterial();
 		if(material.getShader() == -1)
@@ -121,8 +123,6 @@ void PlatformStaticRenderBehavior::begin(Neo::Platform& p, Neo::Renderer& render
 			if(texture && texture->getID() == -1)
 				texture->setID(prender->createTexture(texture));
 		}
-		
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 
 	glBindVertexArray(0);
@@ -151,9 +151,16 @@ void PlatformStaticRenderBehavior::draw(Neo::Renderer& render)
 	{
 		auto& submesh = m_mesh->getMeshes()[i];
 		prender->enableMaterial(submesh->getMaterial(), camPos, M, MV, MVP, N);
+		const auto& indices = submesh->getIndices();
+
+		// TODO Debug Flag!
+		glDebugMessageInsert(GL_DEBUG_SOURCE_APPLICATION, GL_DEBUG_TYPE_MARKER, 0, GL_DEBUG_SEVERITY_NOTIFICATION, sizeof("StaticRender"), "StaticRender");
 
 		glBindVertexArray(m_vaos[i]);
-		glDrawArrays(meshFormatToOpenGL(submesh->getFormat()), 0, submesh->getIndices().size());
+		//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indexBuffers[i]);
+		glDrawElements(meshFormatToOpenGL(submesh->getFormat()), submesh->getIndices().size(), GL_UNSIGNED_INT, 0);
+
+		// glDrawArrays(meshFormatToOpenGL(submesh->getFormat()), 0, submesh->getIndices().size());
 		
 		render.addDrawCall(submesh->getIndices().size() / 3);
 	}

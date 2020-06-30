@@ -107,9 +107,13 @@ void Level::update(Platform& p, float dt)
 
 		if(o.isDirty())
 		{
-			const auto aabb = o.getBoundingBox();
-			const Vector3 oldPos = o.getTransform().getTranslatedVector3(Vector3());
-			m_octree.update(oldPos, o.getPosition(), (aabb.max - aabb.min)*0.5f, o.getSelf());
+			if(m_enableCulling)
+			{
+				const auto aabb = o.getBoundingBox();
+				const Vector3 oldPos = o.getTransform().getTranslatedVector3(Vector3());
+				m_octree.update(oldPos, o.getPosition(), (aabb.max - aabb.min)*0.5f, o.getSelf());
+			}
+
 			o.updateMatrix();
 		}
 	}
@@ -123,12 +127,15 @@ void Level::update(Platform& p, float dt)
 
 		if(o.isDirty())
 		{
-			const auto aabb = o.getTransformedBoundingBox();
-			const Vector3 oldPos = o.getTransform().getTranslatedVector3(Vector3());
 			o.updateMatrix();
 
-			std::lock_guard<std::mutex> lock(m_octreeMutex);
-			m_octree.update(oldPos, o.getPosition(), (aabb.max - aabb.min)*0.5f, o.getSelf());
+			if(m_enableCulling)
+			{
+				std::lock_guard<std::mutex> lock(m_octreeMutex);
+				const auto aabb = o.getTransformedBoundingBox();
+				const Vector3 oldPos = o.getTransform().getTranslatedVector3(Vector3());
+				m_octree.update(oldPos, o.getPosition(), (aabb.max - aabb.min)*0.5f, o.getSelf());
+			}
 		}
 	});
 	
@@ -149,44 +156,57 @@ void Level::draw(Renderer& r, CameraBehavior& camera, bool clear)
 	if(clear)
 		r.clear(57.0f/255.0f, 57.0f/255.0f, 57.0f/255.0f, true);
 
-	const auto frustum = camera.getFrustum();
-	const auto sphere = frustum.getSphere();
-	const auto box = frustum.getBoundingBox(camera);
+	if(m_enableCulling)
+	{
+		const auto frustum = camera.getFrustum();
+		const auto sphere = frustum.getSphere();
+		const auto box = frustum.getBoundingBox(camera);
 
-	Vector3 origin(sphere.x, sphere.y, sphere.z);
+		Vector3 origin(sphere.x, sphere.y, sphere.z);
 
-	// Traverse over octree: Only shows relevant objects
-	std::lock_guard<std::mutex> lock(m_octreeMutex);
-	m_octree.traverse(box.min, box.max, [&r, &frustum](LevelOctree::Position* point) {
-		
-		// Check for frustum, second try to cull it
-		auto& object = std::get<2>(*point);
-		const auto aabb = object->getTransformedBoundingBox();
-		
-		if(!object->isActive())
-			return;
-		
-		if(aabb.getDiameter() != 0)
+		// Traverse over octree: Only shows relevant objects
+		std::lock_guard<std::mutex> lock(m_octreeMutex);
+		m_octree.traverse(box.min, box.max, [&r, &frustum](LevelOctree::Position* point) {
+			
+			// Check for frustum, second try to cull it
+			auto& object = std::get<2>(*point);
+			const auto aabb = object->getTransformedBoundingBox();
+			
+			if(!object->isActive())
+				return;
+			
+			if(aabb.getDiameter() != 0)
+			{
+				Vector3 min = aabb.min;
+				Vector3 max = aabb.max;
+				
+				Vector3 points[8] = {
+					Vector3(min.x, min.y, min.z),
+					Vector3(min.x, max.y, min.z),
+					Vector3(max.x, max.y, min.z),
+					Vector3(max.x, min.y, min.z),
+					Vector3(min.x, min.y, max.z),
+					Vector3(min.x, max.y, max.z),
+					Vector3(max.x, max.y, max.z),
+					Vector3(max.x, min.y, max.z)
+				};
+				
+				if(frustum.isVolumePointsVisible(points, 8))
+					r.draw(object.get()); // object->draw(r);
+			}
+			else r.draw(object.get()); //object->draw(r);
+		});
+	}
+	else
+	{
+		for(auto& o : m_objects)
 		{
-			Vector3 min = aabb.min;
-			Vector3 max = aabb.max;
-			
-			Vector3 points[8] = {
-				Vector3(min.x, min.y, min.z),
-				Vector3(min.x, max.y, min.z),
-				Vector3(max.x, max.y, min.z),
-				Vector3(max.x, min.y, min.z),
-				Vector3(min.x, min.y, max.z),
-				Vector3(min.x, max.y, max.z),
-				Vector3(max.x, max.y, max.z),
-				Vector3(max.x, min.y, max.z)
-			};
-			
-			if(frustum.isVolumePointsVisible(points, 8))
-				r.draw(object.get()); // object->draw(r);
+			if(o.isActive())
+			{
+				r.draw(&o);
+			}
 		}
-		else r.draw(object.get()); //object->draw(r);
-	});
+	}
 	
 	r.endFrame();
 }
@@ -199,6 +219,19 @@ Texture* Level::loadTexture(const char* name)
 		Texture* tex = &m_textures[name];
 		TextureLoader::load(*tex, name);
 		return tex;
+	}
+	
+	return &texture->second;
+}
+
+Texture* Level::loadTexture(const char* name, Texture&& origin)
+{
+	auto texture = m_textures.find(name);
+	if(texture == m_textures.end())
+	{
+		auto& tex = m_textures[name];
+		tex = std::move(origin);
+		return &tex;
 	}
 	
 	return &texture->second;

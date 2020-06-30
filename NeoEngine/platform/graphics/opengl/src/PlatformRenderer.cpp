@@ -14,7 +14,7 @@
 #include <Log.h>
 
 #define vec4 Neo::Vector4
-#include "../shaders/ShaderLight.h"
+#include "../materials/builtin/ShaderLight.h"
 #undef vec4
 
 // Provide NanoVG
@@ -31,11 +31,104 @@ extern "C" __declspec(dllexport) void nvgDeleteGL3(NVGcontext*);
 
 using namespace Neo;
 
+// TODO Debug flag!
+#include <sstream>
+void GlDebugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam)
+{
+	// Some debug messages are just annoying informational messages
+	switch (id)
+	{
+	case 131185: // glBufferData
+		return;
+	}
+
+	LOG_INFO("Message: " << message);
+	
+	std::stringstream output("Source: ");
+
+	switch (source)
+	{
+	case GL_DEBUG_SOURCE_API:
+		output << "API";
+		break;
+	case GL_DEBUG_SOURCE_WINDOW_SYSTEM:
+		output << "Window System";
+		break;
+	case GL_DEBUG_SOURCE_SHADER_COMPILER:
+		output << "Shader Compiler";
+		break;
+	case GL_DEBUG_SOURCE_THIRD_PARTY:
+		output << "Third Party";
+		break;
+	case GL_DEBUG_SOURCE_APPLICATION:
+		output << "Application";
+		break;
+	case GL_DEBUG_SOURCE_OTHER:
+		output << "Other";
+		break;
+	}
+
+	output << "\nType: ";
+	switch (type)
+	{
+	case GL_DEBUG_TYPE_ERROR:
+		output << "Error";
+		break;
+	case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
+		output << "Deprecated Behavior";
+		break;
+	case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
+		output << "Undefined Behavior";
+		break;
+	case GL_DEBUG_TYPE_PORTABILITY:
+		output << "Portability";
+		break;
+	case GL_DEBUG_TYPE_PERFORMANCE:
+		output << "Performance";
+		break;
+	case GL_DEBUG_TYPE_MARKER:
+		output << "Marker";
+		break;
+	case GL_DEBUG_TYPE_PUSH_GROUP:
+		output << "Push Group";
+		break;
+	case GL_DEBUG_TYPE_POP_GROUP:
+		output << "Pop Group";
+		break;
+	case GL_DEBUG_TYPE_OTHER:
+		output << "Other";
+		break;
+	}
+
+	output << "\n";
+	output << "ID: " << id << "\n";
+	output << "Severity: ";
+
+	switch (severity)
+	{
+	case GL_DEBUG_SEVERITY_HIGH:
+		output << "High";
+		break;
+	case GL_DEBUG_SEVERITY_MEDIUM:
+		output << "Medium";
+		break;
+	case GL_DEBUG_SEVERITY_LOW:
+		output << "Low";
+		break;
+	case GL_DEBUG_SEVERITY_NOTIFICATION:
+		output << "Notification";
+		break;
+	}
+
+	LOG_INFO(output.str() << "\n");
+}
+
 void PlatformRenderer::beginFrame(Neo::CameraBehavior& camera)
 {
 	resetStatistics();
 	camera.enable(m_width, m_height);
 
+	m_currentCamera = &camera;
 	m_currentSkybox = camera.getParent()->getBehavior<SkyboxBehavior>();
 
 	glEnable(GL_DEPTH_TEST);
@@ -50,7 +143,6 @@ void PlatformRenderer::beginFrame(Level& level, CameraBehavior& cam)
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, m_pfxFBO);
 	
-	m_currentCamera = &cam;
 	beginFrame(cam);
 	level.updateVisibility(cam, m_visibleLights);
 }
@@ -262,6 +354,15 @@ void PlatformRenderer::initialize(unsigned int w, unsigned int h, void* backbuff
 	LOG_INFO("Version:\t" << version);
 	LOG_INFO("GLSL Version:\t" << glslVersion);
 	LOG_INFO("Vendor:\t" << vendor);
+
+	// TODO Debug flag!
+	glEnable(GL_DEBUG_OUTPUT);
+	glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+	glDebugMessageCallback(&GlDebugCallback, nullptr);
+
+	//glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL, GL_FALSE);
+	//glDebugMessageControl(GL_DEBUG_SOURCE_API, GL_DEBUG_TYPE_ERROR, GL_DONT_CARE, 0, NULL, GL_TRUE);
+	glDebugMessageControl(GL_DEBUG_SOURCE_APPLICATION, GL_DEBUG_TYPE_MARKER, GL_DONT_CARE, 0, NULL, GL_FALSE);
 
 	glViewport(0, 0, w, h);
 
