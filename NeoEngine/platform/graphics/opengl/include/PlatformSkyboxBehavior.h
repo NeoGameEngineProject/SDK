@@ -15,6 +15,9 @@ public:
 
 	int bindSkybox(int sampler = 31);
 	
+	// TODO Property!
+	void setTextureBase(const std::string& str) { TextureBase = str.c_str(); }
+	
 private:
 	Texture* m_textures[6] = {nullptr};
 	unsigned int m_shader = -1, m_vao = -1, m_vbo = -1;
