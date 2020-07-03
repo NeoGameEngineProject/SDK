@@ -27,7 +27,7 @@ uniform float Opacity;
 uniform float Shininess;
 
 #include "builtin/fragment_header.glsl"
-#include "builtin/cook_torrance.glsl"
+#include "builtin/phong.glsl"
 #include "builtin/gamma.glsl"
 
 float rand(vec2 co, float rnd_scale)
@@ -40,7 +40,7 @@ float rand(vec2 co, float rnd_scale)
 void main()
 {
 	vec3 Normal = normal;
-	float Roughness = 0.4f / Shininess;
+	// float Roughness = 0.4f / Shininess;
 	vec3 v = normalize(-position);
 
 	vec2 TexCoord = texcoord;
@@ -65,7 +65,7 @@ void main()
 	{
 		//accumulator += gl_FragColor.rgb * (lights.diffuseBrightness[i].rgb / length(lights.positionExponent[i].xyz - position));
 
-		accumulator += calculateLight(gl_FragColor.rgb, position, Normal, v, Roughness,
+		accumulator += calculateLight(gl_FragColor.rgb, position, Normal, v, Shininess,
 										lights.positionExponent[i],
 										lights.diffuseBrightness[i],
 										lights.specularAttenuation[i],

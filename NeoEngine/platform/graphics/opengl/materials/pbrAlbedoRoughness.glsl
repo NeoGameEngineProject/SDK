@@ -61,8 +61,6 @@ void main()
 										lights.directionAngle[i]);
 	}
 
-	// Map HDR to LDR
-	accumulator = accumulator / (accumulator + vec3(1.0));
 	gl_FragColor.rgb = applyGamma(accumulator);
 }
 

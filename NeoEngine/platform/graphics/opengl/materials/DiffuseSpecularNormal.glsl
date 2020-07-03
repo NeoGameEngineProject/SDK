@@ -28,7 +28,7 @@ uniform float Opacity;
 uniform float Shininess;
 
 #include "builtin/fragment_header.glsl"
-#include "builtin/cook_torrance.glsl"
+#include "builtin/phong.glsl"
 #include "builtin/gamma.glsl"
 
 float rand(vec2 co, float rnd_scale)
@@ -41,7 +41,7 @@ float rand(vec2 co, float rnd_scale)
 void main()
 {
 	vec3 Normal = normal;
-	float Roughness = 0.4f / Shininess;
+	// float Roughness = 0.4f / Shininess;
 	vec3 v = normalize(-position);
 	
 	vec3 bump = texture(NormalTexture, texcoord).xyz * 2.0 - 1.0;
@@ -53,7 +53,7 @@ void main()
 
 	for(int i = 0; i < NumLights; i++)
 	{
-		accumulator += calculateLight(gl_FragColor.rgb, position, Normal, v, Roughness,
+		accumulator += calculateLight(gl_FragColor.rgb, position, Normal, v, Shininess,
 										lights.positionExponent[i],
 										lights.diffuseBrightness[i],
 										lights.specularAttenuation[i],

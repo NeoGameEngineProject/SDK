@@ -46,8 +46,7 @@ void main()
 										lights.directionAngle[i]);
 	}
 
-	// Add random part to prevent color banding
-	gl_FragColor.rgb = applyGamma(accumulator); // + 0.025f*rand(position.xz*1000.0f, 1000.0f);
+	gl_FragColor.rgb = applyGamma(accumulator);
 }
 
 #endif

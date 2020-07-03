@@ -319,7 +319,7 @@ bool AssimpScene::loadFile(Level& level, const std::string& file, ObjectHandle r
 			shaderPrefix = "";
 			if(AI_SUCCESS == aiGetMaterialFloat(aiMat, AI_MATKEY_SHININESS, &material.getProperty("Shininess")->get<float>()))
 			{
-				material.getProperty("Shininess")->get<float>() *= 0.025; // Need to quarter values since Assimp multiplies with 4 for some reason.
+				// material.getProperty("Shininess")->get<float>() *= 0.025; // Need to quarter values since Assimp multiplies with 4 for some reason.
 			}
 		}
 

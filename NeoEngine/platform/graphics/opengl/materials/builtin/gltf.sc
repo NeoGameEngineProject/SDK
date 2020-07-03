@@ -74,9 +74,9 @@ vec3 calculateLight(vec3 color, vec3 p, vec3 n, vec3 v, float roughness, float m
 			return vec3(0.0f, 0.0f, 0.0f);
 	}
 
-	float nDoth = dot(n, h);
-	float nDotv = dot(n, v);
-	float vDoth = dot(v, h);
+	float nDoth = max(0, dot(n, h));
+	float nDotv = max(0, dot(n, v));
+	float vDoth = max(0, dot(v, h));
 	float nDots = max(0, dot(n, s));
 
 	const vec3 dielectricSpecular = vec3(0.04, 0.04, 0.04);
