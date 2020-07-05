@@ -36,6 +36,10 @@ endif()
 
 target_link_libraries(NeoEngine PUBLIC NeoCore ${DL_LIBS} ${NEO_PLATFORM_LIBS} flatbuffers)
 
+if(GRAPHICS_DEBUGGING)
+	target_compile_definitions(NeoEngine PRIVATE -DGRAPHICS_DEBUGGING=1)
+endif()
+
 if(NOT NO_TESTS)
 	file(GLOB TEST_SOURCES tests/*.c*)
 	add_executable(NeoEngineTest ${TEST_SOURCES})
@@ -64,7 +68,8 @@ install(TARGETS NeoEngine ${DEPS}
 		EXPORT FindNeoEngine
 		RUNTIME DESTINATION bin
 		LIBRARY DESTINATION lib
-		ARCHIVE DESTINATION lib)
+		ARCHIVE DESTINATION lib
+		BUNDLE DESTINATION bin)
 	
 install(EXPORT FindNeoEngine DESTINATION ${NEO_CMAKE_EXPORT})
 install(DIRECTORY include/ DESTINATION include/)

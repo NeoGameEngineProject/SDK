@@ -68,15 +68,23 @@ public:
 		m_objects.reserve(maxObjects+1);
 		m_objects.push_back(std::move(Object("ROOT")));
 	}
-	
+
 	Level(Level&& level):
 		m_octree(Vector3(0, 0, 0), Vector3(4096.0f)),
 		m_objects(std::move(level.m_objects)), 
-		m_scratchpad(std::move(level.m_scratchpad))
+		m_scratchpad(std::move(level.m_scratchpad)),
+		m_enableCulling(level.m_enableCulling),
+		m_currentCamera(level.m_currentCamera),
+		m_textures(std::move(level.m_textures)),
+		m_sounds(std::move(level.m_sounds)),
+		m_meshes(std::move(level.m_meshes)),
+		m_physics(std::move(level.m_physics))
 	{ 
 		rebuildOctree();
 	}
 	
+	~Level() {}
+
 	CameraBehavior* getCurrentCamera() { return m_currentCamera; }
 	void setCurrentCamera(CameraBehavior* cam) { m_currentCamera = cam; }
 	

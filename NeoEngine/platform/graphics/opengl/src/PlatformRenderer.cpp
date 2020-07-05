@@ -355,7 +355,7 @@ void PlatformRenderer::initialize(unsigned int w, unsigned int h, void* backbuff
 	LOG_INFO("GLSL Version:\t" << glslVersion);
 	LOG_INFO("Vendor:\t" << vendor);
 
-	// TODO Debug flag!
+#ifdef GRAPHICS_DEBUGGING
 	glEnable(GL_DEBUG_OUTPUT);
 	glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 	glDebugMessageCallback(&GlDebugCallback, nullptr);
@@ -363,6 +363,7 @@ void PlatformRenderer::initialize(unsigned int w, unsigned int h, void* backbuff
 	//glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL, GL_FALSE);
 	//glDebugMessageControl(GL_DEBUG_SOURCE_API, GL_DEBUG_TYPE_ERROR, GL_DONT_CARE, 0, NULL, GL_TRUE);
 	glDebugMessageControl(GL_DEBUG_SOURCE_APPLICATION, GL_DEBUG_TYPE_MARKER, GL_DONT_CARE, 0, NULL, GL_FALSE);
+#endif
 
 	glViewport(0, 0, w, h);
 

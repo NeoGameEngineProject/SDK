@@ -153,8 +153,9 @@ void PlatformStaticRenderBehavior::draw(Neo::Renderer& render)
 		prender->enableMaterial(submesh->getMaterial(), camPos, M, MV, MVP, N);
 		const auto& indices = submesh->getIndices();
 
-		// TODO Debug Flag!
+#ifdef GRAPHICS_DEBUGGING
 		glDebugMessageInsert(GL_DEBUG_SOURCE_APPLICATION, GL_DEBUG_TYPE_MARKER, 0, GL_DEBUG_SEVERITY_NOTIFICATION, sizeof("StaticRender"), "StaticRender");
+#endif
 
 		glBindVertexArray(m_vaos[i]);
 		//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indexBuffers[i]);
