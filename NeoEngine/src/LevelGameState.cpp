@@ -4,7 +4,7 @@ using namespace Neo;
 
 void LevelGameState::draw(Neo::Renderer& r)
 {
-	m_level.draw(r);
+	m_level.draw(r, true);
 }
 
 void LevelGameState::update(Neo::Platform& p, float dt)
