@@ -40,7 +40,9 @@ enum PROPERTY_TYPES : byte
 	COLOR,
 	STRING,
 	PATH,
-	BOOL
+	BOOL,
+
+	LIST
 }
 
 table Property
@@ -68,6 +70,7 @@ table Object
 
 table Level
 {
+	mainCameraName : string;
 	objects : [Object];
 }
 
