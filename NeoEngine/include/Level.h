@@ -44,7 +44,6 @@ class NEO_ENGINE_EXPORT Level
 	bool m_enableCulling = true;
 
 	std::vector<Object> m_objects;
-	Array<char> m_scratchpad;
 	
 	CameraBehavior* m_currentCamera = nullptr;
 	std::unordered_map<std::string, Texture> m_textures;
@@ -52,27 +51,25 @@ class NEO_ENGINE_EXPORT Level
 	std::vector<Mesh> m_meshes;
 
 	PhysicsContext m_physics;
-	
+	FixedString<64> m_mainCameraName;
+
 	std::mutex m_octreeMutex;
 	
 public:
 	/**
 	 * @brief Constructs a new level.
 	 * @param maxObjects The maximum number of objects this Level will hold.
-	 * @param scratchpad The maximum size of the scratchpad memory in bytes.
 	 */
-	Level(size_t maxObjects = 4096, size_t scratchpad = 4096):
+	Level(size_t maxObjects = 4096):
 		m_octree(Vector3(0, 0, 0), Vector3(4096.0f))
 	{
-		m_scratchpad.alloc(scratchpad);
-		m_objects.reserve(maxObjects+1);
+		m_objects.reserve(maxObjects + 1);
 		m_objects.push_back(std::move(Object("ROOT")));
 	}
 
 	Level(Level&& level):
 		m_octree(Vector3(0, 0, 0), Vector3(4096.0f)),
 		m_objects(std::move(level.m_objects)), 
-		m_scratchpad(std::move(level.m_scratchpad)),
 		m_enableCulling(level.m_enableCulling),
 		m_currentCamera(level.m_currentCamera),
 		m_textures(std::move(level.m_textures)),
@@ -91,6 +88,9 @@ public:
 	void setEnableCulling(bool v) { m_enableCulling = v; }
 	bool isCullingEnabled() const { return m_enableCulling; }
 
+	const char* getMainCameraName() const { return m_mainCameraName.str(); }
+	void setMainCameraName(const char* p) { m_mainCameraName = p; }
+
 	/**
 	 * @brief Makes the given name unique in this level.
 	 * @param name [inout] The name to make unique.
@@ -103,30 +103,6 @@ public:
 	 * @return A new unique name.
 	 */
 	std::string getUniqueName(const std::string& name);
-	
-	/**
-	 * @brief Returns the scratchpad and casts it to the right type.
-	 * @tparam T The type required.
-	 * @return The scratchpad pointer.
-	 */
-	template<typename T>
-	T* getScratchPad() { return (T*) m_scratchpad.data; }
-	
-	/**
-	 * @brief Calculates the scratchpad size.
-	 * @return The size in bytes.
-	 */
-	size_t getScratchPadSize() const { return m_scratchpad.count; }
-	
-	/**
-	 * @brief Calculates the scratchpad size.
-	 * @tparam T The type to calculate the capacity for.
-	 * @return The size in multiples of the given type, i.e. the count of objects of the type this buffer can hold.
-	 */
-	template<typename T>
-	size_t getScratchPadSize() const { return m_scratchpad.count / sizeof(T); }
-
-	
 	std::vector<Object>& getObjects() { return m_objects; }
 	
 	/**

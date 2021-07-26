@@ -79,6 +79,16 @@ ObjectHandle Level::findInactive(size_t idx)
 
 void Level::begin(Platform& p, Renderer& r) 
 {
+	if(m_currentCamera == nullptr)
+	{
+		auto cam = find(m_mainCameraName.str());
+		if(!cam.empty())
+		{
+			m_currentCamera = cam->getBehavior<CameraBehavior>();
+		}
+		else LOG_WARNING("No camera set!")
+	}
+
 	m_physics.begin();
 	for(size_t i = 0; i < m_objects.size(); i++)
 	{
