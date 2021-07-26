@@ -2,6 +2,8 @@
 
 using namespace Neo;
 
+REGISTER_BEHAVIOR(SkyboxBehavior)
+
 void SkyboxBehavior::copyTo(Neo::Behavior& destination) const
 {
 
