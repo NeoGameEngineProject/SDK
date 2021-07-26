@@ -24,10 +24,6 @@ if(NOT SDL2_FOUND)
 
 	add_subdirectory(sdl2-external EXCLUDE_FROM_ALL)
 	
-	if(NEO_BUILD_SHARED_LIBS)
-		set_target_properties(SDL2-static PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
-	endif()
-	
 	set(SDL2_INCLUDE_DIR
 		${CMAKE_CURRENT_BINARY_DIR}/sdl2-external/include
 		${CMAKE_CURRENT_SOURCE_DIR}/sdl2-external/include)
@@ -42,3 +38,12 @@ add_platform_module(
 	LIBRARIES "${SDL2_LIBRARY}")
 	
 install(DIRECTORY include/ DESTINATION include)
+
+#install(TARGETS ${SDL2_LIBRARY}
+#		EXPORT FindSDL2
+#		RUNTIME DESTINATION bin
+#		LIBRARY DESTINATION lib
+#		ARCHIVE DESTINATION lib)
+	
+#install(EXPORT FindSDL2 DESTINATION ${NEO_CMAKE_EXPORT})
+

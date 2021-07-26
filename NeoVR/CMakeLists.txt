@@ -4,6 +4,7 @@ file(GLOB_RECURSE SOURCES src/*.c*)
 include_directories(openvr-external/headers openvr-external/src/vrcommon openvr-external/src)
 
 set(USE_LIBCXX OFF CACHE BOOL "" FORCE)
+set(SKIP_INSTALL_FILES ON CACHE BOOL "" FORCE)
 add_subdirectory(openvr-external)
 
 add_library(NeoVR ${SOURCES} ${HEADERS})
