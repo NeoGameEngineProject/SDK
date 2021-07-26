@@ -18,6 +18,11 @@ public:
 	// TODO Property!
 	void setTextureBase(const std::string& str) { TextureBase = str.c_str(); }
 	
+	PlatformSkyboxBehavior()
+	{
+		registerProperty("cubeMap", TextureBase, PROPERTY_TYPES::PATH);
+	}
+
 private:
 	Texture* m_textures[6] = {nullptr};
 	unsigned int m_shader = -1, m_vao = -1, m_vbo = -1;
@@ -25,7 +30,7 @@ private:
 	
 	unsigned int m_cubeMap = -1;
 
-	FixedString<128> TextureBase = "assets/skybox/";
+	std::string TextureBase = "assets/skybox/";
 };
 
 }

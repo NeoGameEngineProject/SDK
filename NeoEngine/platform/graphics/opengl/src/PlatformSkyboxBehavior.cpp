@@ -63,7 +63,6 @@ Vertex s_vertices[] = {
 void PlatformSkyboxBehavior::begin(Neo::Platform&, Neo::Renderer& render, Level& level)
 {
 	PlatformRenderer* prender = reinterpret_cast<PlatformRenderer*>(&render);
-	const std::string base(TextureBase.str());
 	static const char* postfixes[] = {"right.png", "left.png", "up.png", "down.png", "front.png", "back.png"};
 
 	glGenTextures(1, &m_cubeMap);
@@ -73,7 +72,7 @@ void PlatformSkyboxBehavior::begin(Neo::Platform&, Neo::Renderer& render, Level&
 
 	for(unsigned short i = 0; i < 6; i++)
 	{
-		m_textures[i] = level.loadTexture((base + postfixes[i]).c_str());
+		m_textures[i] = level.loadTexture((TextureBase + postfixes[i]).c_str());
 
 		// TODO Support different formats!
 		glTexImage2D(
