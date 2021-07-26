@@ -115,6 +115,7 @@ bool BinaryScene::load(Level& level, std::istream& file, const std::string& work
 	file.read((char*) data.data(), data.size());
 
 	const FlatBuffer::Level* fbLevel = flatbuffers::GetRoot<FlatBuffer::Level>(data.data());
+	level.setMainCameraName(fbLevel->mainCameraName()->c_str());
 
 	for(auto* o : *fbLevel->objects())
 	{
@@ -239,7 +240,10 @@ bool BinaryScene::save(Level& level, std::ostream& file, const std::string& work
 
 	auto childrenOffset = fbb.CreateVector(children);
 
+	auto mainCamName = fbb.CreateString(level.getMainCameraName());
+
 	FlatBuffer::LevelBuilder lb(fbb);
+	lb.add_mainCameraName(mainCamName);
 	lb.add_objects(childrenOffset);
 	auto levelRoot = lb.Finish();
 

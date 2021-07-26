@@ -135,7 +135,6 @@ static void processNode(Level& level, ObjectHandle root, const tinygltf::Model& 
 				auto& accessor = model.accessors[p.indices];
 
 				auto count = accessor.count;
-				LOG_INFO("INDICES: " << count);
 				if(count % 3 != 0)
 					LOG_WARNING("Mesh is not triangular!");
 
@@ -149,7 +148,15 @@ static void processNode(Level& level, ObjectHandle root, const tinygltf::Model& 
 				unsigned short* idxArray = (unsigned short*) buffer.data.data();
 				for(unsigned int i = 0; i < count; i++)
 				{
-					indices[i] = static_cast<unsigned int>(indexArray<unsigned short>(buffer.data, accessor.byteOffset + bufferView.byteOffset, stride, i));
+					if(accessor.componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT)
+						indices[i] = static_cast<unsigned int>(indexArray<unsigned short>(buffer.data, accessor.byteOffset + bufferView.byteOffset, stride, i));
+					else if(accessor.componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT)
+						indices[i] = static_cast<unsigned int>(indexArray<unsigned int>(buffer.data, accessor.byteOffset + bufferView.byteOffset, stride, i));
+					else
+					{
+						LOG_ERROR("Unknown index format: " << accessor.componentType);
+						break;
+					}
 				}
 			}
 
@@ -236,7 +243,7 @@ static void processNode(Level& level, ObjectHandle root, const tinygltf::Model& 
 			mat.registerProperty<float>("Roughness");
 			mat.registerProperty<float>("Metalness");
 
-			LOG_INFO("Material: " << gltfMat.pbrMetallicRoughness.roughnessFactor << " " << gltfMat.pbrMetallicRoughness.metallicFactor);
+			LOG_INFO("Loading material: " << gltfMat.name);
 
 			mat.setProperty<float>("Roughness", gltfMat.pbrMetallicRoughness.roughnessFactor);
 			mat.setProperty<float>("Metalness", gltfMat.pbrMetallicRoughness.metallicFactor);
@@ -245,9 +252,13 @@ static void processNode(Level& level, ObjectHandle root, const tinygltf::Model& 
 			mat.setProperty<float>("Opacity", 1.0f);
 		
 			#define LOAD_TEX(t) ((t).index == -1 ? nullptr : level.loadTexture(model.images[model.textures[(t).index].source].name.c_str()))
+			#define PRINT_TEX(t) if((t).index == -1) LOG_INFO("Loading " << model.images[model.textures[(t).index].source].name)
+
 			bool albedo = mat.textures[Neo::Material::ALBEDO] = LOAD_TEX(gltfMat.pbrMetallicRoughness.baseColorTexture);
 			bool roughness = mat.textures[Neo::Material::ROUGHNESS] = LOAD_TEX(gltfMat.pbrMetallicRoughness.metallicRoughnessTexture);
 			bool normal = mat.textures[Neo::Material::NORMAL] = LOAD_TEX(gltfMat.normalTexture);
+
+			#undef PRINT_TEX
 			#undef LOAD_TEX
 
 			std::string shaderName = "pbr";
@@ -333,10 +344,37 @@ bool glTFScene::loadFile(Level& level, const std::string& file, ObjectHandle roo
 	if(!warnstr.empty())
 		LOG_WARNING("glTF Warning: " << warnstr);
 
+	// Fill empty names to be unique
+	for(unsigned int i = 0; i < model.images.size(); i++)
+	{
+		if(model.images[i].name.empty())
+			model.images[i].name = "image_" + std::to_string(i);
+	}
+
+	for(unsigned int i = 0; i < model.textures.size(); i++)
+	{
+		if(model.textures[i].name.empty())
+			model.textures[i].name = "texture_" + std::to_string(i);
+	}
+
+	for(unsigned int i = 0; i < model.cameras.size(); i++)
+	{
+		if(model.cameras[i].name.empty())
+			model.cameras[i].name = "camera_" + std::to_string(i);
+	}
+
+	for(unsigned int i = 0; i < model.materials.size(); i++)
+	{
+		if(model.materials[i].name.empty())
+			model.materials[i].name = "material_" + std::to_string(i);
+	}
+
 	// Load textures, yay!
 	for(auto& t : model.images)
 	{
-		LOG_DEBUG("Loading internal texture: " << t.name << " " << t.width << "x" << t.height << "@" << t.bits);
+		const std::string& name = t.name;
+
+		LOG_DEBUG("Loading internal texture: name='" << name << "' size=" << t.width << "x" << t.height << "@" << t.bits);
 
 		Texture texture;
 		switch(t.bits)
@@ -349,7 +387,7 @@ bool glTFScene::loadFile(Level& level, const std::string& file, ObjectHandle roo
 		memcpy(texture.getData(), t.image.data(), texture.getStorageSize());
 
 		texture.setMipMap(true);
-		level.loadTexture(t.name.c_str(), std::move(texture));
+		level.loadTexture(name.c_str(), std::move(texture));
 	}
 
 	// Fill in root node!
