@@ -19,7 +19,17 @@ class NEO_ENGINE_EXPORT PlatformStaticRenderBehavior : public Neo::Behavior
 	Array<unsigned int> m_indexBuffers;
 	MeshBehavior* m_mesh = nullptr;
 
+	bool Visible = true;
+	bool Wireframe = false;
+
 public:
+
+	PlatformStaticRenderBehavior()
+	{
+		REGISTER_PROPERTY(Visible);
+		REGISTER_PROPERTY(Wireframe);
+	}
+
 	const char* getName() const override { return "PlatformStaticRender"; }
 	void begin(Neo::Platform& p, Neo::Renderer& render, Level& level) override;
 	void end() override;

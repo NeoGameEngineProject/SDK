@@ -135,6 +135,9 @@ void PlatformStaticRenderBehavior::end()
 
 void PlatformStaticRenderBehavior::draw(Neo::Renderer& render)
 {
+	if(!Visible)
+		return;
+
 	PlatformRenderer* prender = reinterpret_cast<PlatformRenderer*>(&render);
 
 	// prender->useShader(0);
@@ -146,6 +149,9 @@ void PlatformStaticRenderBehavior::draw(Neo::Renderer& render)
 	auto N = MV.getInversetranspose();
 	
 	const auto camPos = prender->getCurrentCamera()->getParent()->getGlobalPosition();
+
+	if(Wireframe)
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 	for(size_t i = 0; i < m_vaos.count; i++)
 	{
@@ -167,4 +173,7 @@ void PlatformStaticRenderBehavior::draw(Neo::Renderer& render)
 	}
 
 	glBindVertexArray(0);
+
+	if(Wireframe)
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
