@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include <Object.h>
+#include <Level.h>
 
 using namespace Neo;
 
@@ -39,5 +40,21 @@ TEST(Object, AddBehavior)
 	
 	object.removeBehavior("Test");
 	EXPECT_EQ(nullptr, object.getBehavior("Test"));
+}
+
+TEST(Object, SetParent)
+{
+	Level lvl;
+	auto object = lvl.addObject("Test");
+	auto parent = lvl.addObject("Parent");
+
+	parent->setPosition(Vector3(1, 1, 1));
+	parent->updateMatrix();
+	
+	object->setParent(parent);
+
+	LOG_INFO(object->getPosition());
+
+	EXPECT_LT((object->getPosition() - Vector3(-1, -1, -1)).getLength(), 0.0001);
 }
 

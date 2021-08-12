@@ -54,7 +54,6 @@ void Object::setName(const char* name)
 
 ObjectHandle Object::addChild(ObjectHandle object)
 {
-	object->setParent(m_self);
 	m_children.push_back(object);
 	return object;
 }
@@ -66,7 +65,6 @@ void Object::removeChild(ObjectHandle child)
 		auto& c = m_children[i];
 		if(c == child)
 		{
-			child->setParent(ObjectHandle());
 			m_children.erase(m_children.begin() + i);
 			return;
 		}

@@ -174,7 +174,25 @@ public:
 	ObjectHandle find(const char* name);
 	
 	ObjectHandle getParent() const { return m_parent; }
-	void setParent(ObjectHandle object) { m_parent = object; } 
+	void setParent(ObjectHandle object)
+	{
+		if(m_parent == object)
+			return;
+
+		// Undo previous parent
+		if(!m_parent.empty())
+		{
+			if(m_needsUpdate) updateMatrix();
+			m_parent->removeChild(getSelf());
+		}
+
+		m_parent = object;
+
+		if(!m_parent.empty())
+			m_parent->addChild(getSelf());
+
+		updateFromMatrix();
+	}
 	
 	void setActive(bool v) { m_active = v; }
 	bool isActive() const { return m_active; }
@@ -204,15 +222,24 @@ public:
 		
 		m_needsUpdate = false;
 	}
+
+	void updateChildMatrices()
+	{
+		updateMatrix();
+		for(auto& c : m_children)
+			c->updateChildMatrices();
+	}
 	
 	/**
 	 * @brief Updates position, rotation and scale based on the transformation matrix.
 	 */
 	void updateFromMatrix()
 	{
-		m_position = m_transform.getTranslationPart();
-		m_rotation.setFromAngles(m_transform.getEulerAngles());
-		m_scale = m_transform.getScale();
+		auto localTransform = m_parent.empty() ? m_transform : m_transform * m_parent->getTransform().getInverse();
+
+		m_position = localTransform.getTranslationPart();
+		m_rotation.setFromAngles(localTransform.getEulerAngles());
+		m_scale = localTransform.getScale();
 		m_needsUpdate = false;
 	}
 	
