@@ -82,6 +82,27 @@ public:
 	
 	~Level() {}
 
+	/**
+	 * @brief Clears tree hierarchy.
+	 * 
+	 * Cached textures continue to exist.
+	 * 
+	 */
+	void clearObjects()
+	{
+		end();
+		
+		m_octree.clear();
+		m_objects.clear();
+		m_meshes.clear();
+
+		m_currentCamera = nullptr;
+		m_octree.clear();
+
+		// Ensure we always have a root object!
+		m_objects.push_back(std::move(Object("ROOT")));
+	}
+
 	CameraBehavior* getCurrentCamera() { return m_currentCamera; }
 	void setCurrentCamera(CameraBehavior* cam) { m_currentCamera = cam; }
 	
