@@ -111,6 +111,13 @@ bool BinaryScene::load(Level& level, std::istream& file, const std::string& work
 
 	file.seekg(0,std::ios::end);
 	data.resize(file.tellg());
+
+	if(data.size() == 0)
+	{
+		LOG_ERROR("Level file is empty!");
+		return false;
+	}
+
 	file.seekg(0,std::ios::beg);
 	file.read((char*) data.data(), data.size());
 
