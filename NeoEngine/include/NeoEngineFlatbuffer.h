@@ -455,13 +455,19 @@ inline flatbuffers::Offset<Object> CreateObjectDirect(
 struct Level FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   typedef LevelBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_OBJECTS = 4
+    VT_MAINCAMERANAME = 4,
+    VT_OBJECTS = 6
   };
+  const flatbuffers::String *mainCameraName() const {
+    return GetPointer<const flatbuffers::String *>(VT_MAINCAMERANAME);
+  }
   const flatbuffers::Vector<flatbuffers::Offset<Neo::FlatBuffer::Object>> *objects() const {
     return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<Neo::FlatBuffer::Object>> *>(VT_OBJECTS);
   }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
+           VerifyOffset(verifier, VT_MAINCAMERANAME) &&
+           verifier.VerifyString(mainCameraName()) &&
            VerifyOffset(verifier, VT_OBJECTS) &&
            verifier.VerifyVector(objects()) &&
            verifier.VerifyVectorOfTables(objects()) &&
@@ -473,6 +479,9 @@ struct LevelBuilder {
   typedef Level Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
+  void add_mainCameraName(flatbuffers::Offset<flatbuffers::String> mainCameraName) {
+    fbb_.AddOffset(Level::VT_MAINCAMERANAME, mainCameraName);
+  }
   void add_objects(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<Neo::FlatBuffer::Object>>> objects) {
     fbb_.AddOffset(Level::VT_OBJECTS, objects);
   }
@@ -489,18 +498,23 @@ struct LevelBuilder {
 
 inline flatbuffers::Offset<Level> CreateLevel(
     flatbuffers::FlatBufferBuilder &_fbb,
+    flatbuffers::Offset<flatbuffers::String> mainCameraName = 0,
     flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<Neo::FlatBuffer::Object>>> objects = 0) {
   LevelBuilder builder_(_fbb);
   builder_.add_objects(objects);
+  builder_.add_mainCameraName(mainCameraName);
   return builder_.Finish();
 }
 
 inline flatbuffers::Offset<Level> CreateLevelDirect(
     flatbuffers::FlatBufferBuilder &_fbb,
+    const char *mainCameraName = nullptr,
     const std::vector<flatbuffers::Offset<Neo::FlatBuffer::Object>> *objects = nullptr) {
+  auto mainCameraName__ = mainCameraName ? _fbb.CreateString(mainCameraName) : 0;
   auto objects__ = objects ? _fbb.CreateVector<flatbuffers::Offset<Neo::FlatBuffer::Object>>(*objects) : 0;
   return Neo::FlatBuffer::CreateLevel(
       _fbb,
+      mainCameraName__,
       objects__);
 }
 

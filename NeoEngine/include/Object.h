@@ -20,6 +20,10 @@ class Object;
 typedef Handle<Object, std::vector<Object>> ObjectHandle;
 typedef Handle<Object, Array<Object>> ObjectHandleArray;
 
+#ifdef SWIG
+%template(ObjectHandle) Neo::Handle<Neo::Object, std::vector<Neo::Object>>;
+#endif
+
 class NEO_ENGINE_EXPORT Object
 {
 private:

@@ -58,6 +58,7 @@ using namespace Neo;
 %include <Array.h>
 %include <Handle.h>
 
+%include <Object.h>
 %include <Behavior.h>
 %include <Game.h>
 %include <GameState.h>
@@ -66,7 +67,6 @@ using namespace Neo;
 %include <Level.h>
 %include <Mesh.h>
 %include <NeoEngine.h>
-%include <Object.h>
 %include <PhysicsContext.h>
 %include <Renderer.h>
 %include <Sound.h>
@@ -82,7 +82,3 @@ using namespace Neo;
 %include <behaviors/StaticRenderBehavior.h>
 
 %include <Platform.h>
-
-%template(ObjectHandle) Neo::Handle<Object, std::vector<Object>>;
-
- 

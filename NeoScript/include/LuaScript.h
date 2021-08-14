@@ -44,6 +44,7 @@ public:
 	std::string getGlobalString(const char* name);
 
 	lua_State* getState() { return L; }
+	const lua_State* getState() const { return L; }
 };
 
 class Renderer;
@@ -53,6 +54,7 @@ class GameState;
 class Window;
 class Platform;
 class Object;
+class CameraBehavior;
 }
 
 
@@ -62,6 +64,7 @@ extern "C"
 int luaopen_Neo(lua_State*);
 void pushRenderer(lua_State*, Neo::Renderer*);
 void pushBehavior(lua_State*, Neo::Behavior*);
+void pushCameraBehavior(lua_State*, Neo::CameraBehavior*);
 void pushLevel(lua_State*, Neo::Level*);
 void pushWindow(lua_State*, Neo::Window*);
 void pushPlatform(lua_State*, Neo::Platform*);

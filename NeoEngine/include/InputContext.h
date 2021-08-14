@@ -260,6 +260,10 @@ public:
 	void setCharacter(unsigned int c) { m_character = c; }
 };
 
+#ifdef SWIG
+%template(FixedAxisInputDevice3) Neo::FixedAxisInputDevice<3>;
+#endif
+
 class NEO_ENGINE_EXPORT Mouse : public FixedAxisInputDevice<3>
 {
 private:

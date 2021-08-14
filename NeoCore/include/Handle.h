@@ -49,8 +49,17 @@ public:
 		assert(m_manager);
 		assert(m_handle != -1);
 		assert(m_handle < m_manager->size());
-		return &(*m_manager)[m_handle]; 
+		return &(*m_manager)[m_handle];
 	}
+
+	const OBJECT* get() const
+	{ 
+		assert(m_manager);
+		assert(m_handle != -1);
+		assert(m_handle < m_manager->size());
+		return &(*m_manager)[m_handle];
+	}
+
 	bool empty() { return m_manager == nullptr; }
 };
 
