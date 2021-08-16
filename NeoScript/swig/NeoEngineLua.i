@@ -15,6 +15,7 @@ MAKE_PUSHER(Level)
 MAKE_PUSHER(Window)
 MAKE_PUSHER(Platform)
 MAKE_PUSHER(Object)
+MAKE_PUSHER(CameraBehavior)
 
 void pushGlobalGameState(lua_State* L, const char* name, Neo::GameState* state)
 {
