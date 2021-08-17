@@ -16,7 +16,7 @@ void Preprocessor::removeDefine(const std::string& str)
 
 std::string Preprocessor::process(const std::string& input)
 {
-
+	return "";
 }
 
 std::string Preprocessor::processFile(const std::string& path)

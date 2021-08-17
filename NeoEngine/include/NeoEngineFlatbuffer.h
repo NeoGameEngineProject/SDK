@@ -242,6 +242,7 @@ struct PropertyBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
+  PropertyBuilder &operator=(const PropertyBuilder &);
   flatbuffers::Offset<Property> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<Property>(end);
@@ -325,6 +326,7 @@ struct BehaviorBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
+  BehaviorBuilder &operator=(const BehaviorBuilder &);
   flatbuffers::Offset<Behavior> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<Behavior>(end);
@@ -414,6 +416,7 @@ struct ObjectBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
+  ObjectBuilder &operator=(const ObjectBuilder &);
   flatbuffers::Offset<Object> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<Object>(end);
@@ -489,6 +492,7 @@ struct LevelBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
+  LevelBuilder &operator=(const LevelBuilder &);
   flatbuffers::Offset<Level> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<Level>(end);
@@ -555,6 +559,7 @@ struct RPCCallBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
+  RPCCallBuilder &operator=(const RPCCallBuilder &);
   flatbuffers::Offset<RPCCall> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<RPCCall>(end);

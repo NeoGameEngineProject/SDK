@@ -225,7 +225,7 @@ public:
 };
 
 template<unsigned int AXNUM>
-class NEO_ENGINE_EXPORT FixedAxisInputDevice : public AxisInputDevice
+class FixedAxisInputDevice : public AxisInputDevice
 {
 	std::array<float, AXNUM> m_axis;
 	

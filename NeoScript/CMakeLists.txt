@@ -117,8 +117,9 @@ include(${SWIG_USE_FILE})
 
 set_property(SOURCE swig/NeoEngineLua.i PROPERTY CPLUSPLUS ON)
 
+set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
 swig_add_library(NeoLua
-	TYPE STATIC 
+	TYPE SHARED 
 	LANGUAGE lua 
 	SOURCES swig/NeoEngineLua.i)
 
@@ -128,7 +129,7 @@ set_property(TARGET NeoLua PROPERTY SWIG_INCLUDE_DIRECTORIES
 	${CMAKE_CURRENT_SOURCE_DIR}/../NeoCore/include
 	${NEO_ENGINE_INCLUDES})
 
-swig_link_libraries(NeoLua PUBLIC NeoEngine)
+swig_link_libraries(NeoLua PUBLIC NeoEngine luajit)
 target_include_directories(NeoLua PUBLIC
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/luajit-external/src>
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>

@@ -9,7 +9,11 @@ LuaScript::LuaScript()
 	L = luaL_newstate();
 
 	// LOG_DEBUG("LuaScript " << this << " " << L);
-	if(!L) return; // Error checking?
+	if (!L)
+	{
+		LOG_ERROR("Could not create a Lua state!");
+		return; // Error checking?
+	}
 
 	luaL_openlibs(L);
 	luaopen_Neo(L);

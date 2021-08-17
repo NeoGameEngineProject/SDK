@@ -19,13 +19,13 @@ public:
 	LuaScript(const LuaScript&) = delete;
 	LuaScript& operator=(const LuaScript&) = delete;
 
-	LuaScript(LuaScript&& s)
+	LuaScript(LuaScript&& s) noexcept
 	{
 		L = s.L;
 		s.L = nullptr;
 	}
 
-	LuaScript& operator=(LuaScript&& s)
+	LuaScript& operator=(LuaScript&& s) noexcept
 	{
 		L = s.L;
 		s.L = nullptr;
