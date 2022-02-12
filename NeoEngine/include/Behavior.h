@@ -160,9 +160,11 @@ public:
 	 * actually update the value.
 	 * 
 	 * @param prop The property that was changed.
+	 * @param lvl The level the parent object belongs to. This allows loading resources for example.
 	 */
+	virtual void propertyChanged(IProperty* prop, Level& lvl) { propertyChanged(prop); }
 	virtual void propertyChanged(IProperty* prop) {}
-	
+
 	Behavior& operator=(const Behavior& b);
 	
 	const Object* getParent() const { return m_parent; }

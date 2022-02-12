@@ -13,12 +13,22 @@
 
 using namespace Neo;
 
+void PlatformParticleSystemBehavior::propertyChanged(IProperty* prop, Level& lvl)
+{
+	if(prop->data() == &Texture)
+	{
+		m_texture = lvl.loadTexture(Texture.c_str());
+	}
+}
+
 void PlatformParticleSystemBehavior::begin(Neo::Platform& p, Neo::Renderer& render, Level& level)
 {
+	glPushDebugGroup(GL_DEBUG_SOURCE_APPLICATION, 1, -1, "PlatformParticleSystemBehavior::begin");
+
 	PlatformRenderer* prender = reinterpret_cast<PlatformRenderer*>(&render);
 	m_buffer.alloc(ParticleCount);
 	
-	m_shader = prender->loadShader("assets/glsl/particle");
+	m_shader = prender->loadShader("assets/materials/builtin/particle");
 	assert(m_shader != -1);
 	
 	glGenVertexArrays(1, &m_vao);
@@ -46,15 +56,19 @@ void PlatformParticleSystemBehavior::begin(Neo::Platform& p, Neo::Renderer& rend
 	glUseProgram(0);
 	glBindVertexArray(0);
 	
-	m_texture = level.loadTexture(Texture.str());
+	m_texture = level.loadTexture(Texture.c_str());
 	assert(m_texture);
 	
-	prender->createTexture(m_texture);
+	if(m_texture)
+		prender->createTexture(m_texture);
+
+	glPopDebugGroup();
 }
 
 void PlatformParticleSystemBehavior::end()
 {
 	glDeleteVertexArrays(1, &m_vao);
+	m_vao = -1;
 }
 
 void PlatformParticleSystemBehavior::updateParticleBuffers()
@@ -77,10 +91,18 @@ void PlatformParticleSystemBehavior::updateParticleBuffers()
 
 void PlatformParticleSystemBehavior::draw(Neo::Renderer& render)
 {
+	if(!m_texture)
+		return;
+	
 	PlatformRenderer* prender = reinterpret_cast<PlatformRenderer*>(&render);
 	auto* camera = prender->getCurrentCamera();
 	const auto VP = camera->getProjectionMatrix() * camera->getViewMatrix();
 	
+	if(m_texture->getID() == -1)
+	{
+		prender->createTexture(m_texture);
+	}
+
 	glUseProgram(m_shader);
 	glBindVertexArray(m_vao);
 	

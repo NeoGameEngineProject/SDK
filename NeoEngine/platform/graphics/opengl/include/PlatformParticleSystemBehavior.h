@@ -14,7 +14,7 @@ class NEO_ENGINE_EXPORT PlatformParticleSystemBehavior : public Neo::Behavior
 {
 protected:
 	unsigned int ParticleCount = 64;
-	FixedString<128> Texture = "assets/test.png";
+	std::string Texture = "assets/test.png";
 	
 	unsigned int m_shader = -1, m_vao = -1, m_vbo = -1;
 	unsigned int m_uViewProjection = -1, m_uNormal = -1, m_uTime = -1;
@@ -34,12 +34,14 @@ public:
 	PlatformParticleSystemBehavior()
 	{
 		REGISTER_PROPERTY(ParticleCount);
-		// REGISTER_PROPERTY(Texture);
+		registerProperty("Texture", Texture, PROPERTY_TYPES::PATH);
 	}
 	
 	void begin(Neo::Platform& p, Neo::Renderer& render, Level& level) override;
 	void end() override;
 	void draw(Neo::Renderer& render) override;
+
+	void propertyChanged(IProperty* prop, Level& lvl) override;
 
 	void updateParticleBuffers();
 };

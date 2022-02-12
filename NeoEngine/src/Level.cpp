@@ -227,7 +227,20 @@ Texture* Level::loadTexture(const char* name)
 	if(texture == m_textures.end())
 	{
 		Texture* tex = &m_textures[name];
-		TextureLoader::load(*tex, name);
+		if(!TextureLoader::load(*tex, name))
+		{
+			// If the file could not be loaded, load some default texture instead.
+			// Use magenta for now, maybe some grid texture or "Notfound" text in future?
+			tex->create<uint8_t>(32, 32, 3);
+			uint8_t* iterator = static_cast<uint8_t*>(tex->getData());
+			for(size_t i = 0; i < tex->getWidth()*tex->getHeight(); i++)
+			{
+				*iterator++ = 255;
+				*iterator++ = 0;
+				*iterator++ = 255;
+			}
+		}
+
 		return tex;
 	}
 	
