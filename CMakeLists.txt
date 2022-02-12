@@ -126,6 +126,7 @@ endif()
 
 if(NOT NO_TOOLS)
 	add_subdirectory(NeoPublisher)
+	add_subdirectory(tools)
 endif()
 
 if(UNIX AND NOT APPLE)
