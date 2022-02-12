@@ -104,9 +104,9 @@ WARN_LOGFILE           =
 # configuration options related to the input files
 #---------------------------------------------------------------------------
 
-INPUT                  = @CMAKE_SOURCE_DIR@/NeoHTML \
-				@CMAKE_SOURCE_DIR@/NeoEngine \
-				@CMAKE_SOURCE_DIR@/NeoCore
+INPUT                  = @CMAKE_CURRENT_SOURCE_DIR@/../NeoHTML \
+				@CMAKE_CURRENT_SOURCE_DIR@/../NeoEngine \
+				@CMAKE_CURRENT_SOURCE_DIR@/../NeoCore
 
 INPUT_ENCODING         = UTF-8
 FILE_PATTERNS          = *.h *.md
