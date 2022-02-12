@@ -39,7 +39,7 @@ void main()
 
 	for(int i = 0; i < NumLights; i++)
 	{
-		accumulator += calculateLight(gl_FragColor.rgb, position, Normal, v, Roughness,
+		accumulator += calculateLight(gl_FragColor.rgb, position, Normal, v, Roughness, Metalness,
 										lights.positionExponent[i],
 										lights.diffuseBrightness[i],
 										lights.specularAttenuation[i],

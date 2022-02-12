@@ -45,7 +45,7 @@ void main()
 	
 	vec3 RoughnessMetalness = texture(SpecularTexture, texcoord).rgb;
 
-	float roughness = clamp(RoughnessMetalness.g, 0, 1);
+	float roughness = RoughnessMetalness.g;
 	float metalness = RoughnessMetalness.b;
 
 	gl_FragColor = texture(DiffuseTexture, texcoord);

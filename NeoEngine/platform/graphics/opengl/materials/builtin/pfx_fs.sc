@@ -32,7 +32,7 @@ float rand2(vec2 co, float rnd_scale)
 
 vec4 toneMap(vec4 hdrColor, float exposure)
 {
-	vec4 ldrColor = 1.0 - exp2(-hdrColor * exposure);
+	vec4 ldrColor = 1.0 - exp2(-hdrColor * exposure); // pow(vec4(exposure), -hdrColor);
 	ldrColor.a = 1.0f;
 
 	return ldrColor;
@@ -47,12 +47,12 @@ void main()
 {
 	gl_FragColor.rgb = texture(Color, texcoord).rgb;
 	gl_FragColor.a = 1.0f;
-	return;
+
 	float depth = texture(Depth, texcoord).x;
 	float linearDepth = linearizeDepth(depth, Frustum.x, Frustum.y);
 	float invDepth = 1.0f - linearDepth;
 	
-	gl_FragColor.rgb = fxaa(Color, texcoord, 2*FrameSize);
+	gl_FragColor.rgb = fxaa(Color, texcoord, 2.2f*FrameSize);
 	// gl_FragColor.rgb = removeGamma(fxaa(Color, texcoord, FrameSize));
 	
 	if(depth < 1.0f)
@@ -61,8 +61,12 @@ void main()
 	}
 	
 	//float hdrTone = clamp(0.6f/calculateLuminosity(texture(Color, texcoord, 12).rgb), 0.0f, 3.0f);
-	// gl_FragColor = toneMap(gl_FragColor, 2.5f);
-	// gl_FragColor.rgb = applyGamma(gl_FragColor.rgb);
-	gl_FragColor.rgb = bloom(gl_FragColor.rgb, 0.0095, 5.0f, 3);
+	gl_FragColor = toneMap(gl_FragColor, 2.3f);
+//	gl_FragColor.rgb = bloom(gl_FragColor.rgb, 0.0095, 5.0f, 3);
+
+	// Add some small noise to prevent banding
+	// TODO: Blue noise to get dithering effect!
+	//gl_FragColor.rgb += vec3(0.5 - rand(texcoord.xy)) * 0.025f;
+	
 	gl_FragColor.a = 1.0f;
 }

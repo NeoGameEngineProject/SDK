@@ -1,5 +1,6 @@
 // Implements a BRDF as described by the gltf spec
 // https://github.com/KhronosGroup/glTF/blob/master/specification/2.0/README.md#appendix-b-brdf-implementation
+// https://github.com/KhronosGroup/glTF-Sample-Viewer/
 // which is the Schlick BRDF
 
 $define M_PI 3.1415926535897932384626433832795
@@ -39,7 +40,7 @@ vec3 metallicBRDF(vec3 f0, vec3 f90, float alphaRoughnessSq, float VdotH, float 
     float Vis = V_GGX(NdotL, NdotV, alphaRoughnessSq);
     float D = D_GGX(NdotH, alphaRoughnessSq);
 
-    return F * Vis * D;
+    return (F * Vis * D) / (4 * NdotL * NdotV);
 }
 
 vec3 calculateLight(vec3 color, vec3 p, vec3 n, vec3 v, float roughness, float metalness,
@@ -90,6 +91,5 @@ vec3 calculateLight(vec3 color, vec3 p, vec3 n, vec3 v, float roughness, float m
 	//vec3 retval = max(0.0, nDots) * ((color.rgb * lightColor.rgb) + (lightColor.rgb * Specular.rgb) * rs);
 	// vec3 metallicBRDF(vec3 f0, vec3 f90, float alphaRoughness, float VdotH, float NdotL, float NdotV, float NdotH)
 	vec3 retval = lambertian(f0, f90, diffuse, vDoth) + lightSpecular.rgb * metallicBRDF(f0, f90, alphaSq, vDoth, nDots, nDotv, nDoth);
-
 	return attenuation * lightColor.rgb * nDots * retval;
 }
