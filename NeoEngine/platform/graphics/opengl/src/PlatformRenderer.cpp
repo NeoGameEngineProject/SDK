@@ -141,8 +141,9 @@ void PlatformRenderer::beginFrame(Neo::CameraBehavior& camera)
 
 void PlatformRenderer::beginFrame(Level& level, CameraBehavior& cam)
 {
+	//assert(glIsFramebuffer(m_pfxFBO));
 	glBindFramebuffer(GL_FRAMEBUFFER, m_pfxFBO);
-	
+
 	beginFrame(cam);
 	level.updateVisibility(cam, m_visibleLights);
 }
@@ -162,6 +163,7 @@ void PlatformRenderer::setViewport(unsigned int x, unsigned int y, unsigned int 
 		
 		glGenFramebuffers(1, &m_pfxFBO);
 		glBindFramebuffer(GL_FRAMEBUFFER, m_pfxFBO);
+		assert(glIsFramebuffer(m_pfxFBO));
 
 		/*glGenRenderbuffers(1, &m_pfxDepthTexture);
 		glBindRenderbuffer(GL_RENDERBUFFER, m_pfxDepthTexture);
@@ -355,15 +357,17 @@ void PlatformRenderer::initialize(unsigned int w, unsigned int h, void* backbuff
 	LOG_INFO("GLSL Version:\t" << glslVersion);
 	LOG_INFO("Vendor:\t" << vendor);
 
-#ifdef GRAPHICS_DEBUGGING
-	glEnable(GL_DEBUG_OUTPUT);
-	glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-	glDebugMessageCallback(&GlDebugCallback, nullptr);
+	if(Neo::Renderer::GraphicsDebugging())
+	{
+		LOG_INFO("Enabled graphics debugging");
+		glEnable(GL_DEBUG_OUTPUT);
+		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+		glDebugMessageCallback(&GlDebugCallback, nullptr);
 
-	//glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL, GL_FALSE);
-	//glDebugMessageControl(GL_DEBUG_SOURCE_API, GL_DEBUG_TYPE_ERROR, GL_DONT_CARE, 0, NULL, GL_TRUE);
-	glDebugMessageControl(GL_DEBUG_SOURCE_APPLICATION, GL_DEBUG_TYPE_MARKER, GL_DONT_CARE, 0, NULL, GL_FALSE);
-#endif
+		//glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL, GL_FALSE);
+		//glDebugMessageControl(GL_DEBUG_SOURCE_API, GL_DEBUG_TYPE_ERROR, GL_DONT_CARE, 0, NULL, GL_TRUE);
+		glDebugMessageControl(GL_DEBUG_SOURCE_APPLICATION, GL_DEBUG_TYPE_MARKER, GL_DONT_CARE, 0, NULL, GL_FALSE);
+	}
 
 	glViewport(0, 0, w, h);
 
@@ -487,7 +491,7 @@ void PlatformRenderer::gatherLights(Array<LightBehavior*>& lights, MeshBehavior*
 	{
 		auto parent = lights[i]->getParent();
 		float distance = (mesh->getParent()->getGlobalPosition() - parent->getGlobalPosition()).getLength() - mesh->getBoundingBox().getDiameter() / 2.0f;
-		float radius = sqrt(1.0f / (lights[i]->attenuation * 0.15f)); // 0.15 = Minimum brightness
+		float radius = sqrt(1.0f / (lights[i]->attenuation * (0.15f / lights[i]->brightness))); // 0.15 = Minimum brightness
 		
 		if(distance <= radius)
 		{

@@ -104,6 +104,16 @@ public:
 		m_drawCallCount++;
 		m_faceCount += faces;
 	}
+
+	/**
+	 * @brief Checks if the graphics debugging mode is enabled.
+	 * 
+	 * This can be controlled with the "NEO_GRAPHICS_DEBUG" environment variable.
+	 * 1 means enabled, otherwise it is disabled.
+	 * 
+	 * @return The current enabled value.
+	 */
+	static bool GraphicsDebugging();
 	
 private:
 	// Statistics
