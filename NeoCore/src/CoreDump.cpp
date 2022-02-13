@@ -25,11 +25,56 @@ static void SignalHandler(int signum)
 	sleep(3);
 	system(s_dumpcommand);
 }
+#elif defined(WIN32)
+//a#include <minidumpapiset.h>
+#include <Windows.h>
+#include <minidumpapiset.h>
+#include <csignal>
+
+char s_dumpfile[128];
+static LONG ExceptionFilter(EXCEPTION_POINTERS* einfo)
+{
+	HANDLE currentProcessHandle = GetCurrentProcess();
+	DWORD processId = GetCurrentProcessId();
+	MINIDUMP_TYPE type = MiniDumpNormal;
+
+	HANDLE outputFileHandle = CreateFile(s_dumpfile, GENERIC_WRITE, 0, 0, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
+	
+	MINIDUMP_EXCEPTION_INFORMATION exceptionInfo;
+	exceptionInfo.ThreadId = GetCurrentThreadId();
+	exceptionInfo.ExceptionPointers = einfo;
+	exceptionInfo.ClientPointers = FALSE;
+	
+	if (outputFileHandle != INVALID_HANDLE_VALUE)
+	{
+		MiniDumpWriteDump(currentProcessHandle, processId, outputFileHandle, type, &exceptionInfo, 0, 0);
+		CloseHandle(outputFileHandle);
+	}
+
+	return 0;
+}
+
+static void WindowsSignals(int signum)
+{
+	RaiseException(signum, EXCEPTION_NONCONTINUABLE, 0, NULL);
+}
+
 #endif
 
 void Neo::RegisterCrashHandler(const char* prefix)
 {
 	#ifdef WIN32
+		SetUnhandledExceptionFilter(ExceptionFilter);
+
+		signal(SIGABRT, WindowsSignals);
+		signal(SIGFPE, WindowsSignals);
+		signal(SIGILL, WindowsSignals);
+		signal(SIGSEGV, WindowsSignals);
+
+		int pid = GetCurrentProcessId();
+		snprintf(s_dumpfile, sizeof(s_dumpfile), "C:\\temp\\%s-%d.dmp", prefix, pid);
+
+		LOG_INFO("Crash dump will be written to: " << s_dumpfile);
 
 	#else
 		int pid = getpid();

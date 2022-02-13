@@ -35,9 +35,10 @@ target_include_directories(NeoCore PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOUR
 
 if(WIN32)
 	target_include_directories(NeoCore PRIVATE dirent)
+	set(DBGHELP "dbghelp")
 endif()
 
-target_link_libraries(NeoCore PUBLIC ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(NeoCore PUBLIC ${CMAKE_THREAD_LIBS_INIT} ${DBGHELP})
 
 install(TARGETS NeoCore
 		EXPORT FindNeoCore
