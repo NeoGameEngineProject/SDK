@@ -126,7 +126,8 @@ protected:
 class PhysStream : public std::iostream
 {
 public:
-	PhysStream()
+	PhysStream():
+		std::iostream(&m_buffer)
 	{
 		set_rdbuf(&m_buffer);
 	}

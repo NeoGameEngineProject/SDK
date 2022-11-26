@@ -16,6 +16,9 @@ public:
 	const char* getName() const override { return "JsonScene"; }
 };
 
+NEO_ENGINE_EXPORT std::string encodeData(std::istream& in);
+NEO_ENGINE_EXPORT void decodeData(std::stringstream& out, const std::string& str);
+
 }
 
 #endif

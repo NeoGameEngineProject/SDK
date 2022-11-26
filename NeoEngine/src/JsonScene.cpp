@@ -25,7 +25,7 @@ using namespace rapidjson;
 // REGISTER_LEVEL_LOADER(JsonScene)
 
 // TODO Base64 or something more effective!
-std::string encodeData(std::istream& in)
+std::string Neo::encodeData(std::istream& in)
 {
 	std::stringstream result;
 	int c;
@@ -37,7 +37,7 @@ std::string encodeData(std::istream& in)
 	return result.str();
 }
 
-void decodeData(std::stringstream& out, const std::string& str)
+void Neo::decodeData(std::stringstream& out, const std::string& str)
 {
 	if(str.empty())
 		return;

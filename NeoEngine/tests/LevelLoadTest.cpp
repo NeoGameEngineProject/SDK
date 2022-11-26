@@ -64,9 +64,6 @@ TEST(LoadLevel, SaveLoadJson)
 	ASSERT_TRUE(scene.save(level2, test2));
 }
 
-std::string encodeData(std::istream& in);
-void decodeData(std::stringstream& out, const std::string& str);
-
 TEST(LoadLevel, EncodeData)
 {
 	std::stringstream ss1, ss2;
