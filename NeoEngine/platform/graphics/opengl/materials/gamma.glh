@@ -1,5 +1,5 @@
-#ifndef GAMMA_SH
-#define GAMMA_SH
+#ifndef GAMMA_GLH
+#define GAMMA_GLH
 
 vec3 removeGamma(vec3 color)
 {

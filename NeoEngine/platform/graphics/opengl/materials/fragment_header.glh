@@ -1,10 +1,9 @@
-
 #include "ShaderLight.h"
 
 layout(location = 0) out vec4 glFragColor;
-$define gl_FragColor glFragColor
+#define gl_FragColor glFragColor
 
-// $extension GL_ARB_shading_language_420pack : enable
+// #extension GL_ARB_shading_language_420pack : enable
 
 // ifdef GL_ARB_shading_language_420pack
 // layout (std140, binding = 0) uniform Lights
@@ -27,10 +26,19 @@ uniform mat4 ModelViewMatrix; // HIDDEN
 uniform mat4 ModelMatrix; // HIDDEN
 uniform vec3 CameraPosition; // HIDDEN
 
-uniform sampler2D DiffuseTexture; // HIDDEN
-uniform sampler2D NormalTexture; // HIDDEN
-uniform sampler2D SpecularTexture; // HIDDEN
-uniform sampler2D HeightTexture; // HIDDEN
+uniform sampler2D Textures[6]; // HIDDEN
+
+#define DiffuseTexture Textures[0]
+#define NormalTexture Textures[1]
+#define SpecularTexture Textures[2]
+#define EmissiveTexture Textures[3]
+#define HeightTexture Textures[4]
+
+// uniform sampler2D DiffuseTexture; // HIDDEN
+// uniform sampler2D NormalTexture; // HIDDEN
+// uniform sampler2D SpecularTexture; // HIDDEN
+// uniform sampler2D EmissiveTexture; // HIDDEN
+// uniform sampler2D HeightTexture; // HIDDEN
 
 // TODO Make this, but as an array!
 // uniform int HasDiffuse = 0; // HIDDEN

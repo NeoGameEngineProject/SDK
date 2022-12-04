@@ -14,7 +14,7 @@
 #include <Log.h>
 
 #define vec4 Neo::Vector4
-#include "../materials/builtin/ShaderLight.h"
+#include "../materials/ShaderLight.h"
 #undef vec4
 
 // Provide NanoVG
@@ -365,7 +365,7 @@ void PlatformRenderer::initialize(unsigned int w, unsigned int h, void* backbuff
 		glDebugMessageCallback(&GlDebugCallback, nullptr);
 
 		//glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL, GL_FALSE);
-		//glDebugMessageControl(GL_DEBUG_SOURCE_API, GL_DEBUG_TYPE_ERROR, GL_DONT_CARE, 0, NULL, GL_TRUE);
+		glDebugMessageControl(GL_DEBUG_SOURCE_API, GL_DEBUG_TYPE_ERROR, GL_DONT_CARE, 0, NULL, GL_TRUE);
 		glDebugMessageControl(GL_DEBUG_SOURCE_APPLICATION, GL_DEBUG_TYPE_MARKER, GL_DONT_CARE, 0, NULL, GL_FALSE);
 	}
 

@@ -1,4 +1,4 @@
-$version 400
+#version 400
 
 uniform sampler2D Texture;
 in vec3 parameters;

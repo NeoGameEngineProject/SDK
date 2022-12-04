@@ -2,7 +2,7 @@
 #define BLOOM_SH
 
 #include "poisson.sh"
-#include "../gamma.sh"
+#include "../../gamma.glh"
 
 vec3 bloom(vec3 pxl, float bloomStrength, float bloomRadius, int mipLevel)
 {

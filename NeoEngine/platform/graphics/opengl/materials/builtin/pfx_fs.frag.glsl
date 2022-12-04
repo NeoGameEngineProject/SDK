@@ -1,8 +1,8 @@
-$version 400
+#version 400
 
 layout(location = 0) out vec4 glFragColor;
-$define gl_FragColor glFragColor
-$define texture2D texture
+#define gl_FragColor glFragColor
+#define texture2D texture
 
 in vec2 texcoord;
 
@@ -16,7 +16,7 @@ uniform int Time = 0;
 #include "pfx/fxaa.sh"
 #include "pfx/ssao.sh"
 #include "pfx/bloom.sh"
-#include "gamma.sh"
+#include "../gamma.glh"
 
 float rand(vec2 co)
 {

@@ -1,7 +1,5 @@
-$version 400
-
-#if NEO_VERTEX
-#include "builtin/vertex_header.glsl"
+#ifdef NEO_VERTEX
+#include "vertex_header.glh"
 
 void main()
 {
@@ -22,9 +20,9 @@ uniform vec3 Emit;
 uniform float Opacity;
 uniform float Shininess;
 
-#include "builtin/fragment_header.glsl"
-#include "builtin/cook_torrance.glsl"
-#include "builtin/gamma.glsl"
+#include "fragment_header.glh"
+#include "cook_torrance.glh"
+#include "gamma.glh"
 
 void main()
 {

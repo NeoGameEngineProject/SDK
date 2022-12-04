@@ -168,22 +168,19 @@ int Common::loadShader(const char* path)
 	std::string fullpath = path;
 	Preprocessor pp;
 
-	auto vertShaderData = pp.processFile(fullpath + "_vs.glsl");
+	auto vertShaderData = pp.processFile(fullpath + "_vs.vert.glsl");
 	if (vertShaderData.empty())
 	{
-		LOG_ERROR("Could not load shader " << path << "_vs.glsl");
+		LOG_ERROR("Could not load shader " << path << "_vs.vert.glsl");
 		return -1;
 	}
 		
-	auto fragShaderData = pp.processFile(fullpath + "_fs.glsl");
+	auto fragShaderData = pp.processFile(fullpath + "_fs.frag.glsl");
 	if(fragShaderData.empty())
 	{
-		LOG_ERROR("Could not load shader " << path << "_fs.glsl");
+		LOG_ERROR("Could not load shader " << path << "_fs.frag.glsl");
 		return -1;
 	}
-
-	std::replace(fragShaderData.begin(), fragShaderData.end(), '$', '#');
-	std::replace(vertShaderData.begin(), vertShaderData.end(), '$', '#');
 
 	int program = loadShader(vertShaderData.c_str(), fragShaderData.c_str());
 	if(program != -1)
@@ -248,50 +245,6 @@ std::string Common::preprocess(const char* path)
 {
 	Preprocessor proc;
 	return proc.processFile(path);
-
-#if 0
-	char* file = readTextFile(path);
-	if(!file)
-	{
-		LOG_ERROR("Could not open file: " << path);
-		throw std::runtime_error("Could not open file: " + std::string(path));
-	}
-
-	std::stringstream in(file); // TODO Make readTextFile STL aware!
-	delete file;
-	
-	std::string basePath(path);
-	basePath.erase(basePath.find_last_of('/') + 1);
-	
-	std::stringstream out;
-	std::string line;
-	
-	static const std::regex regex("#include(\\s)+(<|\")(.*)(>|\")");
-	
-	while(!in.eof())
-	{
-		std::smatch result;
-		std::getline(in, line, '\n');
-				
-		std::regex_search(line, result, regex);
-		
-		if(!result.empty())
-		{
-			std::string file = preprocess((basePath + result[3].str()).c_str());
-			if(file.empty())
-			{
-				LOG_ERROR("Could not load include file: " << basePath << result[3].str());
-				throw std::runtime_error("Could not open file: " + basePath + result[3].str());
-			}
-			out << file;
-			continue;
-		}
-		
-		out << line << '\n';
-	}
-	
-	return out.str();
-#endif
 }
 
 int Common::findShader(const char* name)
@@ -304,9 +257,6 @@ int Common::findShader(const char* name)
 	
 	return -1;
 }
-
-#define CCPP_IMPL
-#include "ccpp.h"
 
 void Common::gatherUniforms(const std::string& code, Shader& shader)
 {
@@ -386,27 +336,10 @@ void Common::setupMaterial(Material& material, const char* shaderName)
 	fullPath += shaderName;
 	fullPath += ".glsl";
 	
-	std::string vertexShader = preprocess(fullPath.c_str());
-	std::string fragmentShader = vertexShader;
+	std::string fragmentShader = preprocess(fullPath.c_str());
+	std::string vertexShader = "#version 400\n#define NEO_VERTEX\n" + fragmentShader;
+	fragmentShader = "#version 400\n" + fragmentShader; // TODO Configure that!
 	
-	ccpp::processor pp;
-	pp.set_command_callback([] (const char*, const char*) {
-		return true;
-	});
-	
-	pp.add_define("NEO_VERTEX");
-	pp.process(&vertexShader[0], vertexShader.size());
-	
-	pp.remove_define("NEO_VERTEX");
-	pp.add_define("NEO_FRAGMENT");
-	pp.process(&fragmentShader[0], fragmentShader.size());
-	
-	vertexShader.erase(vertexShader.find_last_not_of(' ') + 1);
-	fragmentShader.erase(fragmentShader.find_last_not_of(' ') + 1);
-	
-	std::replace(vertexShader.begin(), vertexShader.end(), '$', '#');
-	std::replace(fragmentShader.begin(), fragmentShader.end(), '$', '#');
-		
 	shaderId = m_shaders.size();
 	m_shaders.emplace_back();
 
@@ -455,7 +388,11 @@ void Common::compileShaders()
 			LOG_DEBUG("Building shader " << shader->name.str());
 			shader->id = loadShader(shader->vertexSource.c_str(), shader->fragmentSource.c_str());
 			
-			assert(shader->id != -1);
+			if(shader->id == -1)
+			{
+				LOG_WARNING("Could not load shader " << shader->name);
+				continue;
+			}
 
 			glUseProgram(shader->id);
 			shader->uModel = glGetUniformLocation(shader->id, "ModelMatrix");
@@ -466,10 +403,12 @@ void Common::compileShaders()
 			shader->uNumLights = glGetUniformLocation(shader->id, "NumLights");
 			shader->uCameraPosition = glGetUniformLocation(shader->id, "CameraPosition");
 			
-			glUniform1i(glGetUniformLocation(shader->id, "DiffuseTexture"), Material::DIFFUSE);
-			glUniform1i(glGetUniformLocation(shader->id, "NormalTexture"), Material::NORMAL);
-			glUniform1i(glGetUniformLocation(shader->id, "SpecularTexture"), Material::SPECULAR);
-			glUniform1i(glGetUniformLocation(shader->id, "HeightTexture"), Material::HEIGHT);
+			// FIXME Communicate number of textures!
+			for(int i = 0; i < 6; i++)
+			{
+				const std::string name = "Textures[" + std::to_string(i) + "]";
+				glUniform1i(glGetUniformLocation(shader->id, name.c_str()), i);
+			}
 
 			shader->uTextureFlags[0] = glGetUniformLocation(shader->id, "HasDiffuse");
 			shader->uTextureFlags[1] = glGetUniformLocation(shader->id, "HasNormal");
@@ -553,7 +492,8 @@ void Common::enableMaterial(Neo::Material& material, const Vector3& cameraPositi
 		{
 		default:
 		case INTEGER: glUniform1i(uniform, prop->get<int>()); break;
-		case FLOAT: glUniform1f(uniform, prop->get<float>()); break;
+		case FLOAT: glUniform1f(uniform, prop->get<floa#version 400
+t>()); break;
 		case VECTOR2: glUniform2fv(uniform, 1, (const float*) prop->data()); break;
 		case VECTOR3: glUniform3fv(uniform, 1, (const float*) prop->data()); break;
 		case VECTOR4: glUniform4fv(uniform, 1, (const float*) prop->data()); break;

@@ -1,4 +1,4 @@
-$version 400
+#version 400
 
 uniform mat4 ViewProjection;
 uniform mat4 Normal;

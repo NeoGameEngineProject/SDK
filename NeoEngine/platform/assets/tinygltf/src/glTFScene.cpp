@@ -10,15 +10,23 @@
 
 #include <fstream>
 
-#define STB_IMAGE_IMPLEMENTATION
 #define TINYGLTF_IMPLEMENTATION
 // #define TINYGLTF_NO_STB_IMAGE
+#define TINYGLTF_NO_INCLUDE_STB_IMAGE // We provide our own!
 #define TINYGLTF_NO_STB_IMAGE_WRITE
 #define TINYGLTF_NO_FS
 #define TINYGLTF_USE_CPP14
 
 // TODO Use rapidjson!
 // #define TINYGLTF_USE_RAPIDJSON
+
+namespace
+{
+#define STB_IMAGE_STATIC
+#define STB_IMAGE_IMPLEMENTATION
+#include "tinygltf/stb_image.h"
+}
+
 #include <tinygltf/tiny_gltf.h>
 
 using namespace Neo;
@@ -254,9 +262,14 @@ static void processNode(Level& level, ObjectHandle root, const tinygltf::Model& 
 			#define LOAD_TEX(t) ((t).index == -1 ? nullptr : level.loadTexture(model.images[model.textures[(t).index].source].name.c_str()))
 			#define PRINT_TEX(t) if((t).index == -1) LOG_INFO("Loading " << model.images[model.textures[(t).index].source].name)
 
-			bool albedo = mat.textures[Neo::Material::ALBEDO] = LOAD_TEX(gltfMat.pbrMetallicRoughness.baseColorTexture);
-			bool roughness = mat.textures[Neo::Material::ROUGHNESS] = LOAD_TEX(gltfMat.pbrMetallicRoughness.metallicRoughnessTexture);
-			bool normal = mat.textures[Neo::Material::NORMAL] = LOAD_TEX(gltfMat.normalTexture);
+			mat.textures[Neo::Material::ALBEDO] = LOAD_TEX(gltfMat.pbrMetallicRoughness.baseColorTexture);
+			mat.textures[Neo::Material::ROUGHNESS] = LOAD_TEX(gltfMat.pbrMetallicRoughness.metallicRoughnessTexture);
+			mat.textures[Neo::Material::NORMAL] = LOAD_TEX(gltfMat.normalTexture);
+			mat.textures[Neo::Material::EMISSIVE] = LOAD_TEX(gltfMat.emissiveTexture);
+
+			const bool albedo = mat.textures[Neo::Material::ALBEDO] != nullptr;
+			const bool roughness = mat.textures[Neo::Material::ROUGHNESS] != nullptr;
+			const bool normal = mat.textures[Neo::Material::NORMAL] != nullptr;
 
 			#undef PRINT_TEX
 			#undef LOAD_TEX
@@ -267,6 +280,8 @@ static void processNode(Level& level, ObjectHandle root, const tinygltf::Model& 
 			
 			if(roughness) shaderName += "Roughness";
 			mat.setShaderName(shaderName);
+
+			LOG_DEBUG("Using shader: " << shaderName);
 
 			mesh.setMaterial(mat);
 			meshes.push_back(level.addMesh(std::move(mesh)));

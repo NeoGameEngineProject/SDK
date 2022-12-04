@@ -38,9 +38,13 @@ public:
 
 		m_cameraObject = level.addObject("ViewerCamera");
 		auto* cam = m_cameraObject->addBehavior<CameraBehavior>();
+		cam->setNear(0.001f);
 
 		level.setCurrentCamera(cam);
 		level.setEnableCulling(false);
+
+		auto* light = m_cameraObject->addBehavior<LightBehavior>();
+		light->brightness = 1.5;
 
 		LOG_INFO("Loaded level with " << level.getObjects().size() << " objects!");
 	}
@@ -59,23 +63,24 @@ public:
 	{
 		auto& input = p.getInputContext();
 		if(input.isKeyDown(Neo::KEY_UP_ARROW))
-			m_cameraObject->translate(Neo::Vector3(0, 0, -1), true);
+			m_cameraObject->translate(Neo::Vector3(0, 0, -1*dt), true);
 		else if(input.isKeyDown(Neo::KEY_DOWN_ARROW))
-			m_cameraObject->translate(Neo::Vector3(0, 0, 1), true);
+			m_cameraObject->translate(Neo::Vector3(0, 0, 1*dt), true);
 		
 		if(input.isKeyDown(Neo::KEY_LEFT_ARROW))
-			m_cameraObject->translate(Neo::Vector3(-1, 0, 0), true);
+			m_cameraObject->translate(Neo::Vector3(-1*dt, 0, 0), true);
 		else if(input.isKeyDown(Neo::KEY_RIGHT_ARROW))
-			m_cameraObject->translate(Neo::Vector3(1, 0, 0), true);
+			m_cameraObject->translate(Neo::Vector3(1*dt, 0, 0), true);
 		
 		if(input.getMouse().isKeyDown(Neo::MOUSE_BUTTON_LEFT))
 		{
 			auto rotation = m_cameraObject->getRotation().getEulerAngles();
-			rotation.z -= input.getMouse().getDirection().x * 0.1;
+			rotation.y -= input.getMouse().getDirection().x * 0.1;
 			rotation.x -= input.getMouse().getDirection().y * 0.1;
 			m_cameraObject->setRotation(Neo::Quaternion(rotation.x, rotation.y, rotation.z));
 		}
 
+		m_cameraObject->updateMatrix();
 		LevelGameState::update(p, dt);
 	}
 	

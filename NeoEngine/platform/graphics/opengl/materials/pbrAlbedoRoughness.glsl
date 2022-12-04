@@ -1,7 +1,5 @@
-$version 400
-
-#if NEO_VERTEX
-#include "builtin/vertex_header.glsl"
+#ifdef NEO_VERTEX
+#include "vertex_header.glh"
 
 void main()
 {
@@ -27,9 +25,9 @@ uniform float Opacity;
 uniform float Roughness;
 uniform float Metalness;
 
-#include "builtin/fragment_header.glsl"
-#include "builtin/gltf.glsl"
-#include "builtin/gamma.glsl"
+#include "fragment_header.glh"
+#include "gltf.glh"
+#include "gamma.glh"
 
 float rand(vec2 co, float rnd_scale)
 {
@@ -43,14 +41,15 @@ void main()
 	vec3 Normal = normal;
 	vec3 v = normalize(-position);
 	
-	vec3 RoughnessMetalness = texture(SpecularTexture, texcoord).rgb;
+	vec3 RoughnessMetalness = texture(Textures[1], texcoord).rgb;
+	vec3 Emissive = Emit.rgb * texture(Textures[4], texcoord).rgb;
 
 	float roughness = RoughnessMetalness.g;
 	float metalness = RoughnessMetalness.b;
 
-	gl_FragColor = texture(DiffuseTexture, texcoord);
+	gl_FragColor = texture(Textures[0], texcoord);
 	gl_FragColor.rgb = removeGamma(gl_FragColor.rgb);
-	vec3 accumulator = Emit.rgb + gl_FragColor.rgb * removeGamma(SkyboxDiffuse(modelNormal)); // = Ambient + Emissive;
+	vec3 accumulator = Emissive + gl_FragColor.rgb * removeGamma(SkyboxDiffuse(modelNormal)); // = Ambient + Emissive;
 
 	for(int i = 0; i < NumLights; i++)
 	{

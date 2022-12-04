@@ -1,8 +1,6 @@
-$version 400
+#ifdef NEO_VERTEX
 
-#if NEO_VERTEX
-
-#include "builtin/vertex_header.glsl"
+#include "vertex_header.glh"
 
 void main()
 {
@@ -27,9 +25,9 @@ uniform vec3 Emit;
 uniform float Opacity;
 uniform float Shininess;
 
-#include "builtin/fragment_header.glsl"
-#include "builtin/phong.glsl"
-#include "builtin/gamma.glsl"
+#include "fragment_header.glh"
+#include "phong.glh"
+#include "gamma.glh"
 
 float rand(vec2 co, float rnd_scale)
 {

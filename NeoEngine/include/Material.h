@@ -68,6 +68,8 @@ public:
 		registerProperty<float>("Opacity");
 	}
 
+	// The numerical values represent indices for the shader
+	// TODO: Make then disjunct, maybe set one bit per material type?
 	enum TEXTURE_TYPE
 	{
 		// Specularity Textures
@@ -78,6 +80,7 @@ public:
 		ALBEDO = 0,
 		ROUGHNESS = 2,
 		METALNESS = 3,
+		EMISSIVE = 4,
 
 		// Normals are useful everywhere
 		NORMAL = 1,
