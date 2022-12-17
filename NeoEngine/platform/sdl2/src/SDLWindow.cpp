@@ -39,6 +39,9 @@ SDLWindow::SDLWindow(unsigned int w, unsigned int h) : Window(w, h)
 
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
+	// TODO Define for that!
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
+
 	m_context = SDL_GL_CreateContext(m_win);
 	if(!m_context)
 	{
