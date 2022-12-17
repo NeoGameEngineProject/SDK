@@ -1,17 +1,66 @@
 // Implements a BRDF as described by the gltf spec
 // https://github.com/KhronosGroup/glTF/blob/master/specification/2.0/README.md#appendix-b-brdf-implementation
-// https://github.com/KhronosGroup/glTF-Sample-Viewer/
-// which is the Schlick BRDF
+// Taken from https://github.com/KhronosGroup/glTF-Sample-Viewer/
+// under the Apache 2.0 License
+// https://github.com/KhronosGroup/glTF-Sample-Viewer/blob/master/LICENSE.md
+// Changes:
+//   - Removed unused functions.
+//   - Added shading method for Neo.
 
-#define M_PI 3.1415926535897932384626433832795
+// BEGIN GLTF VIEWER
 
-vec3 fresnel(vec3 f0, vec3 f90, float VdotH)
+//
+// Fresnel
+//
+// http://graphicrants.blogspot.com/2013/08/specular-brdf-reference.html
+// https://github.com/wdas/brdf/tree/master/src/brdfs
+// https://google.github.io/filament/Filament.md.html
+//
+
+// The following equation models the Fresnel reflectance term of the spec equation (aka F())
+// Implementation of fresnel from [4], Equation 15
+vec3 F_Schlick(vec3 f0, vec3 f90, float VdotH)
 {
     return f0 + (f90 - f0) * pow(clamp(1.0 - VdotH, 0.0, 1.0), 5.0);
 }
 
-float V_GGX(float NdotL, float NdotV, float alphaRoughnessSq)
+float F_Schlick(float f0, float f90, float VdotH)
 {
+    float x = clamp(1.0 - VdotH, 0.0, 1.0);
+    float x2 = x * x;
+    float x5 = x * x2 * x2;
+    return f0 + (f90 - f0) * x5;
+}
+
+float F_Schlick(float f0, float VdotH)
+{
+    float f90 = 1.0; //clamp(50.0 * f0, 0.0, 1.0);
+    return F_Schlick(f0, f90, VdotH);
+}
+
+vec3 F_Schlick(vec3 f0, float f90, float VdotH)
+{
+    float x = clamp(1.0 - VdotH, 0.0, 1.0);
+    float x2 = x * x;
+    float x5 = x * x2 * x2;
+    return f0 + (f90 - f0) * x5;
+}
+
+vec3 F_Schlick(vec3 f0, float VdotH)
+{
+    float f90 = 1.0; //clamp(dot(f0, vec3(50.0 * 0.33)), 0.0, 1.0);
+    return F_Schlick(f0, f90, VdotH);
+}
+
+// Smith Joint GGX
+// Note: Vis = G / (4 * NdotL * NdotV)
+// see Eric Heitz. 2014. Understanding the Masking-Shadowing Function in Microfacet-Based BRDFs. Journal of Computer Graphics Techniques, 3
+// see Real-Time Rendering. Page 331 to 336.
+// see https://google.github.io/filament/Filament.md.html#materialsystem/specularbrdf/geometricshadowing(specularg)
+float V_GGX(float NdotL, float NdotV, float alphaRoughness)
+{
+    float alphaRoughnessSq = alphaRoughness * alphaRoughness;
+
     float GGXV = NdotL * sqrt(NdotV * NdotV * (1.0 - alphaRoughnessSq) + alphaRoughnessSq);
     float GGXL = NdotV * sqrt(NdotL * NdotL * (1.0 - alphaRoughnessSq) + alphaRoughnessSq);
 
@@ -23,25 +72,35 @@ float V_GGX(float NdotL, float NdotV, float alphaRoughnessSq)
     return 0.0;
 }
 
-float D_GGX(float NdotH, float alphaRoughnessSq)
+
+// The following equation(s) model the distribution of microfacet normals across the area being drawn (aka D())
+// Implementation from "Average Irregularity Representation of a Roughened Surface for Ray Reflection" by T. S. Trowbridge, and K. P. Reitz
+// Follows the distribution function recommended in the SIGGRAPH 2013 course notes from EPIC Games [1], Equation 3.
+float D_GGX(float NdotH, float alphaRoughness)
 {
+    float alphaRoughnessSq = alphaRoughness * alphaRoughness;
     float f = (NdotH * NdotH) * (alphaRoughnessSq - 1.0) + 1.0;
     return alphaRoughnessSq / (M_PI * f * f);
 }
 
-vec3 lambertian(vec3 f0, vec3 f90, vec3 diffuseColor, float VdotH)
+//https://github.com/KhronosGroup/glTF/tree/master/specification/2.0#acknowledgments AppendixB
+vec3 BRDF_lambertian(vec3 f0, vec3 f90, vec3 diffuseColor, float specularWeight, float VdotH)
 {
-    return (1.0 - fresnel(f0, f90, VdotH)) * (diffuseColor / M_PI);
+    // see https://seblagarde.wordpress.com/2012/01/08/pi-or-not-to-pi-in-game-lighting-equation/
+    return (1.0 - specularWeight * F_Schlick(f0, f90, VdotH)) * (diffuseColor / M_PI);
 }
 
-vec3 metallicBRDF(vec3 f0, vec3 f90, float alphaRoughnessSq, float VdotH, float NdotL, float NdotV, float NdotH)
+//  https://github.com/KhronosGroup/glTF/tree/master/specification/2.0#acknowledgments AppendixB
+vec3 BRDF_specularGGX(vec3 f0, vec3 f90, float alphaRoughness, float specularWeight, float VdotH, float NdotL, float NdotV, float NdotH)
 {
-    vec3 F = fresnel(f0, f90, VdotH);
-    float Vis = V_GGX(NdotL, NdotV, alphaRoughnessSq);
-    float D = D_GGX(NdotH, alphaRoughnessSq);
+    vec3 F = F_Schlick(f0, f90, VdotH);
+    float Vis = V_GGX(NdotL, NdotV, alphaRoughness);
+    float D = D_GGX(NdotH, alphaRoughness);
 
-    return (F * Vis * D) / (4 * NdotL * NdotV);
+    return specularWeight * F * Vis * D;
 }
+
+// END GLTF VIEWER
 
 vec3 calculateLight(vec3 color, vec3 p, vec3 n, vec3 v, float roughness, float metalness,
 					vec4 lightPosition, vec4 lightColor, vec4 lightSpecular, vec4 lightDirection)
@@ -75,10 +134,10 @@ vec3 calculateLight(vec3 color, vec3 p, vec3 n, vec3 v, float roughness, float m
 			return vec3(0.0f, 0.0f, 0.0f);
 	}
 
-	float nDoth = max(0, dot(n, h));
-	float nDotv = max(0, dot(n, v));
-	float vDoth = max(0, dot(v, h));
-	float nDots = max(0, dot(n, s));
+	float nDoth = dot(n, h);
+	float nDotv = dot(n, v);
+	float vDoth = dot(v, h);
+	float nDots = dot(n, s);
 
 	const vec3 dielectricSpecular = vec3(0.04, 0.04, 0.04);
 	const vec3 black = vec3(0, 0, 0);
@@ -86,10 +145,10 @@ vec3 calculateLight(vec3 color, vec3 p, vec3 n, vec3 v, float roughness, float m
 
 	float alphaSq = roughness*roughness;
 	vec3 f0 = mix(dielectricSpecular, color.rgb, metalness);
-	vec3 diffuse = mix(color.rgb * (1.0 - dielectricSpecular.r), black, metalness);
+	vec3 diffuseMix = mix(color.rgb * (1.0 - dielectricSpecular.r), black, metalness);
 
-	//vec3 retval = max(0.0, nDots) * ((color.rgb * lightColor.rgb) + (lightColor.rgb * Specular.rgb) * rs);
-	// vec3 metallicBRDF(vec3 f0, vec3 f90, float alphaRoughness, float VdotH, float NdotL, float NdotV, float NdotH)
-	vec3 retval = lambertian(f0, f90, diffuse, vDoth) + lightSpecular.rgb * metallicBRDF(f0, f90, alphaSq, vDoth, nDots, nDotv, nDoth);
-	return attenuation * lightColor.rgb * nDots * retval;
+	vec3 specular = BRDF_specularGGX(f0, f90, alphaSq, metalness, vDoth, nDots, nDotv, nDoth);
+	vec3 diffuse = BRDF_lambertian(f0, f90, color, 1.0 - metalness, vDoth);
+
+	return attenuation * max(0.0, nDots) * (specular + diffuse);
 }

@@ -13,7 +13,7 @@ void main()
 	bitangent = mat3(NormalMatrix) * Bitangent;
 
 	modelPosition = (ModelMatrix * vec4(Position, 1.0)).xyz;
-	modelNormal = mat3(ModelMatrix) * Normal;
+	modelNormal = normalize(mat3(ModelMatrix) * Normal);
 }
 
 #else
@@ -49,7 +49,7 @@ void main()
 
 	gl_FragColor = texture(Textures[0], texcoord);
 	gl_FragColor.rgb = removeGamma(gl_FragColor.rgb);
-	vec3 accumulator = Emissive + gl_FragColor.rgb * removeGamma(SkyboxDiffuse(modelNormal)); // = Ambient + Emissive;
+	vec3 accumulator = Emissive + gl_FragColor.rgb * removeGamma(SkyboxReflection(modelNormal, roughness)); // = Ambient + Emissive;
 
 	for(int i = 0; i < NumLights; i++)
 	{

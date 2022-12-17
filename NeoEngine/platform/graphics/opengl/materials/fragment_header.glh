@@ -1,5 +1,7 @@
 #include "ShaderLight.h"
 
+#define M_PI 3.1415926535897932384626433832795
+
 layout(location = 0) out vec4 glFragColor;
 #define gl_FragColor glFragColor
 
@@ -51,10 +53,10 @@ uniform int NumLights; // HIDDEN
 
 uniform samplerCube Skybox; // HIDDEN
 
-vec3 SkyboxReflection(float lod)
+vec3 SkyboxReflection(vec3 normal, float roughness)
 {
-	vec3 R = reflect(modelPosition - CameraPosition, modelNormal); //, 1.0/1.52);
-	return textureLod(Skybox, R.xzy, lod).rgb;
+	vec3 R = reflect(normalize(modelPosition - CameraPosition), normal); //, 1.0/1.52);
+	return textureLod(Skybox, R.xzy, roughness*16.0f).rgb;
 }
 
 vec3 SkyboxDiffuse(vec3 normal)

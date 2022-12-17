@@ -37,13 +37,28 @@ public:
 		LevelLoader::load(level, levelFile);
 
 		m_cameraObject = level.addObject("ViewerCamera");
+		m_cameraObject->rotate({90, 0, 0});
+
 		auto* cam = m_cameraObject->addBehavior<CameraBehavior>();
 		cam->setNear(0.001f);
+
+		auto* sky = m_cameraObject->addBehavior<SkyboxBehavior>();
+		sky->setTextureBase("assets/skybox/");
 
 		level.setCurrentCamera(cam);
 		level.setEnableCulling(false);
 
-		auto* light = m_cameraObject->addBehavior<LightBehavior>();
+		auto lightObject = level.addObject("Light");
+		lightObject->setPosition({-10, 0, 0});
+		lightObject->updateMatrix();
+
+		auto* light = lightObject->addBehavior<LightBehavior>();
+		light->brightness = 1.5;
+
+		lightObject = level.addObject("Light1");
+		lightObject->setPosition({0, 10, 0});
+		lightObject->updateMatrix();
+		light = lightObject->addBehavior<LightBehavior>();
 		light->brightness = 1.5;
 
 		LOG_INFO("Loaded level with " << level.getObjects().size() << " objects!");
@@ -75,7 +90,7 @@ public:
 		if(input.getMouse().isKeyDown(Neo::MOUSE_BUTTON_LEFT))
 		{
 			auto rotation = m_cameraObject->getRotation().getEulerAngles();
-			rotation.y -= input.getMouse().getDirection().x * 0.1;
+			rotation.z -= input.getMouse().getDirection().x * 0.1;
 			rotation.x -= input.getMouse().getDirection().y * 0.1;
 			m_cameraObject->setRotation(Neo::Quaternion(rotation.x, rotation.y, rotation.z));
 		}
