@@ -1,5 +1,5 @@
 
-set(SDL2_LIBRARY "sdl2")
+set(SDL2_LIBRARY "-s USE_SDL=2")
 set(SDL2_INCLUDE_DIR " ")
 set(SDL2_FOUND TRUE)
 
@@ -16,20 +16,44 @@ set(M_INCLUDE_DIR " ")
 set(M_FOUND TRUE)
 
 set(WASM 1)
-set(WEBGL2 0)
+set(WEBGL2 1)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s USE_SDL=2 -s USE_FREETYPE=1 -s USE_ZLIB=1 -std=c++17 -s USE_WEBGL2=${WEBGL2} -s WASM=${WASM} -s ALLOW_MEMORY_GROWTH=${WASM} -s TOTAL_MEMORY=1GB --shell-file ${CMAKE_SOURCE_DIR}/scripts/emscripten_skeleton.html")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -s USE_SDL=2 -s USE_FREETYPE=1 -s USE_ZLIB=1 -s USE_WEBGL2=${WEBGL2} -s WASM=${WASM} -s ALLOW_MEMORY_GROWTH=${WASM} -s TOTAL_MEMORY=1GB --shell-file ${CMAKE_SOURCE_DIR}/scripts/emscripten_skeleton.html")
-set(CMAKE_EXE_LINK_FLAGS "${CMAKE_EXE_LINK_FLAGS} -s USE_SDL=2 -s USE_FREETYPE=1 -s USE_ZLIB=1 -lopenal -s USE_WEBGL2=${WEBGL2} -s WASM=${WASM} -s ALLOW_MEMORY_GROWTH=${WASM} -s TOTAL_MEMORY=1GB --shell-file ${CMAKE_SOURCE_DIR}/scripts/emscripten_skeleton.html")
+set(ENABLE_OPENGL_RENDERER TRUE)
+set(CMAKE_EXECUTABLE_SUFFIX ".html")
 
-if("${CMAKE_BUILD_TYPE}" MATCHES "Debug")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g4 -s DEMANGLE_SUPPORT=1 -s ASSERTIONS=2 -s NO_EXIT_RUNTIME=0 -s SAFE_HEAP=0")
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g4 -s DEMANGLE_SUPPORT=1 -s ASSERTIONS=2 -s NO_EXIT_RUNTIME=0  -s SAFE_HEAP=0")
-	set(CMAKE_EXE_LINK_FLAGS "${CMAKE_EXE_LINK_FLAGS} -g4 -s DEMANGLE_SUPPORT=1 -s ASSERTIONS=2 -s NO_EXIT_RUNTIME=0  -s SAFE_HEAP=0")
-elseif("${CMAKE_BUILD_TYPE}" MATCHES "Release")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 --llvm-lto 1")
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3 --llvm-lto 1")
-	set(CMAKE_EXE_LINK_FLAGS "${CMAKE_EXE_LINK_FLAGS} --llvm-lto 1")
+add_compile_options(
+	-sUSE_SDL=2
+	-sUSE_FREETYPE=1
+	-sUSE_ZLIB=1
+	-sUSE_LIBPNG=1
+)
+
+add_link_options(
+	-sERROR_ON_UNDEFINED_SYMBOLS=0
+	-sLLD_REPORT_UNDEFINED
+	-sUSE_SDL=2
+	-sUSE_FREETYPE=1
+	-sUSE_LIBPNG=1
+	-sUSE_ZLIB=1
+	-lopenal
+	-sUSE_WEBGL2=${WEBGL2}
+	-sFULL_ES3 
+	-sWASM=${WASM}
+	-sALLOW_MEMORY_GROWTH=${WASM}
+	-sTOTAL_MEMORY=1GB
+	--shell-file ${CMAKE_SOURCE_DIR}/scripts/emscripten_skeleton.html
+	--source-map-base ${CMAKE_CURRENT_BINARY_DIR}
+)
+
+if("${CMAKE_BUILD_TYPE}" MATCHES "Release")
+	add_compile_options(-O3 -flto)
+	add_link_options(-O3 -flto)
+else()
+	add_compile_options(-gsource-map)
+	add_link_options(
+		-gsource-map
+		-sDEMANGLE_SUPPORT=1
+		-sASSERTIONS=2
+		-sNO_EXIT_RUNTIME=0 
+		-sSAFE_HEAP=0)
 endif()
-
-SET(CMAKE_EXECUTABLE_SUFFIX ".html")

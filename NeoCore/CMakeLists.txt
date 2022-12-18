@@ -4,10 +4,6 @@ file(GLOB SOURCES src/*.c*)
 
 set(CMAKE_SHARED_LIBRARY_PREFIX "")
 
-set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
-set(THREADS_PREFER_PTHREAD_FLAG TRUE)
-find_package(Threads REQUIRED)
-
 if(NEO_BUILD_SHARED_LIBS)
 	add_library(NeoCore SHARED ${SOURCES} ${HEADERS})
 else()
@@ -28,6 +24,10 @@ endif()
 
 if(EMSCRIPTEN OR NEO_SINGLE_THREAD)
 	target_compile_definitions(NeoCore PUBLIC -DNEO_SINGLE_THREAD)
+else()
+	set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
+	set(THREADS_PREFER_PTHREAD_FLAG TRUE)
+	find_package(Threads REQUIRED)
 endif()
 
 target_compile_definitions(NeoCore PRIVATE -DNEO_CORE_DLL)

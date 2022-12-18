@@ -9,9 +9,15 @@ using namespace Neo;
 
 Platform::Platform(const char* soundDevice)
 {
-	if(SDL_Init(SDL_INIT_EVERYTHING))
+	#ifndef EMSCRIPTEN
+	const auto sdl_init = SDL_INIT_EVERYTHING;
+	#else
+	const auto sdl_init = SDL_INIT_VIDEO | SDL_INIT_EVENTS;
+	#endif
+
+	if(SDL_Init(sdl_init))
 	{
-		std::cerr << "Could not initialize SDL2!" << std::endl;
+		std::cerr << "Could not initialize SDL2: " << SDL_GetError() << std::endl;
 		exit(1);
 	}
 	

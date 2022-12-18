@@ -8,12 +8,19 @@ if(WII)
 	add_subdirectory(assets/zipvfs)
 elseif(EMSCRIPTEN)
 	add_subdirectory(sdl2)
-	add_subdirectory(graphics/bgfx)
+	#add_subdirectory(graphics/bgfx)
+	add_subdirectory(graphics/opengl)
 	add_subdirectory(assets/assimp)
 	add_subdirectory(assets/png)
+	add_subdirectory(assets/tinygltf)
 	add_subdirectory(assets/sound)
-	
 	add_subdirectory(assets/physfs)
+	add_subdirectory(bullet)
+
+	set(FLATBUFFERS_BUILD_TESTS FALSE CACHE BOOL "" FORCE)
+	set(FLATBUFFERS_BUILD_FLATC TRUE CACHE BOOL "" FORCE)
+
+	add_subdirectory(3rdparty/flatbuffers-external)
 else()
 
 	# For freetype etc.

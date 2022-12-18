@@ -31,6 +31,9 @@ include(CopyFiles)
 include(ExternalProject)
 
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 set(SANITIZER "address" CACHE STRING "The sanitizer to use")
 
